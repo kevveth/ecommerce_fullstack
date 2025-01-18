@@ -1,0 +1,56 @@
+# Node Modules
+node_modules/
+
+# Build/Output Directories
+dist/
+build/
+out/
+coverage/
+
+# IDE/Editor-Specific
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+
+# Cache
+.cache/
+**/.cache
+
+# Environment Variables
+.env
+.env.*
+!.env.example
+
+# OS Generated
+Thumbs.db
+
+# Temporary Files
+*.tmp
+*~
+
+# TypeScript Build
+dist-types/
+
+# TypeScript Build Info
+*.tsbuildinfo
+
+# Backup Files
+*.bak
+
+# React specific build
+client/build
+
+# Specific to macOS
+._*
+
+# VS Code extensions
+*.vsix
+
+# Yarn-specific
+.yarn/
+.pnp.*
