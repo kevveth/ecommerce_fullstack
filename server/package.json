@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "tsx --watch src/app.ts",
-    "dev": "nodemon src/app.ts",
-    "build": "tsc -p ."
+    "start": "node dist/app.js",
+    "dev": "tsx --watch src/app.ts",
+    "build": "tsc -p .",
+    "test": "vitest"
   },
   "type": "module",
   "keywords": [],
@@ -21,8 +22,9 @@
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.7",
-    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.2"
   }
 }
