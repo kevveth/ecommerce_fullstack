@@ -6,7 +6,7 @@
     "start": "node dist/app.js",
     "dev": "tsx --watch src/app.ts",
     "build": "tsc -p .",
-    "test": "vitest"
+    "test": "vitest --coverage"
   },
   "type": "module",
   "keywords": [],
@@ -17,11 +17,14 @@
     "@types/cors": "^2.8.17",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "pg": "^8.13.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.7",
+    "@types/pg": "^8.11.10",
+    "@vitest/coverage-v8": "^3.0.2",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",
