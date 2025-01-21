@@ -1,4 +1,4 @@
-import { pool } from './db/database';
+import { pool } from '../../database/db/database';
 import Product from '../types/product';
 
 const table = "products"
