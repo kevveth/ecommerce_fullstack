@@ -1,30 +1,32 @@
 import { pool } from "../../database/db/database";
-import { QueryResult } from "pg";
 import { User } from "../types/user";
 
 // Creates a new user.
-function create(user: User) {
-  pool.query("INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING *;", [user.username, user.email, user.password]);
+export async function create(user: User): Promise<User["user_id"]> {
+  const result = await pool.query("INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING user_id;", [user.username, user.email, user.password_hash]);
+
+  return result.rows[0];
 }
 
 // Retrieves a user by ID or username.
-function get(id: number): Promise<QueryResult>;
-function get(username: string): Promise<QueryResult>;
-function get(identifier: number | string): Promise<QueryResult> {
+export async function get(id: number): Promise<User>;
+export async function get(username: string): Promise<User>;
+export async function get(identifier: number | string): Promise<User> {
   const query =
     typeof identifier === "number"
       ? "SELECT * FROM users WHERE user_id = $1"
       : "SELECT * FROM users WHERE username = $1";
 
-  return pool.query(query, [identifier]);
+  const result = await pool.query(query, [identifier]);
+  return result.rows[0];
 }
 
 // Updates a user's information.
-function update(
-  id: User["userId"],
+export async function update(
+  id: User["user_id"],
   updatedUser: Partial<Omit<User, "userId" | "password">>
-): Promise<QueryResult> {
-  const { username, email, streetAddress, city, state, zipCode, country } =
+): Promise<User> {
+  const { username, email, street_address, city, state, zip_code, country } =
     updatedUser;
 
   const setClauses: string[] = [];
@@ -41,9 +43,9 @@ function update(
     updateValues.push(email);
   }
 
-  if (streetAddress) {
+  if (street_address) {
     setClauses.push("street_address = ?");
-    updateValues.push(streetAddress);
+    updateValues.push(street_address);
   }
 
   if (city) {
@@ -56,9 +58,9 @@ function update(
     updateValues.push(state);
   }
 
-  if (zipCode) {
+  if (zip_code) {
     setClauses.push("zip_code = ?");
-    updateValues.push(zipCode);
+    updateValues.push(zip_code);
   }
 
   if (country) {
@@ -71,21 +73,12 @@ function update(
     ", "
   )} WHERE user_id = ? RETURNING *`;
 
-  return pool.query(query, [...updateValues, id]);
+  const result = await pool.query(query, [...updateValues, id]);
+  return result.rows[0];
 }
 
 // Removes a user from the database.
-function remove(id: User["userId"]) {
-  pool.query("DELETE FROM users WHERE user_id = ?", [id]);
+export async function remove(id: User["user_id"]) {
+  const result = await pool.query("DELETE FROM users WHERE user_id = ?", [id]);
+  return result;
 }
-
-
-const users = {
-  create,
-  get,
-  update,
-  remove
-};
-
-
-export default users;
