@@ -1,6 +1,6 @@
 import { pool } from "../../database/db/database";
 import { QueryResult } from "pg";
-import { User, UserOptions } from "../types/user";
+import { User } from "../types/user";
 
 function create(user: User): Promise<QueryResult> {
   const query =
