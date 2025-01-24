@@ -2,8 +2,9 @@ import { config } from "dotenv";
 config();
 
 import express from "express";
+import "express-async-errors";
 import cors, { CorsOptions } from "cors";
-import apiRoutes from "../src/routes/index"
+import apiRoutes from "./routes/index"
 import { errorHandler } from "./middleware/errors";
 
 const corsOptions: CorsOptions = {
