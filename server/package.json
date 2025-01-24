@@ -1,14 +1,14 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "start": "node dist/app.js",
-    "dev": "nodemon src/app.ts",
+    "dev": "tsc --watch src/app.ts",
     "build": "tsc -p .",
-    "test": "vitest --coverage"
+    "test": "vitest --coverage",
+    "dev-server": "tsc-watch --noClear -p ./tsconfig.json --onSuccess \"node ./dist/app.js\""
   },
-  "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
