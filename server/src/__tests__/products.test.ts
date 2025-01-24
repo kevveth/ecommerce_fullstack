@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import * as db from '../../database/database'; // Assuming this file handles the database connection
+import * as db from '../database/database'; // Assuming this file handles the database connection
 import Product from '../types/product'; // Assuming this is your product type definition
 
 

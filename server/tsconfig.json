@@ -108,6 +108,6 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
-  "include": ["src/**/*", "database/db"],
+  "include": ["src/**/*", "src/database/db"],
   "exclude": ["node_modules"]
 }

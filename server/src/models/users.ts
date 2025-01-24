@@ -1,4 +1,4 @@
-import * as db from "../../database/database";
+import * as db from "../database/database";
 import { User } from "../types/user";
 
 // Creates a new user.
