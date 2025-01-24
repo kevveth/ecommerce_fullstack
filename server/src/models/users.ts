@@ -1,9 +1,9 @@
-import { pool } from "../../database/db/database";
+import * as db from "../../database/database";
 import { User } from "../types/user";
 
 // Creates a new user.
 export async function create(user: User): Promise<User["user_id"]> {
-  const result = await pool.query("INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING user_id;", [user.username, user.email, user.password_hash]);
+  const result = await db.query("INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING user_id;", [user.username, user.email, user.password_hash]);
 
   return result.rows[0];
 }
@@ -17,7 +17,7 @@ export async function get(identifier: number | string): Promise<User> {
       ? "SELECT * FROM users WHERE user_id = $1"
       : "SELECT * FROM users WHERE username = $1";
 
-  const result = await pool.query(query, [identifier]);
+  const result = await db.query(query, [identifier]);
   return result.rows[0];
 }
 
@@ -73,12 +73,12 @@ export async function update(
     ", "
   )} WHERE user_id = ? RETURNING *`;
 
-  const result = await pool.query(query, [...updateValues, id]);
+  const result = await db.query(query, [...updateValues, id]);
   return result.rows[0];
 }
 
 // Removes a user from the database.
 export async function remove(id: User["user_id"]) {
-  const result = await pool.query("DELETE FROM users WHERE user_id = ?", [id]);
+  const result = await db.query("DELETE FROM users WHERE user_id = ?", [id]);
   return result;
 }
