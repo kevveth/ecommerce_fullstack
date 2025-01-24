@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { pool } from '../../database/db/database'; // Assuming this file handles the database connection
+import * as db from '../../database/database'; // Assuming this file handles the database connection
 import Product from '../types/product'; // Assuming this is your product type definition
 
 
@@ -22,7 +22,7 @@ describe('get products', () => {
   // });
 
   it('should retrieve all products', async () => {
-    const result = await pool.query('SELECT * FROM products;');
+    const result = await db.query('SELECT * FROM products;');
     const products = result.rows as Product[];
     console.log(products);
     expect(products).toBeDefined();

@@ -1,8 +1,8 @@
-import { pool } from '../../database/db/database';
+import * as db from '../../database/database';
 import Product from '../types/product';
 
 const table = "products"
 
 export async function get() {
-    pool.query("SELECT * FROM $1 ;", [table]);
+    db.query("SELECT * FROM $1 ;", [table]);
 }

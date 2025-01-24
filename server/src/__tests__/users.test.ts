@@ -7,13 +7,11 @@ const testUser: User = { user_id: 3, username: "testuser", email: "testuser@exam
 describe("User Queries", () => {
   test("Get a user by ID ", async () => {
     const response = await get(3);
-    console.log(response)
     expect(response.user_id).toEqual(testUser.user_id);
   });
 
   test("Get a user by username", async () => {
     const response = await get('testuser');
-    console.log(response)
     expect(response).toEqual(testUser);
   });
   
