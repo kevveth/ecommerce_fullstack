@@ -1,4 +1,4 @@
-import { Request, RequestHandler, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 
 interface AsyncHandler<T> {
   (req: Request<any>, res: Response<any>, next: NextFunction): T;

@@ -3,7 +3,10 @@ import { User } from "../types/user";
 
 // Creates a new user.
 export async function create(user: User): Promise<User["user_id"]> {
-  const result = await db.query("INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING user_id;", [user.username, user.email, user.password_hash]);
+  const result = await db.query(
+    "INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING user_id;",
+    [user.username, user.email, user.password_hash]
+  );
 
   return result.rows[0];
 }
@@ -27,7 +30,6 @@ export async function update(
 
   const setClauses: string[] = [];
   const updateValues: any[] = []; // Use any[] to allow various data types
-
 
   if (username) {
     setClauses.push("username = ?");
@@ -63,7 +65,6 @@ export async function update(
     setClauses.push("country = ?");
     updateValues.push(country);
   }
-
 
   const query = `UPDATE users SET ${setClauses.join(
     ", "
