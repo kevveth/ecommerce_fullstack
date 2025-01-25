@@ -4,8 +4,8 @@ config();
 import express from "express";
 import "express-async-errors";
 import cors, { CorsOptions } from "cors";
-import apiRoutes from "./routes/index"
-import { errorHandler } from "./middleware/errors";
+import apiRoutes from "./routes/index.js";
+import { errorHandler } from "./middleware/errors.js";
 
 const corsOptions: CorsOptions = {
   origin: `http://localhost:5173`,
@@ -24,8 +24,7 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
-app.use('/api', apiRoutes);
-
+app.use("/api", apiRoutes);
 
 // Error Handling
 app.use(errorHandler);
