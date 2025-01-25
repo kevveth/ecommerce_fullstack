@@ -1,7 +1,7 @@
 import { Request, RequestHandler, Response, NextFunction } from "express";
 
 interface AsyncHandler<T> {
-  (req: Request, res: Response, next: NextFunction): T;
+  (req: Request<any>, res: Response<any>, next: NextFunction): T;
 }
 
 const asyncErrorHandler = (
