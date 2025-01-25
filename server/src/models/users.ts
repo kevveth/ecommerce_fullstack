@@ -9,15 +9,11 @@ export async function create(user: User): Promise<User["user_id"]> {
 }
 
 // Retrieves a user by ID or username.
-export async function get(id: number): Promise<User>;
-export async function get(username: string): Promise<User>;
-export async function get(identifier: number | string): Promise<User> {
-  const query =
-    typeof identifier === "number"
-      ? "SELECT * FROM users WHERE user_id = $1"
-      : "SELECT * FROM users WHERE username = $1";
 
-  const result = await db.query(query, [identifier]);
+export async function get(id: number): Promise<User> {
+  const query = "SELECT * FROM users WHERE user_id = $1";
+  const result = await db.query(query, [id]);
+
   return result.rows[0];
 }
 
