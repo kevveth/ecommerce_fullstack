@@ -26,3 +26,23 @@ export async function getUser(
   const user = await Users.get(id);
   res.status(200).send({ data: user });
 }
+
+export async function updateUser(
+  req: Request<{ id: string }, {}, Partial<Omit<User, "userId" | "password">>>,
+  res: Response<UserDTO>
+): Promise<void> {
+  const id = parseInt(req.params.id)
+  const updates = req.body
+  console.log(updates);
+  
+  if (!id) {
+    throw new Error("ID is required");
+  }
+
+  const updatedUser: User = await Users.update(id, updates);
+  if (!updatedUser) {
+    throw new Error(`User with ID: ${id} not found`)
+  }
+
+  res.status(200).send({ data: updatedUser });
+}

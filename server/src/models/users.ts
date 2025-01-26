@@ -29,46 +29,55 @@ export async function update(
     updatedUser;
 
   const setClauses: string[] = [];
-  const updateValues: any[] = []; // Use any[] to allow various data types
+  const updateValues: string[] = []; // Use any[] to allow various data types
+  let index = 1;
 
   if (username) {
-    setClauses.push("username = ?");
+    setClauses.push(`username = $${index}`);
     updateValues.push(username);
+    index++;
   }
 
   if (email) {
-    setClauses.push("email = ?");
+    setClauses.push(`email = $${index}`);
     updateValues.push(email);
+    index++;
   }
 
   if (street_address) {
-    setClauses.push("street_address = ?");
+    setClauses.push(`street_address = $${index}`);
     updateValues.push(street_address);
+    index++;
   }
 
   if (city) {
-    setClauses.push("city = ?");
+    setClauses.push(`city = $${index}`);
     updateValues.push(city);
+    index++;
   }
 
   if (state) {
-    setClauses.push("state = ?");
+    setClauses.push(`state = $${index}`);
     updateValues.push(state);
+    index++;
   }
 
   if (zip_code) {
-    setClauses.push("zip_code = ?");
+    setClauses.push(`zip_code = $${index}`);
     updateValues.push(zip_code);
+    index++;
   }
 
   if (country) {
-    setClauses.push("country = ?");
+    setClauses.push(`country = $${index}`);
     updateValues.push(country);
+    index++;
   }
 
   const query = `UPDATE users SET ${setClauses.join(
     ", "
-  )} WHERE user_id = ? RETURNING *`;
+  )} WHERE user_id = $${index} RETURNING *;`;
+  console.log(query)
 
   const result = await db.query(query, [...updateValues, id]);
   return result.rows[0];
