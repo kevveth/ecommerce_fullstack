@@ -59,7 +59,7 @@ export async function getUser(
 }
 
 export async function updateUser(
-  req: Request<{ id: string }, {}, Partial<Omit<User, "userId" | "password">>>,
+  req: Request<{ id: string }, {}, Partial<Omit<User, "user_id" | "password_hash">>>,
   res: Response<UserDTO>
 ): Promise<void> {
   const id = parseInt(req.params.id);
