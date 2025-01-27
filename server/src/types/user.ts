@@ -1,4 +1,4 @@
-export interface User {
+export type User = {
   user_id?: number; // Optional if it's auto-generated
   username: string;
   email: string;
