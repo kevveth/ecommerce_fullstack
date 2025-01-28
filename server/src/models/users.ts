@@ -6,8 +6,14 @@ interface CreateUserDTO {
   email: string;
   password_hash: string;
 }
+
+export interface UserResult {
+  query: string;
+  user?: User;
+}
+
 // Creates a new user.
-export async function create(credentials: CreateUserDTO): Promise<User> {
+export async function create(credentials: CreateUserDTO): Promise<UserResult> {
   const query =
     "INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING user_id;";
   console.log(query);
@@ -17,27 +23,30 @@ export async function create(credentials: CreateUserDTO): Promise<User> {
     credentials.password_hash,
   ]);
 
-  return result.rows[0];
+  return { query, user: result.rows[0] };
 }
 
 // Retrieves a user by ID or username.
-export async function get(id: User["user_id"]): Promise<User> {
+export async function get(id: User["user_id"]): Promise<UserResult> {
   const query = "SELECT * FROM users WHERE user_id = $1";
   const result = await db.query(query, [id]);
 
-  return result.rows[0];
+  return {
+    query,
+    user: result.rows[0],
+  };
 }
 
 // Updates a user's information.
 export async function update(
   id: User["user_id"],
-  updatedUser: Partial<Omit<User, "userId" | "password">>
-): Promise<User> {
+  values: Partial<Omit<User, "user_id" | "password_hash">>
+): Promise<UserResult> {
   const { username, email, street_address, city, state, zip_code, country } =
-    updatedUser;
+    values;
 
   const setClauses: string[] = [];
-  const updateValues: string[] = []; // Use any[] to allow various data types
+  const updateValues: string[] = []; 
   let index = 1;
 
   if (username) {
@@ -88,11 +97,16 @@ export async function update(
   console.log(query);
 
   const result = await db.query(query, [...updateValues, id]);
-  return result.rows[0];
+
+  return {
+    query,
+    user: result.rows[0],
+  };
 }
 
 // Removes a user from the database.
-export async function remove(id: User["user_id"]) {
-  const result = await db.query("DELETE FROM users WHERE user_id = $1", [id]);
-  return result;
+export async function remove(id: User["user_id"]): Promise<UserResult> {
+  const query = "DELETE FROM users WHERE user_id = $1 RETURNING *;";
+  const result = await db.query(query, [id]);
+  return { query, user: result.rows[0] };
 }
