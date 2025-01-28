@@ -79,7 +79,7 @@ export async function updateUser(
 }
 
 export async function deleteUser(
-  req: Request<{ id: string }>,
+  req: Request<{ id: number }>,
   res: Response<{ data: Partial<User>}>
 ): Promise<void> {
   const { id } = req.params;
@@ -92,6 +92,6 @@ export async function deleteUser(
     });
   }
 
-  const deletedUser = await Users.remove(parseInt(id));
+  const deletedUser = await Users.remove(id);
   res.status(204).send({ data: deletedUser.rows[0] })
 }
