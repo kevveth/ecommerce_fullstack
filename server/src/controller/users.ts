@@ -77,3 +77,21 @@ export async function updateUser(
   const updatedUser: User = await Users.update(id, updates);
   res.status(200).send({ data: updatedUser });
 }
+
+export async function deleteUser(
+  req: Request<{ id: string }>,
+  res: Response<{ data: Partial<User>}>
+): Promise<void> {
+  const { id } = req.params;
+
+  if (!id) {
+    throw new BadRequestError({
+      code: 400,
+      message: "ID is required",
+      logging: true,
+    });
+  }
+
+  const deletedUser = await Users.remove(parseInt(id));
+  res.status(204).send({ data: deletedUser.rows[0] })
+}

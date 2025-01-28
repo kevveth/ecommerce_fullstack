@@ -2,22 +2,26 @@ import * as db from "../database/database";
 import { User } from "../types/user";
 
 interface CreateUserDTO {
-  username: string,
-  email: string,
-  password_hash: string
+  username: string;
+  email: string;
+  password_hash: string;
 }
 // Creates a new user.
-export async function create(user: CreateUserDTO): Promise<User> {
-  const result = await db.query(
-    "INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING user_id;",
-    [user.username, user.email, user.password_hash]
-  );
+export async function create(credentials: CreateUserDTO): Promise<User> {
+  const query =
+    "INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING user_id;";
+  console.log(query);
+  const result = await db.query(query, [
+    credentials.username,
+    credentials.email,
+    credentials.password_hash,
+  ]);
 
   return result.rows[0];
 }
 
 // Retrieves a user by ID or username.
-export async function get(id: number): Promise<User> {
+export async function get(id: User["user_id"]): Promise<User> {
   const query = "SELECT * FROM users WHERE user_id = $1";
   const result = await db.query(query, [id]);
 
@@ -88,7 +92,7 @@ export async function update(
 }
 
 // Removes a user from the database.
-export async function remove(id: User) {
-  const result = await db.query("DELETE FROM users WHERE user_id = ?", [id]);
+export async function remove(id: User["user_id"]) {
+  const result = await db.query("DELETE FROM users WHERE user_id = $1", [id]);
   return result;
 }
