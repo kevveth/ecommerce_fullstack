@@ -1,15 +1,14 @@
-import { config } from "dotenv";
+import { config } from 'dotenv';
 config();
 
-import express from "express";
-import { Request, Response } from "express-serve-static-core";
-import "express-async-errors";
-import session from "express-session";
-import passport from "passport";
-import cors, { CorsOptions } from "cors";
-import apiRoutes from "./routes/index";
-import { errorHandler } from "./middleware/errors";
-import { initPassport, isAuthenticated } from "./middleware/passport.mw";
+import express from 'express';
+import { Request, Response } from 'express-serve-static-core';
+import 'express-async-errors';
+import session from 'express-session';
+import cors, { CorsOptions } from 'cors';
+import apiRoutes from './routes/index';
+import { errorHandler } from './middleware/errors';
+import { initPassport, isAuthenticated } from './middleware/passport.mw';
 
 const corsOptions: CorsOptions = {
   origin: `http://localhost:5173`,
@@ -34,22 +33,13 @@ app.use(
 initPassport(app);
 
 // Routes
-app.get("/", (req, res) => {
+app.get('/', (req, res) => {
   res.send("Hello World!");
 });
 
-app.use("/api", apiRoutes);
+app.use('/api', apiRoutes);
 
-app.post(
-  "/api/login",
-  passport.authenticate("local"),
-  async (req: Request, res: Response) => {
-    res.json("You logged in!");
-    console.log(req.body);
-  }
-);
-
-app.get("/api/user", isAuthenticated, async (req: Request, res: Response) => {
+app.get('/api/user', isAuthenticated, async (req: Request, res: Response) => {
   res.send({ user: req.user });
 });
 

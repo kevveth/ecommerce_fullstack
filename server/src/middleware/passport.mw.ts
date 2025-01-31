@@ -53,9 +53,9 @@ export function isAuthenticated(
     return next();
   } else {
     const err = new UnauthorizedError({
-        message: "You are not authenticated!",
-        logging: true
-    })
+      message: "You are not authenticated!",
+      logging: true,
+    });
     return next(err);
   }
 }
