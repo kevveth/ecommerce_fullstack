@@ -2,18 +2,18 @@ import { config } from "dotenv"; // Import environment variables
 config();
 
 import { Request, Response, NextFunction } from "express-serve-static-core";
-import { create, get, update, remove, UserResult } from "../models/users"; 
+import { create, get, update, remove, UserResult } from "../models/users";
 import { User } from "../types/user";
 import BadRequestError from "../errors/BadRequestError";
 import bcrypt from "bcrypt";
 import NotFoundError from "../errors/NotFoundError";
 
-
 //Handles creating a new user.
 export async function createUser(req: Request, res: Response): Promise<void> {
   const { username, email, password } = req.body; // Destructure username, email, and password from the request body
 
-  if (!username || !email || !password) { //Check for missing fields
+  if (!username || !email || !password) {
+    //Check for missing fields
     throw new BadRequestError({
       message: "Missing a required field!",
       logging: true,
@@ -45,7 +45,8 @@ export async function getUser(
 ): Promise<void> {
   const { id } = req.params; // Get user ID from request parameters
 
-  if (!id) { // Check if ID is present
+  if (!id) {
+    // Check if ID is present
     throw new BadRequestError({
       code: 400,
       message: "ID is required",
@@ -56,7 +57,8 @@ export async function getUser(
   const result: UserResult = await get(id); // Get the user from the database
   const { user, query } = result;
 
-  if (!user) { // Check if user exists
+  if (!user) {
+    // Check if user exists
     throw new NotFoundError({
       message: "User not found!",
       logging: true,
@@ -79,7 +81,8 @@ export async function updateUser(
   const { id } = req.params; // Get user ID from request parameters
   const updates = req.body; // Get update data from request body
 
-  if (!id) { // Check if ID is present
+  if (!id) {
+    // Check if ID is present
     throw new BadRequestError({
       code: 400,
       message: "ID is required",
@@ -90,7 +93,8 @@ export async function updateUser(
   const result: UserResult = await update(id, updates); // Update the user in the database
   const { query, user } = result;
 
-  if (!user){ // Check if user exists
+  if (!user) {
+    // Check if user exists
     throw new NotFoundError({
       message: "User not found!",
       logging: true,
@@ -108,7 +112,8 @@ export async function deleteUser(
 ): Promise<void> {
   const { id } = req.params; // Get user ID from request parameters
 
-  if (!id) { // Check if ID is present
+  if (!id) {
+    // Check if ID is present
     throw new BadRequestError({
       message: "ID is required",
       logging: true,
@@ -118,7 +123,8 @@ export async function deleteUser(
   const result: UserResult = await remove(id); // Delete the user from the database
   const { user, query } = result;
 
-  if (!user) { // Check if user exists
+  if (!user) {
+    // Check if user exists
     throw new NotFoundError({
       message: "User not found!",
       logging: true,

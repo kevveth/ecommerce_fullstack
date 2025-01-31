@@ -26,10 +26,20 @@ export async function create(credentials: CreateUserDTO): Promise<UserResult> {
   return { query, user: result.rows[0] };
 }
 
-// Retrieves a user by ID or username.
+// Retrieves a user by ID
 export async function get(id: User["user_id"]): Promise<UserResult> {
   const query = "SELECT * FROM users WHERE user_id = $1";
   const result = await db.query(query, [id]);
+
+  return {
+    query,
+    user: result.rows[0],
+  };
+}
+
+export async function getWithEmail(email: User["email"]): Promise<UserResult> {
+  const query = "SELECT * FROM users WHERE email = $1";
+  const result = await db.query(query, [email]);
 
   return {
     query,
@@ -55,16 +65,15 @@ export async function update(
     index++; // Increment the index for the next placeholder
   });
 
-
   //Handle case where no values to update
   if (setClauses.length === 0) {
     return { query: "", user: undefined };
   }
 
   // Build the SQL query dynamically
-  const query = `UPDATE users SET ${setClauses.join(", ")} WHERE user_id = $${
-    index
-  } RETURNING *;`;
+  const query = `UPDATE users SET ${setClauses.join(
+    ", "
+  )} WHERE user_id = $${index} RETURNING *;`;
   console.log(query); // Log the query for debugging
 
   // Execute the SQL query using the database connection
@@ -72,7 +81,6 @@ export async function update(
 
   return { query, user: result.rows[0] };
 }
-
 
 // Removes a user from the database.
 export async function remove(id: User["user_id"]): Promise<UserResult> {
