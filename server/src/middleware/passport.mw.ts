@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import { Express, Request, Response, NextFunction } from "express";
 import { User } from "../types/user";
 import { getWithEmail, UserResult } from "../models/users";
+import UnauthorizedError from "../errors/UnauthorizedError";
 
 export function initPassport(app: Express) {
   app.use(passport.initialize());
@@ -52,6 +53,9 @@ export function isAuthenticated(
   if (req.user) {
     return next();
   } else {
-    res.send("You are not authenticated!");
+    const err = new UnauthorizedError({
+        message: "You are not authenticated!"
+    })
+    next(err);
   }
 }
