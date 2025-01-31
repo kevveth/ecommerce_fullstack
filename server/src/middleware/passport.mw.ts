@@ -8,7 +8,6 @@ import UnauthorizedError from "../errors/UnauthorizedError";
 
 export function initPassport(app: Express) {
   app.use(passport.initialize());
-  // app.use(passport.authenticate('session'));
   app.use(passport.session());
 
   passport.use(
@@ -54,8 +53,9 @@ export function isAuthenticated(
     return next();
   } else {
     const err = new UnauthorizedError({
-        message: "You are not authenticated!"
+        message: "You are not authenticated!",
+        logging: true
     })
-    next(err);
+    return next(err);
   }
 }
