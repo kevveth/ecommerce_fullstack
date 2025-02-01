@@ -39,7 +39,8 @@ export function initPassport(app: Express) {
   });
 
   passport.deserializeUser(async (user: User, done) => {
-    const u = await getWithEmail(user.email);
+    const result = await getWithEmail(user.email);
+    const u = result.user;
     done(null, u);
   });
 }

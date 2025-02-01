@@ -2,14 +2,14 @@ import { config } from "dotenv"; // Import environment variables
 config();
 
 import { Request, Response, NextFunction } from "express-serve-static-core";
-import { create, get, update, remove, UserResult } from "../models/users";
+import { create, get, getWithEmail, update, remove, UserResult } from "../models/users";
 import { User } from "../types/user";
 import BadRequestError from "../errors/BadRequestError";
 import bcrypt from "bcrypt";
 import NotFoundError from "../errors/NotFoundError";
 
 //Handles creating a new user.
-export async function createUser(req: Request, res: Response): Promise<void> {
+export async function createUser(req: Request, res: Response) {
   const { username, email, password } = req.body; // Destructure username, email, and password from the request body
 
   if (!username || !email || !password) {
@@ -20,21 +20,28 @@ export async function createUser(req: Request, res: Response): Promise<void> {
     });
   }
 
+  const userAlreadyExists = await getWithEmail(email);
+  if(userAlreadyExists.user) {
+    throw new BadRequestError({
+      message: "User already exists!",
+      logging: true,
+    });
+  }
+
   // Hash Password using bcrypt
   const rounds = parseInt(process.env.SALT_ROUNDS as string);
   const salt = await bcrypt.genSalt(rounds);
   const password_hash = await bcrypt.hash(password, salt);
 
-  const result: UserResult = await create({
+  const result = await create({
     username,
     email,
     password_hash,
   });
 
-  const newUser = result.user;
+  const { query, user } = result;
 
-  // TODO: Replace force unwrap
-  res.status(201).send({ data: newUser! }); // Send the newly created user with 201 status code
+  res.status(201).send({ data: user }); // Send the newly created user with 201 status code
 }
 
 //Handles getting a user by ID
