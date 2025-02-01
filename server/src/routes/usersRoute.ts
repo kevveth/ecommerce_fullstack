@@ -8,7 +8,7 @@ import {
 
 const router: Router = express.Router();
 
-router.post("/", createUser);
+// router.post("/", createUser);
 router.get("/:id", getUser);
 router.put("/:id", updateUser);
 router.delete("/:id", deleteUser);
