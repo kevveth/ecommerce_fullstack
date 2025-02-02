@@ -3,7 +3,7 @@ import passport from "passport";
 import bcrypt from "bcrypt";
 import { Express, Request, Response, NextFunction } from "express";
 import { User } from "../models/user.model";
-import { getWithEmail, UserResult } from "../services/users";
+import { getWithEmail } from "../services/users";
 import UnauthorizedError from "../errors/UnauthorizedError";
 
 export function initPassport(app: Express) {
@@ -17,8 +17,7 @@ export function initPassport(app: Express) {
         try {
           if (!email) done(null, false);
 
-          const result: UserResult = await getWithEmail(email);
-          const user: User = result.user!;
+          const user = await getWithEmail(email);
           if (
             user.email === email &&
             (await bcrypt.compare(password, user.password_hash.toString()))
@@ -39,8 +38,7 @@ export function initPassport(app: Express) {
   });
 
   passport.deserializeUser(async (user: User, done) => {
-    const result = await getWithEmail(user.email);
-    const u = result.user;
+    const u = await getWithEmail(user.email);
     done(null, u);
   });
 }
