@@ -1,5 +1,4 @@
 import * as db from '../database/database';
-import Product from '../types/product';
 
 const table = "products"
 
