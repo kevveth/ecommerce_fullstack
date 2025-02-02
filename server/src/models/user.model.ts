@@ -36,7 +36,7 @@ export type NewUser = z.infer<typeof newUserSchema>;
 
 async function checkEmailExists(email: string): Promise<Boolean> {
   const user = await getWithEmail(email);
-  return user ? true : false;
+  return !!user;
 }
 
 export const updateUserSchema = userSchema
