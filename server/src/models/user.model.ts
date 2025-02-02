@@ -9,7 +9,7 @@ export const userSchema = z.object({
   street_address: z.string().optional(),
   city: z.string().optional(),
   state: z.string().optional(),
-  zip_code: z.number().int().optional(),
+  zip_code: z.string().optional(),
   country: z.string().optional(),
 });
 export type User = z.infer<typeof userSchema>;
