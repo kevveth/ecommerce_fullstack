@@ -7,14 +7,6 @@ import BadRequestError from "../errors/BadRequestError";
 export async function registerUser(req: Request, res: Response) {
   const { username, email, password } = req.body; // Destructure username, email, and password from the request body
 
-  if (!username || !email || !password) {
-    //Check for missing fields
-    throw new BadRequestError({
-      message: "Missing a required field!",
-      logging: true,
-    });
-  }
-
   const userAlreadyExists = await getWithEmail(email);
   if(userAlreadyExists.user) {
     throw new BadRequestError({
@@ -26,12 +18,12 @@ export async function registerUser(req: Request, res: Response) {
   // Hash Password using bcrypt
   const rounds = parseInt(process.env.SALT_ROUNDS as string);
   const salt = await bcrypt.genSalt(rounds);
-  const password_hash = await bcrypt.hash(password, salt);
+  const passwordHash = await bcrypt.hash(password, salt);
 
   const result = await create({
     username,
     email,
-    password_hash,
+    password: passwordHash,
   });
 
   const { query, user } = result;
