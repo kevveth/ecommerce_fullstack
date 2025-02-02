@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { getWithEmail } from "../services/users";
 
+// Zod schema for a complete User object
 export const userSchema = z.object({
-  user_id: z.number().int().optional(),
+  user_id: z.number().int().optional(), // Optional ID, auto-generated
   username: z.string(),
   email: z.string().email(),
   password_hash: z.string(),
@@ -14,6 +15,7 @@ export const userSchema = z.object({
 });
 export type User = z.infer<typeof userSchema>;
 
+// Zod schema for creating new users (subset of userSchema + password)
 export const newUserSchema = userSchema
   .pick({
     username: true,
@@ -22,24 +24,21 @@ export const newUserSchema = userSchema
   .extend({
     password: z.string(),
   })
-  .refine(
-    async (data) => {
-      const emailExists = await checkEmailExists(data.email);
-      return !emailExists;
-    },
-    {
-      message: "Email already exists",
-      path: ["email"],
-    }
-  );
+  .refine(async (data) => !await checkEmailExists(data.email), {
+    message: "Email already exists",
+    path: ["email"],
+  });
 export type NewUser = z.infer<typeof newUserSchema>;
 
-async function checkEmailExists(email: string): Promise<Boolean> {
+// Asynchronous function to check if an email exists in the database
+async function checkEmailExists(email: string): Promise<boolean> {
   const user = await getWithEmail(email);
   return !!user;
 }
 
+// Zod schema for updating existing users (omitting ID and password)
 export const updateUserSchema = userSchema
   .omit({ user_id: true, password_hash: true })
   .partial();
 export type UpdateableUser = z.infer<typeof updateUserSchema>;
+
