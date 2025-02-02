@@ -24,7 +24,7 @@ export const newUserSchema = userSchema
   .extend({
     password: z.string(),
   })
-  .refine(async (data) => !await checkEmailExists(data.email), {
+  .refine(async (data) => !(await checkEmailExists(data.email)), {
     message: "Email already exists",
     path: ["email"],
   });
@@ -41,4 +41,3 @@ export const updateUserSchema = userSchema
   .omit({ user_id: true, password_hash: true })
   .partial();
 export type UpdateableUser = z.infer<typeof updateUserSchema>;
-
