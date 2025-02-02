@@ -2,7 +2,7 @@ import { config } from "dotenv"; // Import environment variables
 config();
 
 import { Request, Response, NextFunction } from "express-serve-static-core";
-import { get, update, remove, UserResult } from "../services/users";
+import { get, update, remove } from "../services/users";
 import { UpdateableUser, updateUserSchema, User, userSchema } from "../models/user.model";
 import BadRequestError from "../errors/BadRequestError";
 import NotFoundError from "../errors/NotFoundError";
@@ -26,15 +26,14 @@ export async function getUser(
     });
   }
 
-  const result: UserResult = await get(id); // Get the user from the database
-  const { user, query } = result;
+  const user = await get(id); // Get the user from the database
 
   if (!user) {
     // Check if user exists
     throw new NotFoundError({
       message: "User not found!",
       logging: true,
-      context: { query, id },
+      context: { path: "/users/:id", id, method: "GET" },
     });
   }
 
@@ -62,14 +61,13 @@ export async function updateUser(
     });
   }
 
-  const result: UserResult = await update(id, updates); // Update the user in the database
-  const { query, user } = result;
+  const user = await update(id, updates); // Update the user in the database
 
   if (!user) {
     throw new NotFoundError({
       message: "User not found!",
       logging: true,
-      context: { query, id },
+      context: { path: "/users/:id", id, method: "PUT" },
     })
   }
   res.status(200).send({ data: user }); // Send updated user data with 200 status code
@@ -90,15 +88,14 @@ export async function deleteUser(
     });
   }
 
-  const result: UserResult = await remove(id); // Delete the user from the database
-  const { user, query } = result;
+  const user = await remove(id); // Delete the user from the database
 
   if (!user) {
     // Check if user exists
     throw new NotFoundError({
       message: "User not found!",
       logging: true,
-      context: { query, id },
+      context: { path: "/users/:id", id, method: "DELETE" },
     });
   }
 
