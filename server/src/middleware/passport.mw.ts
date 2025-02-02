@@ -2,8 +2,8 @@ import * as passportStrategy from "passport-local";
 import passport from "passport";
 import bcrypt from "bcrypt";
 import { Express, Request, Response, NextFunction } from "express";
-import { User } from "../types/user";
-import { getWithEmail, UserResult } from "../models/users";
+import { User } from "../models/user.model";
+import { getWithEmail, UserResult } from "../services/users";
 import UnauthorizedError from "../errors/UnauthorizedError";
 
 export function initPassport(app: Express) {
