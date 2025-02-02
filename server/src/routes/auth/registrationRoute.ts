@@ -1,9 +1,8 @@
 //Router for registering a new user.
 import express, { Router } from "express";
-import { createUser } from "../../controller/users";
+import { registerUser } from "../../controller/register";
 const router: Router = express.Router();
 
-
-router.post("/", createUser);
+router.post("/", registerUser);
 
 export default router;

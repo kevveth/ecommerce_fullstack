@@ -2,47 +2,12 @@ import { config } from "dotenv"; // Import environment variables
 config();
 
 import { Request, Response, NextFunction } from "express-serve-static-core";
-import { create, get, getWithEmail, update, remove, UserResult } from "../models/users";
-import { User } from "../types/user";
+import { get, update, remove, UserResult } from "../services/users";
+import { UpdateableUser, updateUserSchema, User, userSchema } from "../models/user.model";
 import BadRequestError from "../errors/BadRequestError";
-import bcrypt from "bcrypt";
 import NotFoundError from "../errors/NotFoundError";
 
-//Handles creating a new user.
-export async function createUser(req: Request, res: Response) {
-  const { username, email, password } = req.body; // Destructure username, email, and password from the request body
 
-  if (!username || !email || !password) {
-    //Check for missing fields
-    throw new BadRequestError({
-      message: "Missing a required field!",
-      logging: true,
-    });
-  }
-
-  const userAlreadyExists = await getWithEmail(email);
-  if(userAlreadyExists.user) {
-    throw new BadRequestError({
-      message: "User already exists!",
-      logging: true,
-    });
-  }
-
-  // Hash Password using bcrypt
-  const rounds = parseInt(process.env.SALT_ROUNDS as string);
-  const salt = await bcrypt.genSalt(rounds);
-  const password_hash = await bcrypt.hash(password, salt);
-
-  const result = await create({
-    username,
-    email,
-    password_hash,
-  });
-
-  const { query, user } = result;
-
-  res.status(201).send({ data: user }); // Send the newly created user with 201 status code
-}
 
 //Handles getting a user by ID
 export async function getUser(
@@ -81,12 +46,12 @@ export async function updateUser(
   req: Request<
     { id: number }, // Request parameters
     {}, // Query parameters
-    Partial<Omit<User, "user_id" | "password_hash">> // Request body
+    UpdateableUser // Request body
   >,
   res: Response
-): Promise<void> {
+) {
   const { id } = req.params; // Get user ID from request parameters
-  const updates = req.body; // Get update data from request body
+  const updates: UpdateableUser = req.body; // Get update data from request body
 
   if (!id) {
     // Check if ID is present
@@ -101,14 +66,12 @@ export async function updateUser(
   const { query, user } = result;
 
   if (!user) {
-    // Check if user exists
     throw new NotFoundError({
       message: "User not found!",
       logging: true,
       context: { query, id },
-    });
+    })
   }
-
   res.status(200).send({ data: user }); // Send updated user data with 200 status code
 }
 

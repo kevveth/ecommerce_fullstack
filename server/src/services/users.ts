@@ -1,26 +1,19 @@
 import * as db from "../database/database";
-import { User } from "../types/user";
+import { User, UpdateableUser, NewUser } from "../models/user.model";
 
-interface CreateUserDTO {
-  username: string;
-  email: string;
-  password_hash: string;
-}
-
-export interface UserResult {
+export type UserResult = {
   query: string;
   user?: User;
 }
 
 // Creates a new user.
-export async function create(credentials: CreateUserDTO): Promise<UserResult> {
+export async function create(data: NewUser): Promise<UserResult> {
   const query =
     "INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING user_id;";
-  console.log(query);
   const result = await db.query(query, [
-    credentials.username,
-    credentials.email,
-    credentials.password_hash,
+    data.username,
+    data.email,
+    data.password_hash,
   ]);
 
   return { query, user: result.rows[0] };
@@ -48,7 +41,6 @@ export async function getWithEmail(email: User["email"]): Promise<UserResult> {
 }
 
 // Updates a user's information.
-type UpdateableUser = Partial<Omit<User, "user_id" | "password_hash">>;
 export async function update(
   id: User["user_id"],
   properties: UpdateableUser
@@ -74,7 +66,6 @@ export async function update(
   const query = `UPDATE users SET ${setClauses.join(
     ", "
   )} WHERE user_id = $${index} RETURNING *;`;
-  console.log(query); // Log the query for debugging
 
   // Execute the SQL query using the database connection
   const result = await db.query(query, [...updateValues, id]);
