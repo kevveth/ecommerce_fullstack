@@ -13,7 +13,7 @@ export async function create(data: NewUser): Promise<UserResult> {
   const result = await db.query(query, [
     data.username,
     data.email,
-    data.password_hash,
+    data.password,
   ]);
 
   return { query, user: result.rows[0] };
