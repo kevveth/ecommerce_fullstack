@@ -3,7 +3,7 @@ import { getWithEmail } from "../services/users";
 
 // Zod schema for a complete User object
 export const userSchema = z.object({
-  user_id: z.number().int().optional(), // Optional ID, auto-generated
+  user_id: z.number().int().positive().optional(), // Optional ID, auto-generated
   username: z.string(),
   email: z.string().email(),
   password_hash: z.string(),
