@@ -3,7 +3,7 @@ import { z } from "zod";
 // Zod schema for validating environment variables
 const envSchema = z
   .object({
-    PORT: z.string().optional().default("3000"),
+    PORT: z.string().optional().default("3000").refine(v => Number(v) < 65535, 'Invalid port range'),
     DB_DATABASE: z.string().optional().default("ecommerce"),
     DB_HOST: z.string().optional().default("localhost"),
     DB_PORT: z.string().optional().default("5432"),
