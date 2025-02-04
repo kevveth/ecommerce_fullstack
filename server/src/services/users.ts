@@ -1,5 +1,4 @@
 import * as db from "../database/database";
-import BadRequestError from "../errors/BadRequestError";
 import { User, UpdateableUser } from "../models/user.model";
 
 // Retrieves a user by ID
@@ -23,25 +22,30 @@ export async function update(
   properties: UpdateableUser
 ): Promise<User> {
   const setClauses: string[] = [];
-  const updateValues: (string | number)[] = []; // Array to hold the values for the SQL query
+  const updateValues: string[] = []; // Array to hold the values for the SQL query
   let index = 1; // Index for parameter placeholders in the query
 
-  //Iterates through the key-value pairs of the 'properties' object.
+  // Iterates through the key-value pairs of the 'properties' object.
   Object.entries(properties).forEach(([key, value]) => {
-    //Build the SET clause dynamically using Object.entries for conciseness
+    // Build the SET clause dynamically using Object.entries for conciseness
     setClauses.push(`${key} = $${index}`);
-    updateValues.push(value); // Add the value to the updateValues array
+    if (value) {
+      updateValues.push(value); // Add the value to the updateValues array
+    } else {
+      updateValues.push("undefined");
+    }
+
     index++; // Increment the index for the next placeholder
   });
 
   //! Zod now handles the empty update object in the controller
-  //Handle case where no values to update
-  // if (setClauses.length === 0) {
-  //   throw new BadRequestError({
-  //     message: "No values to update",
-  //     logging: true,
-  //   });
-  // }
+  //// Handle case where no values to update
+  //// if (setClauses.length === 0) {
+  ////   throw new BadRequestError({
+  ////     message: "No values to update",
+  ////     logging: true,
+  ////   });
+  //// }
 
   // Build the SQL query dynamically
   const query = `UPDATE users SET ${setClauses.join(
