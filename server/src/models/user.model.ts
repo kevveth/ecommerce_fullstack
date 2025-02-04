@@ -39,5 +39,11 @@ async function checkEmailExists(email: string): Promise<boolean> {
 // Zod schema for updating existing users (omitting ID and password)
 export const updateUserSchema = userSchema
   .omit({ user_id: true, password_hash: true })
-  .partial();
+  .partial()
+  .refine((data) => {
+    return Object.keys(data).length > 0;
+  }, {
+    message: "No fields to update",
+    path: [],
+  });
 export type UpdateableUser = z.infer<typeof updateUserSchema>;

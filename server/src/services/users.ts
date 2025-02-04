@@ -34,13 +34,14 @@ export async function update(
     index++; // Increment the index for the next placeholder
   });
 
+  //! Zod now handles the empty update object in the controller
   //Handle case where no values to update
-  if (setClauses.length === 0) {
-    throw new BadRequestError({
-      message: "No values to update",
-      logging: true,
-    });
-  }
+  // if (setClauses.length === 0) {
+  //   throw new BadRequestError({
+  //     message: "No values to update",
+  //     logging: true,
+  //   });
+  // }
 
   // Build the SQL query dynamically
   const query = `UPDATE users SET ${setClauses.join(
