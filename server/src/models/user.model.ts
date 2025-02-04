@@ -1,17 +1,20 @@
 import { z } from "zod";
 import { getWithEmail } from "../services/users";
 
+export const IDSchema = z.number().positive().optional();
+
 // Zod schema for a complete User object
+
 export const userSchema = z.object({
-  user_id: z.number().int().positive().optional(), // Optional ID, auto-generated
+  user_id: IDSchema, // Optional ID, auto-generated
   username: z.string(),
   email: z.string().email(),
   password_hash: z.string(),
-  street_address: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  zip_code: z.string().optional(),
-  country: z.string().optional(),
+  street_address: z.string().nullish(),
+  city: z.string().nullish(),
+  state: z.string().nullish(),
+  zip_code: z.string().nullish(),
+  country: z.string().nullish(),
 });
 export type User = z.infer<typeof userSchema>;
 
@@ -40,10 +43,13 @@ async function checkEmailExists(email: string): Promise<boolean> {
 export const updateUserSchema = userSchema
   .omit({ user_id: true, password_hash: true })
   .partial()
-  .refine((data) => {
-    return Object.keys(data).length > 0;
-  }, {
-    message: "No fields to update",
-    path: [],
-  });
+  .refine(
+    (data) => {
+      return Object.keys(data).length > 0;
+    },
+    {
+      message: "No fields to update",
+      path: [],
+    }
+  );
 export type UpdateableUser = z.infer<typeof updateUserSchema>;
