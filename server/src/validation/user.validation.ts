@@ -6,10 +6,10 @@ export const validateRegistrationData = async (
   res: Response,
   next: NextFunction
 ) => {
-  const validate = await newUserSchema.spa(req.body);
-  if (validate.success) {
+  const { success, error } = await newUserSchema.spa(req.body);
+  if ( success ) {
     next();
   } else {
-    res.status(400).send(validate.error.errors);
+    res.status(400).send(error.errors);
   }
 };
