@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express-serve-static-core";
 import { CustomError } from "../errors/CustomError";
+import z from "zod";
 
 export const errorHandler = (
   err: Error,
@@ -25,6 +26,9 @@ export const errorHandler = (
     }
 
     res.status(statusCode).send({ errors });
+
+  } else if (err instanceof z.ZodError) {
+    res.status(400).json({ errors: err });
   } else {
     // Unhandled Errors
     console.error(JSON.stringify(err, null, 2));
