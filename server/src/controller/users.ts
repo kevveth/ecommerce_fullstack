@@ -1,4 +1,4 @@
-import { Request, Response} from "express-serve-static-core";
+import { NextFunction, Request, Response} from "express-serve-static-core";
 import { get, update, remove } from "../services/users";
 import {
   UpdateableUser,
@@ -17,22 +17,23 @@ const paramSchema = z.object({
 });
 
 //Handles getting a user by ID
-export async function getUser(req: Request, res: Response) {
+export async function getUser(req: Request, res: any, next: NextFunction) {
   const { id } = paramSchema.parse(req.params); // Validate and get user ID from request parameters
 
   const user = await get(id); // Get the user from the database
-  const { success, data } = userSchema.safeParse(user);
+  const { success, data, error } = userSchema.safeParse(user);
 
   // Check if user exists
   if (!success) {
-    throw new NotFoundError({
-      message: "User not found!",
-      logging: true,
-      context: { method: "GET", path: "/users/:id", id },
-    });
+    // throw new NotFoundError({
+    //   message: "User not found!",
+    //   logging: true,
+    //   context: { method: "GET", path: "/users/:id", id },
+    // });
+    return next(error);
   }
 
-  res.status(200).send({ data });
+  return res.status(200).send({ data });
 }
 
 //Handles updating an existing user

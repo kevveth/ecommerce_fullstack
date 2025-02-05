@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from "express-serve-static-core";
 import { CustomError } from "../errors/CustomError";
-import z from "zod";
+import z, { ZodError } from "zod";
+import { fromZodError, isZodErrorLike } from "zod-validation-error";
 
 export const errorHandler = (
   err: Error,
   req: Request,
-  res: Response,
+  res: any,
   next: NextFunction
 ) => {
   if (err instanceof CustomError) {
@@ -25,13 +26,14 @@ export const errorHandler = (
       );
     }
 
-    res.status(statusCode).send({ errors });
+    return res.status(statusCode).send({ errors });
 
-  } else if (err instanceof z.ZodError) {
-    res.status(400).json({ errors: err });
+  } else if (isZodErrorLike(err)) {
+    console.log(fromZodError(err).toString())
+    return res.status(400).json({ errors: err });
   } else {
     // Unhandled Errors
     console.error(JSON.stringify(err, null, 2));
-    res.status(500).send({ errors: [{ message: "Something went wrong!" }] });
+    return res.status(500).send({ errors: [{ message: "Something went wrong!" }] });
   }
 };
