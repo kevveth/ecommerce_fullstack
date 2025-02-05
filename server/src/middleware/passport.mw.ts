@@ -15,19 +15,22 @@ export function initPassport(app: Express) {
       { usernameField: "email" },
       async (email, password, done) => {
         try {
-          if (!email) done(null, false);
+          if (!email)
+            return done(null, false, { message: "Email is required" });
 
           const user = await getWithEmail(email);
-          if (
-            user.email === email &&
-            (await bcrypt.compare(password, user.password_hash.toString()))
-          ) {
-            done(null, user);
-          } else {
-            done(null, false, { message: "Email or password incorrect" });
-          }
+
+          if (!user) return done(null, false, { message: "User not found" });
+
+          if (!password)
+            return done(null, false, { message: "Password is required" });
+
+          const match = await bcrypt.compare(password, user.password_hash);
+          if (!match) return done(null, false, { message: "Invalid password" });
+
+          return done(null, user);
         } catch (err) {
-          done(err);
+          return done(err);
         }
       }
     )
