@@ -6,7 +6,7 @@ import { fromZodError, isZodErrorLike } from "zod-validation-error";
 export const errorHandler = (
   err: Error,
   req: Request,
-  res: any,
+  res: Response,
   next: NextFunction
 ) => {
   if (err instanceof CustomError) {
@@ -26,14 +26,15 @@ export const errorHandler = (
       );
     }
 
-    return res.status(statusCode).send({ errors });
-
+    res.status(statusCode).send({ errors });
   } else if (isZodErrorLike(err)) {
-    console.log(fromZodError(err).toString())
-    return res.status(400).json({ errors: err });
+    console.log(fromZodError(err).toString());
+    res.status(400).json({ errors: err });
   } else {
     // Unhandled Errors
     console.error(JSON.stringify(err, null, 2));
-    return res.status(500).send({ errors: [{ message: "Something went wrong!" }] });
+    res
+      .status(500)
+      .send({ errors: [{ message: "Something went wrong!" }] });
   }
 };
