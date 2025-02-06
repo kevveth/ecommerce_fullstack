@@ -9,7 +9,7 @@ import {
 import NotFoundError from "../errors/NotFoundError";
 import z from "zod";
 
-const paramSchema = z.object({
+const reqParamSchema = z.object({
   id: z
     .string()
     .regex(/^[1-9]\d*$/) // Matches positive integers only
@@ -18,7 +18,7 @@ const paramSchema = z.object({
 
 //Handles getting a user by ID
 export async function getUser(req: Request, res: any, next: NextFunction) {
-  const { id } = paramSchema.parse(req.params); // Validate and get user ID from request parameters
+  const { id } = reqParamSchema.parse(req.params); // Validate and get user ID from request parameters
 
   const user = await get(id); // Get the user from the database
   const { success, data, error } = userSchema.safeParse(user);
@@ -45,7 +45,7 @@ export async function updateUser(
   >,
   res: Response
 ) {
-  const { id } = paramSchema.parse(req.params); // Get user ID from request parameters
+  const { id } = reqParamSchema.parse(req.params); // Get user ID from request parameters
 
   // Get update data from request body
   const updates = updateUserSchema.parse(req.body);
@@ -65,7 +65,7 @@ export async function updateUser(
 
 //Handles deleting a user
 export async function deleteUser(req: Request, res: Response) {
-  const { id } = paramSchema.parse(req.params); // Get user ID from request parameters
+  const { id } = reqParamSchema.parse(req.params); // Get user ID from request parameters
 
   const user = await remove(id); // Delete the user from the database
   const { success, data } = userSchema.safeParse(user);
