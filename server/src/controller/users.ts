@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response} from "express-serve-static-core";
+import { NextFunction, Request, Response } from "express-serve-static-core";
 import { get, update, remove } from "../services/users";
 import {
   UpdateableUser,
@@ -17,23 +17,27 @@ const reqParamSchema = z.object({
 });
 
 //Handles getting a user by ID
-export async function getUser(req: Request, res: any, next: NextFunction) {
+export async function getUser(req: Request, res: Response, next: NextFunction) {
   const { id } = reqParamSchema.parse(req.params); // Validate and get user ID from request parameters
 
-  const user = await get(id); // Get the user from the database
-  const { success, data, error } = userSchema.safeParse(user);
+  const result = await get(id); // Get the user from the database
 
-  // Check if user exists
-  if (!success) {
-    // throw new NotFoundError({
-    //   message: "User not found!",
-    //   logging: true,
-    //   context: { method: "GET", path: "/users/:id", id },
-    // });
-    return next(error);
+  if (!result) {
+    throw new NotFoundError({
+      message: "User not found!",
+      logging: true,
+      context: {
+        method: "GET",
+        expected: "user",
+        received: "undefined",
+        path: ["users", "id"],
+        id,
+      },
+    });
   }
 
-  return res.status(200).send({ data });
+  const user = userSchema.parse(result);
+  res.status(200).send({ data: user });
 }
 
 //Handles updating an existing user
@@ -47,20 +51,24 @@ export async function updateUser(
 ) {
   const { id } = reqParamSchema.parse(req.params); // Get user ID from request parameters
 
-  // Get update data from request body
-  const updates = updateUserSchema.parse(req.body);
-  const user: User = await update(id, updates); // Update the user in the database
-  const { success, data } = userSchema.safeParse(user);
+  const result = await update(id, req.body); // Update the user in the database
 
-  if (!success) {
+  if (!result) {
     throw new NotFoundError({
       message: "User not found!",
       logging: true,
-      context: { path: "/users/:id", id, method: "PUT" },
+      context: {
+        method: "PUT",
+        expected: "user",
+        received: "undefined",
+        path: ["users", "id"],
+        id,
+      },
     });
   }
 
-  res.status(200).send({ data }); // Send updated user data with 200 status code
+  const user = userSchema.parse(result);
+  res.status(200).send({ data: user }); // Send updated user data with 200 status code
 }
 
 //Handles deleting a user
