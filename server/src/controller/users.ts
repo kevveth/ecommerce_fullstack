@@ -75,16 +75,22 @@ export async function updateUser(
 export async function deleteUser(req: Request, res: Response) {
   const { id } = reqParamSchema.parse(req.params); // Get user ID from request parameters
 
-  const user = await remove(id); // Delete the user from the database
-  const { success, data } = userSchema.safeParse(user);
+  const result = await remove(id); // Delete the user from the database
 
-  if (!success) {
+  if (!result) {
     throw new NotFoundError({
       message: "User not found!",
       logging: true,
-      context: { method: "GET", path: "/users/:id", id },
+      context: {
+        method: "DELETE",
+        expected: "user",
+        received: "undefined",
+        path: ["users", "id"],
+        id,
+      },
     });
   }
 
-  res.status(204).send({ data });
+  const user = userSchema.parse(result);
+  res.status(204).send({ data: user });
 }
