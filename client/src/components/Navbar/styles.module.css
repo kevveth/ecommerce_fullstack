@@ -1,0 +1,43 @@
+/* styles.module.css */
+.navbar {
+  background-color: #8B0000; /* Dark background */
+  color: #fff; /* Light text */
+  padding: 1rem 0; /* Padding top and bottom */
+  display: flex; /* Enables flexbox for easier layout */
+  justify-content: center; /* Centers the list horizontally */
+  align-items: center;
+}
+
+.navbar ul {
+  list-style: none; /* Removes default bullet points */
+  margin: 0;
+  padding: 0;
+  display: flex; /* Makes list items arrange horizontally */
+}
+
+.navbar li {
+  margin: 0 1rem; /* Adds spacing between list items */
+}
+
+.navbar a {
+  text-decoration: none; /* Removes underlines from links */
+  color: inherit; /* Inherits color from parent */
+  padding: 0.5rem 1rem; /* Adds padding to links */
+  border-radius: 5px; /* Rounds the corners of the links */
+  transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.navbar a:hover {
+  background-color: #555; /* Darker background on hover */
+}
+
+/* Responsive styles for smaller screens */
+@media (max-width: 768px) {
+  .navbar ul {
+    flex-direction: column; /* Stacks list items vertically on smaller screens */
+    align-items: center; /* Centers the items vertically */
+  }
+  .navbar li {
+    margin: 0.5rem 0; /* Adjusts margin for vertical stacking */
+  }
+}
