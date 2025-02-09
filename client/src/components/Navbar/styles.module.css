@@ -1,7 +1,8 @@
-/* styles.module.css */
+@import '../../styles/_variables.css';
+
 .navbar {
-  background-color: #8B0000; /* Dark background */
-  color: #fff; /* Light text */
+  background-color: var(--primary); /* Dark background */
+  color: var(--text); /* Light text */
   padding: 1rem 0; /* Padding top and bottom */
   display: flex; /* Enables flexbox for easier layout */
   justify-content: center; /* Centers the list horizontally */
@@ -28,7 +29,7 @@
 }
 
 .navbar a:hover {
-  background-color: #B8860B; /* Darker background on hover */
+  background-color: var(--secondary); /* Darker background on hover */
 }
 
 /* Responsive styles for smaller screens */
