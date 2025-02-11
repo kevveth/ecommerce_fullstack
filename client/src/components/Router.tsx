@@ -4,8 +4,10 @@ import { Home } from "../pages/Home";
 // import Login from './pages/Login';
 // import Register from './pages/Register';
 import Register from "./Register";
-import Login from "./Login";
+import Login from "../pages/login";
 import { NotFound } from "../errors/NotFound";
+import { Profile } from "../pages/Profile";
+import { Profiles } from "../pages/Profiles";
 
 
 export const Router: React.FC = () => {
@@ -17,6 +19,8 @@ export const Router: React.FC = () => {
       <Route path="/" element={<Home />} />
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
+      <Route path ="/profiles" element={<Profiles />} />
+      <Route path="/profiles/:username" element={<Profile />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
