@@ -1,19 +1,39 @@
+import { useParams } from "react-router";
 import { PageLayout } from "../components/PageLayout";
 import { ProfileData } from "../components/ProfileData";
-import { useFetchUser } from "../hooks/useFetchUser";
+import { useQuery } from "@tanstack/react-query";
+import { type User } from "../../../server/src/models/user.model";
 
 type ProfileProps = {
-    userId: number
+  username: string;
 };
 
+export function Profile() {
+  const { username } = useParams<ProfileProps>();
 
-export function Profile({ userId }: ProfileProps) {
-    const profileData = useFetchUser(userId);
+  const {
+    data: user,
+    isError,
+    isPending,
+  } = useQuery({
+    queryKey: ["user", { username }],
+    queryFn: async () => {
+      const response = await fetch(
+        `http://localhost:3000/api/users/${username}`
+      );
+      return (await response.json()) as { data: User };
+    },
+    retry: 1,
+  });
 
-    return (
+  if (isPending) { return <p>Loading...</p> }
+
+  if (isError) { return <p>Error fetching user</p> }
+
+  return (
     <PageLayout>
       <h1>Profile</h1>
-      <ProfileData data={profileData} />
+      {user && <ProfileData data={user.data} />}
     </PageLayout>
   );
 }

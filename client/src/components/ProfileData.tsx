@@ -1,11 +1,17 @@
 type ProfileDataProps = {
-  data: any;
+  data?: any;
 };
 
-export function ProfileData({ data }: ProfileDataProps) {
+export function ProfileData({ data: user }: ProfileDataProps) {
+  if (!user) {
+    return <p>User not found</p>;
+  }
+
   return (
     <>
-      <p>This is the profile page.</p>
+      <p><strong>Username:</strong> {user.username}</p>
+      <p><strong>Email:</strong> {user.email}</p>
+      <p>{user.city}, {user.state}</p>
     </>
   );
 }
