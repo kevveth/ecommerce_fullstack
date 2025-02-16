@@ -25,7 +25,7 @@ export const newUserSchema = userSchema
     email: true,
   })
   .extend({
-    password: z.string(),
+    password: z.string().min(4, "Password must be at least 4 characters"),
   })
   .refine(async (data) => !(await checkEmailExists(data.email)), {
     message: "Email already exists",
