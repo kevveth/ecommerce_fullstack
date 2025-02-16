@@ -19,6 +19,6 @@ export async function registerUser(req: Request, res: Response) {
     password: passwordHash,
   });
 
-  const user = userSchema.parse(result);
-  res.status(201).send({ data: user }); // Send the newly created user with 201 status code
+  // const user = userSchema.parse(result);
+  res.status(201).send({ data: result }); // Send the newly created user with 201 status code
 }

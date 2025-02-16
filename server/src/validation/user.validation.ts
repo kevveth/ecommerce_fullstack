@@ -3,14 +3,14 @@ import { newUserSchema, updateUserSchema } from "../models/user.model";
 
 export const validateRegistrationData = async (
   req: Request,
-  res: Response,
+  res: any,
   next: NextFunction
 ) => {
   const { success, error } = await newUserSchema.spa(req.body);
   if ( success ) {
-    next();
+    return next();
   } else {
-    res.status(400).send(error.errors);
+    return next(error.errors);
   }
 };
 
