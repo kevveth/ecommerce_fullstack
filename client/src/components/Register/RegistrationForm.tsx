@@ -1,7 +1,7 @@
 import React from "react";
 
 interface RegistrationFormProps {
-  handleSubmit: (e: React.FormEvent) => any;
+  handleSubmit: (e: React.FormEvent) => void;
   username: string;
   setUsername: React.Dispatch<React.SetStateAction<string>>;
   email: string;
