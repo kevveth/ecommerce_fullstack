@@ -1,20 +1,17 @@
 import React, { useState } from "react";
 import { PageLayout } from "../PageLayout";
-import { RegistrationForm } from "./RegistrationForm";
+import { FormFields, RegForm } from "./RegistrationForm";
 import { useRegisterUser } from "../../hooks/useRegisterUser";
 import styles from "./styles.module.css";
 
 const Register = () => {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
   const mutation = useRegisterUser();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (data: FormFields) => {
     // Placeholder for API call to register user
-    mutation.mutate({ username, email, password });
+    console.log(data);
+    
+    mutation.mutate(data);
   };
 
   return (
@@ -23,15 +20,7 @@ const Register = () => {
         <div className={styles.messageBox}>Adding user...</div>
       )}
 
-      <RegistrationForm
-        handleSubmit={handleSubmit}
-        username={username}
-        setUsername={setUsername}
-        email={email}
-        setEmail={setEmail}
-        password={password}
-        setPassword={setPassword}
-      />
+      <RegForm submit={handleSubmit} />
 
       {mutation.isError && (
         <div className={styles.error}>
@@ -40,7 +29,7 @@ const Register = () => {
       )}
 
       {mutation.isSuccess && (
-        <div className={styles.success}>User {username} added!</div>
+        <div className={styles.success}>Registration Successful!</div>
       )}
     </PageLayout>
   );
