@@ -1,60 +1,68 @@
-import React from "react";
+/* eslint-disable @typescript-eslint/no-misused-promises */
+import { zodResolver } from "@hookform/resolvers/zod";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { z } from "zod";
 
-interface RegistrationFormProps {
-  handleSubmit: (e: React.FormEvent) => void;
-  username: string;
-  setUsername: React.Dispatch<React.SetStateAction<string>>;
-  email: string;
-  setEmail: React.Dispatch<React.SetStateAction<string>>;
-  password: string;
-  setPassword: React.Dispatch<React.SetStateAction<string>>;
-}
+const schema = z.object({
+  username: z.string().min(4),
+  email: z.string().email(),
+  password: z.string().min(8),
+});
 
-export function RegistrationForm({
-  handleSubmit,
-  username,
-  setUsername,
-  email,
-  setEmail,
-  password,
-  setPassword,
-}: RegistrationFormProps) {
+export type FormFields = z.infer<typeof schema>;
+
+type RegFormProps = {
+  submit: (data: FormFields) => void;
+};
+
+export function RegForm({ submit }: RegFormProps) {
+  const {
+    register,
+    handleSubmit,
+    // setError,
+    formState: { errors, isSubmitting },
+  } = useForm<FormFields>({
+    resolver: zodResolver(schema),
+  });
+
+  const onSubmit: SubmitHandler<FormFields> = submit;
+
   return (
-    <>
-      <h1>Register</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="username">Username: </label>
-          <input
-            type="text"
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
+    <form
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "1rem",
+        margin: "1rem",
+      }}
+      onSubmit={handleSubmit(onSubmit)}
+    >
+      <input {...register("username")} type="text" placeholder="Username" />
+      {errors.username && (
+        <div style={{ color: "red", fontSize: "0.8em" }}>
+          {errors.username.message}
         </div>
-        <div>
-          <label htmlFor="email">Email: </label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+      )}
+      <input {...register("email")} type="email" placeholder="Email" />
+      {errors.email && (
+        <div style={{ color: "red", fontSize: "0.8em" }}>
+          {errors.email.message}
         </div>
-        <div>
-          <label htmlFor="password">Password: </label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+      )}
+      <input {...register("password")} type="password" placeholder="Password" />
+      {errors.password && (
+        <div style={{ color: "red", fontSize: "0.8em" }}>
+          {errors.password.message}
         </div>
-        <button type="submit">Register</button>
-      </form>
-    </>
+      )}
+      <button disabled={isSubmitting} type="submit">
+        {isSubmitting ? "Loading..." : "Submit"}
+      </button>
+      {/* {errors.root && (
+        <div style={{ color: "red", fontSize: "0.8em" }}>
+          {errors.root.message}
+        </div>
+      )} */}
+    </form>
   );
 }
