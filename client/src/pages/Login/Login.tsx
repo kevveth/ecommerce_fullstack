@@ -1,19 +1,20 @@
-import { useState } from 'react';
+import { useState } from "react";
+import { PageLayout } from "../../components/PageLayout";
 // import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   // const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Logging in user:', { email, password });
+    console.log("Logging in user:", { email, password });
     // navigate('/home');
   };
 
   return (
-    <div>
+    <PageLayout>
       <h1>Login</h1>
       <form onSubmit={handleSubmit}>
         <div>
@@ -38,7 +39,7 @@ const Login = () => {
         </div>
         <button type="submit">Login</button>
       </form>
-    </div>
+    </PageLayout>
   );
 };
 
