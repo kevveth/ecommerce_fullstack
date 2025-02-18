@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { PageLayout } from "../PageLayout";
+import { PageLayout } from "../../components/PageLayout";
 import { FormFields, RegForm } from "./RegistrationForm";
 import { useRegisterUser } from "../../hooks/useRegisterUser";
 import styles from "./styles.module.css";
@@ -10,8 +9,8 @@ const Register = () => {
   const handleSubmit = (data: FormFields) => {
     // Placeholder for API call to register user
     console.log(data);
-    
-    mutation.mutate(data);
+
+    // mutation.mutate(data);
   };
 
   return (
