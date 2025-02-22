@@ -1,12 +1,13 @@
 import { PropsWithChildren } from "react";
 import { Navbar } from "./Navbar/Navbar";
+import { Outlet } from "react-router";
 
 type PageLayoutProps = PropsWithChildren;
 
-export function PageLayout({ children }: PageLayoutProps) {
+export function PageLayout() {
   return (<div className="">
     <Navbar />
-    { children }
+    <Outlet />
     {/* <Footer /> */}
     </div>);
 }
