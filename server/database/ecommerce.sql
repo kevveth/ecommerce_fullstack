@@ -58,6 +58,15 @@ CREATE TABLE "checkouts" (
   "total_amount" decimal NOT NULL
 );
 
+CREATE TABLE refresh_tokens (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
+    token TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_refresh_tokens_token ON refresh_tokens (token);
+
+
 ALTER TABLE "checkouts" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
 
 ALTER TABLE "carts" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
