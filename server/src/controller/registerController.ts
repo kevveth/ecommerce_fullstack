@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { Request, Response } from "express-serve-static-core";
 import { create } from "../services/auth/registration";
 import { env } from "../utils/env";
-import { userSchema } from "../models/user.model";
+import { newUserSchema } from "../models/user.model";
 
 //Handles creating a new user.
 export async function registerUser(req: Request, res: Response) {

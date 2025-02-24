@@ -9,14 +9,16 @@ export async function getAll(): Promise<User[]> {
 }
 
 // Retrieves a user by ID
-export async function get(id: User["user_id"]): Promise<User> {
+export async function getWithId(id: User["user_id"]): Promise<User> {
   const query = "SELECT * FROM users WHERE user_id = $1";
   const result = await db.query(query, [id]);
 
   return result.rows[0];
 }
 
-export async function getWithUsername(username: User["username"]): Promise<User> {
+export async function getWithUsername(
+  username: User["username"]
+): Promise<User> {
   const query = "SELECT * FROM users WHERE username = $1";
   const result = await db.query(query, [username]);
 

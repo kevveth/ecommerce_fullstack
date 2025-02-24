@@ -7,7 +7,8 @@ CREATE TABLE "users" (
   "city" varchar(255),
   "state" varchar(255),
   "zip_code" varchar(20),
-  "country" varchar(255)
+  "country" varchar(255),
+  "role" varchar(255) NOT NULL DEFAULT 'user'
 );
 
 CREATE TABLE "products" (

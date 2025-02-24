@@ -1,46 +1,47 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { env } from "./env";
-import type { Role } from "../models/user.model";
+import type { Role, User } from "../models/user.model";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export interface UserPayload {
-  user_id: number | string;
+  user_id: number;
   role: Role;
 }
 
-export function generateAccessToken(user: UserPayload) {
-  const accessToken = jwt.sign(
-    { sub: user.user_id, role: user.role },
-    env.JWT_SECRET!,
-    {
-      expiresIn: "10s",
-    }
-  );
+export function generateAccessToken(user: User) {
+  const payload: UserPayload = {
+    user_id: user.user_id!,
+    role: user.role,
+  };
+
+  const accessToken = jwt.sign(payload, process.env.JWT_SECRET as string, {
+    expiresIn: "13s",
+  });
 
   return accessToken;
 }
 
-export function generateRefreshToken(user: UserPayload) {
-  const refreshToken = jwt.sign(
-    { sub: user.user_id, role: user.role },
-    env.JWT_SECRET!,
-    {
-      expiresIn: "1h",
-    }
-  );
+export function generateRefreshToken(user: User) {
+  const payload: UserPayload = {
+    user_id: user.user_id!,
+    role: user.role,
+  };
+
+  const refreshToken = jwt.sign(payload, process.env.JWT_SECRET as string, {
+    expiresIn: "1h",
+  });
 
   return refreshToken;
 }
 
 // Verify and decode a JWT, and define the return type
-export function verifyToken(
-  token: string,
-  handleVerification?: Function | null
-): JwtPayload | null {
+export function verifyToken(token: string) {
   try {
-    if (handleVerification)
-      return jwt.verify(token, env.JWT_SECRET!, handleVerification());
-    return jwt.verify(token, env.JWT_SECRET!) as JwtPayload;
-  } catch (error) {
+    return jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload &
+      UserPayload;
+  } catch {
     return null; // Invalid token
   }
 }
