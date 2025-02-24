@@ -1,7 +1,9 @@
 import { z } from "zod";
 import { getWithEmail } from "../services/users";
 
-export const IDSchema = z.number().positive().optional();
+const IDSchema = z.number().positive().optional();
+const RoleSchema = z.enum(["admin", "user"]);
+export type Role = z.infer<typeof RoleSchema>;
 
 // Zod schema for a complete User object
 
@@ -15,6 +17,7 @@ export const userSchema = z.object({
   state: z.string().nullish(),
   zip_code: z.string().nullish(),
   country: z.string().nullish(),
+  role: RoleSchema
 });
 export type User = z.infer<typeof userSchema>;
 

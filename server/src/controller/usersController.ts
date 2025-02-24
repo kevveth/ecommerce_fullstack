@@ -1,5 +1,11 @@
 import { NextFunction, Request, Response } from "express-serve-static-core";
-import { get, update, remove, getWithUsername, getAll } from "../services/users";
+import {
+  getWithId,
+  update,
+  remove,
+  getWithUsername,
+  getAll,
+} from "../services/users";
 import {
   UpdateableUser,
   updateUserSchema,
@@ -13,12 +19,12 @@ const idParamSchema = z.object({
   id: z
     .string()
     .regex(/^[1-9]\d*$/) // Matches positive integers only
-    .transform((str) => parseInt(str))
+    .transform((str) => parseInt(str)),
 });
 
 const usernameParamSchema = z.object({
-  username: z.string()
-})
+  username: z.string(),
+});
 
 export async function getAllUsers(req: Request, res: Response) {
   const result = await getAll();
@@ -44,7 +50,7 @@ export async function getAllUsers(req: Request, res: Response) {
 export async function getUser(req: Request, res: Response, next: NextFunction) {
   const { id } = idParamSchema.parse(req.params); // Validate and get user ID from request parameters
 
-  const result = await get(id); // Get the user from the database
+  const result = await getWithId(id); // Get the user from the database
 
   if (!result) {
     throw new NotFoundError({
@@ -64,7 +70,11 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
   res.status(200).send({ data: user });
 }
 
-export async function getUserByUsername(req: Request, res: Response, next: NextFunction) {
+export async function getUserByUsername(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   const { username } = usernameParamSchema.parse(req.params); // Validate and get user ID from request parameters
 
   const result = await getWithUsername(username); // Get the user from the database

@@ -1,0 +1,13 @@
+// routes/admin.ts
+import express, { Router } from "express";
+import { authenticate, authorize } from "../middleware/verifyJWT";
+
+const router: Router = express.Router();
+
+// Example: GET /api/admin/dashboard - Requires authentication and 'admin' role
+router.get("/dashboard", authenticate, authorize("admin"), (req, res) => {
+  // Only admins can reach this point.  req.user will be available.
+  res.json({ message: "Admin dashboard data", user: req.user });
+});
+
+export default router;
