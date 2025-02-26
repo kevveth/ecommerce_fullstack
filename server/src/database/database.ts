@@ -12,6 +12,10 @@ const pool = new Pool({
   database: env.DB_DATABASE,
 });
 
+// const pool = new Pool({
+//   connectionString: env.DB_URL,
+// });
+
 export const query = (text: string, params: Array<any> = []) => {
   return pool.query(text, params);
 };
