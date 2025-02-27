@@ -1,0 +1,6 @@
+// packages/shared/tsconfig.json
+{
+  "extends": "@total-typescript/tsconfig/tsc/dom/library-monorepo",
+  "include": ["."],
+  "exclude": ["node_modules"]
+}
