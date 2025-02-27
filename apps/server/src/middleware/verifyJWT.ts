@@ -1,10 +1,8 @@
-import { Request, Response, NextFunction } from "express-serve-static-core";
+import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../utils/jwt";
 import { getWithId } from "../services/users";
 import UnauthorizedError from "../errors/UnauthorizedError";
 import type { UserPayload } from "../utils/jwt";
-import { decode } from "punycode";
-import { string } from "zod";
 
 declare global {
   namespace Express {
@@ -19,26 +17,26 @@ declare global {
 // TODO: Fix Response type
 export const authenticate = async (
   req: Request,
-  res: any,
+  res: Response,
   next: NextFunction
 ) => {
   const { authorization } = req.headers;
   if (!authorization?.startsWith("Bearer "))
-    return next(
+    next(
       new UnauthorizedError({
         message: "Unauthorized: Missing token",
         logging: true,
       })
     );
 
-  const token = authorization.split(" ")[1];
+  const token = authorization?.split(" ")[1];
   // console.log(token);
 
   let decoded = null;
   if (token) decoded = verifyToken(token);
 
   if (!decoded)
-    return next(
+    next(
       new UnauthorizedError({
         message: "Unauthorized: Invalid token",
         logging: true,
@@ -47,8 +45,8 @@ export const authenticate = async (
 
   try {
     req.user = {
-      user_id: decoded.user_id,
-      role: decoded.role,
+      user_id: decoded!.user_id,
+      role: decoded!.role,
     };
     next();
   } catch (error) {
@@ -75,12 +73,12 @@ export function isAuthenticated(
   next: NextFunction
 ) {
   if (req.user) {
-    return next();
+    next();
   } else {
     const err = new UnauthorizedError({
       message: "You are not authenticated!",
       logging: true,
     });
-    return next(err);
+    next(err);
   }
 }

@@ -17,7 +17,7 @@ export const userSchema = z.object({
   state: z.string().nullish(),
   zip_code: z.string().nullish(),
   country: z.string().nullish(),
-  role: RoleSchema
+  role: RoleSchema,
 });
 export type User = z.infer<typeof userSchema>;
 

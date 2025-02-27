@@ -1,0 +1,22 @@
+{
+  "name": "ecommerce_fullstack",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter \"{apps/*}\" dev",
+    "build": "pnpm --filter \"{apps/*}\" build",
+    "lint": "pnpm --filter \"{apps/*}\" lint"
+  },
+  "pnpm": {
+    "overrides": {}
+  },
+  "dependencies": {
+    "zod": "^3.24.2",
+    "zod-validation-error": "^3.4.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.21.0",
+    "prettier": "3.5.1",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.25.0"
+  }
+}
