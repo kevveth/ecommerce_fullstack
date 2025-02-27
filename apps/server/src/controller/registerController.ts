@@ -1,5 +1,5 @@
-import bcrypt from "bcrypt";
-import { Request, Response } from "express-serve-static-core";
+import bcrypt from "bcryptjs";
+import { Request, Response } from "express";
 import { create } from "../services/auth/registration";
 import { env } from "../utils/env";
 import { newUserSchema } from "../models/user.model";

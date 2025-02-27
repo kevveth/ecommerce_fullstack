@@ -1,5 +1,4 @@
-import express, { Router } from "express";
-import { NextFunction, Request, Response } from "express-serve-static-core";
+import express, { Router, Request, Response, NextFunction } from "express";
 import {
   deleteUser,
   getAllUsers,

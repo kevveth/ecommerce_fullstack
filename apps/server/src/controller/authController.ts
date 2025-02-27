@@ -1,10 +1,10 @@
-import { Request, Response } from "express-serve-static-core";
-import bcrypt from "bcrypt";
+import { Request, Response } from "express";
+import bcrypt from "bcryptjs";
 import { addRefreshToken } from "../services/auth/refresh";
 
 import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
 import { z } from "zod";
-import type { User } from "../models/user.model";
+import type { User } from "@repo/shared/types";
 import { getWithEmail } from "../services/users";
 
 const loginSchema = z.object({
@@ -35,7 +35,7 @@ export const loginUser = async (req: Request, res: any) => {
     }
 
     const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user  );
+    const refreshToken = generateRefreshToken(user);
 
     // Save refresh token with user
     await addRefreshToken(user.user_id!, refreshToken);

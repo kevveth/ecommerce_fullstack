@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express-serve-static-core";
+import { NextFunction, Request, Response } from "express";
 import {
   getWithId,
   update,
@@ -98,14 +98,7 @@ export async function getUserByUsername(
 }
 
 //Handles updating an existing user
-export async function updateUser(
-  req: Request<
-    {}, // Request parameters
-    {}, // Query parameters
-    UpdateableUser // Request body
-  >,
-  res: Response
-) {
+export async function updateUser(req: Request, res: Response) {
   const { id } = idParamSchema.parse(req.params); // Get user ID from request parameters
 
   const result = await update(id, req.body); // Update the user in the database

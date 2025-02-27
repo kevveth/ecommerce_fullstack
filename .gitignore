@@ -1,1 +1,50 @@
-.vscode/settings.json
+# Node Modules (managed by pnpm at the root)
+node_modules/
+
+# pnpm-specific files (except the lockfile!)
+pnpm-debug.log*
+.pnpm-debug.log*
+.npmrc
+.pnpmfile.cjs
+
+# IDE and Editor Folders
+.idea/
+.vscode/
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Build output directories (adjust paths if needed)
+apps/client/dist/
+apps/client/build/
+apps/server/dist/
+apps/server/build/
+
+# Temporary files
+*.tmp
+*.swp
+
+# Environment files (IMPORTANT: Keep secrets out of Git!)
+.env
+.env.*
+
+# Log files
+logs/
+*.log
+
+# Coverage reports (if you're generating them at the root)
+coverage/
+
+# TypeScript cache files
+tsconfig.tsbuildinfo
+
+# Optional: Editor-specific files (if you're NOT using a shared config)
+# .editorconfig
+# .prettierrc
+# .eslintrc.js
+
+# Vite specific
+apps/client/.turbo/
+apps/server/.turbo/
+packages/shared/.turbo/

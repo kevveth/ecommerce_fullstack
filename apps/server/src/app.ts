@@ -2,7 +2,7 @@ import { config } from "dotenv";
 config();
 
 import express from "express";
-import { Request, Response } from "express-serve-static-core";
+import { Request, Response } from "express";
 import "express-async-errors";
 import cors, { CorsOptions } from "cors";
 import apiRoutes from "./routes/routes";

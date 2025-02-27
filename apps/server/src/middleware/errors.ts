@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express-serve-static-core";
+import { Request, Response, NextFunction } from "express";
 import { CustomError } from "../errors/CustomError";
 import z, { ZodError } from "zod";
 import { fromZodError, isZodErrorLike } from "zod-validation-error";
@@ -33,8 +33,6 @@ export const errorHandler = (
   } else {
     // Unhandled Errors
     console.error(JSON.stringify(err, null, 2));
-    res
-      .status(500)
-      .send({ errors: [{ message: "Something went wrong!" }] });
+    res.status(500).send({ errors: [{ message: "Something went wrong!" }] });
   }
 };

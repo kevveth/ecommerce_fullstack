@@ -1,4 +1,4 @@
-import { Request, Response } from "express-serve-static-core";
+import { Request, Response } from "express";
 import UnauthorizedError from "../errors/UnauthorizedError";
 import {
   generateAccessToken,

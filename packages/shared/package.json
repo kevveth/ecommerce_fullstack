@@ -1,0 +1,11 @@
+{
+  "name": "@repo/shared",
+  "private": true,
+  "version": "1.0.0",
+  "exports": {
+    "./types": "./src/types.ts"
+  },
+  "dependencies": {
+    "zod-validation-error": "^3.4.0"
+  }
+}
