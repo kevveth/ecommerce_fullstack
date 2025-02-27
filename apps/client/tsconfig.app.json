@@ -1,21 +1,21 @@
 {
   "compilerOptions": {
-    "target": "ESNext",        // Let the bundler handle compatibility
-    "lib": ["ESNext", "DOM", "DOM.Iterable"], // Keep DOM-related libs
+    "target": "ESNext",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "module": "ESNext",
-    "moduleResolution": "bundler", // Or "node" if NOT using a bundler
+    "moduleResolution": "bundler",
     "skipLibCheck": true,
     "isolatedModules": true,
-    "noEmit": true,            // Let the bundler handle output
+    "noEmit": true,
     "jsx": "react-jsx",
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "esModuleInterop": true,      // <-- ADDED: For easier imports
-    "allowSyntheticDefaultImports": true, //<- ADDED, for react
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "moduleDetection": "force"
   },
-  "include": ["src/**/*"],    // Include all files in src and subdirectories
-  "exclude": ["node_modules"] // Exclude node_modules
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
 }
