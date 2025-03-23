@@ -48,3 +48,7 @@ tsconfig.tsbuildinfo
 apps/client/.turbo/
 apps/server/.turbo/
 packages/shared/.turbo/
+
+# Turbo Repo
++ .turbo
+.turbo
