@@ -1,10 +1,10 @@
 {
   "name": "@ecommerce_fullstack/server",
   "version": "1.0.0",
-  "main": "app.js",
+  "main": "dist/app.js",
   "scripts": {
     "start": "node dist/app.js",
-    "dev": "tsc --watch src/app.ts",
+    "dev": "tsc-watch",
     "build": "tsc --build",
     "test": "vitest",
     "dev-server": "tsc-watch --noClear -p ./tsconfig.json --onSuccess \"node ./dist/app.js\""

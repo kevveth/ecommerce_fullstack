@@ -2,9 +2,9 @@
   "name": "ecommerce_fullstack",
   "private": true,
   "scripts": {
-    "dev": "pnpm --filter \"{apps/*}\" dev",
-    "build": "pnpm --filter \"{apps/*}\" build",
-    "lint": "pnpm --filter \"{apps/*}\" lint"
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint"
   },
   "pnpm": {
     "overrides": {}
