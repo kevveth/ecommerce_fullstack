@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { PageLayout } from '../components/PageLayout';
 import { User } from '../../../server/src/models/user.model';
 
 interface Users {
@@ -22,7 +21,7 @@ export function Profiles() {
 
   return (
     <>
-      <PageLayout>
+      <>
         <h1>Profiles</h1>
         {isPending && <p>Loading...</p>}
         {isError && <p>Error fetching users</p>}
@@ -35,7 +34,7 @@ export function Profiles() {
         ) : (
           <p>No users found</p>
         )}
-      </PageLayout>
+      </>
     </>
   );
 }

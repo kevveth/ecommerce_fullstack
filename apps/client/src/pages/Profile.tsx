@@ -1,5 +1,4 @@
 import { useParams } from 'react-router';
-import { PageLayout } from '../components/PageLayout';
 import { ProfileData } from '../components/ProfileData';
 import { useFetchUser } from '../hooks/useFetchUser';
 
@@ -20,9 +19,9 @@ export function Profile() {
   }
 
   return (
-    <PageLayout>
+    <>
       <h1>Profile</h1>
       {user && <ProfileData data={user.data} />}
-    </PageLayout>
+    </>
   );
 }

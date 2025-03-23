@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { PageLayout } from "../../components/PageLayout";
 // import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
@@ -14,7 +13,7 @@ const Login = () => {
   };
 
   return (
-    <PageLayout>
+    <>
       <h1>Login</h1>
       <form onSubmit={handleSubmit}>
         <div>
@@ -39,7 +38,7 @@ const Login = () => {
         </div>
         <button type="submit">Login</button>
       </form>
-    </PageLayout>
+    </>
   );
 };
 
