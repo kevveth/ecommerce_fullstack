@@ -23,7 +23,7 @@ async function findRefreshToken(token: string): Promise<RefreshToken | null> {
   try {
     const result = await query(
       "SELECT * FROM refresh_tokens WHERE token = $1",
-      [token]
+      [token],
     );
 
     if (result.rows.length === 0) {

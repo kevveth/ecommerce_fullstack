@@ -5,7 +5,7 @@ interface AsyncHandler<T> {
 }
 
 const asyncErrorHandler = (
-  func: AsyncHandler<Promise<any>>
+  func: AsyncHandler<Promise<any>>,
 ): ((req: Request, res: Response, next: NextFunction) => void) => {
   return (req: Request, res: Response, next: NextFunction) => {
     func(req, res, next).catch((err) => next(err));

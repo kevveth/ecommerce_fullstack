@@ -22,7 +22,7 @@ router.get(
   async (req: Request, res: any, next: NextFunction) => {
     if (!req.user)
       return next(
-        new NotFoundError({ message: "User not found", logging: true })
+        new NotFoundError({ message: "User not found", logging: true }),
       );
 
     const privateUser = await getWithId(req.user.user_id as number);
@@ -32,13 +32,13 @@ router.get(
         new NotFoundError({
           message: "User not found",
           logging: true,
-        })
+        }),
       );
 
     const safeUser: Omit<User, "password"> = privateUser;
 
     res.json({ message: "User Profile Data", user: safeUser });
-  }
+  },
 );
 
 // router.get("/:id", getUser);

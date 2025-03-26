@@ -7,7 +7,7 @@ export const errorHandler = (
   err: Error,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   if (err instanceof CustomError) {
     // Handled Errors
@@ -21,8 +21,8 @@ export const errorHandler = (
             stack: err.stack,
           },
           null,
-          2
-        )
+          2,
+        ),
       );
     }
 

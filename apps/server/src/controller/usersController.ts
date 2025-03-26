@@ -73,7 +73,7 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
 export async function getUserByUsername(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const { username } = usernameParamSchema.parse(req.params); // Validate and get user ID from request parameters
 
