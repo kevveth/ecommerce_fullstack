@@ -14,7 +14,7 @@ router.get(
   (req: Request, res: Response) => {
     // Only admins can reach this point.  req.user will be available.
     res.json({ message: "Admin dashboard data", user: req.user });
-  }
+  },
 );
 
 export default router;

@@ -15,9 +15,27 @@ importers:
         specifier: ^3.4.0
         version: 3.4.0(zod@3.24.2)
     devDependencies:
+      '@eslint/js':
+        specifier: ^9.17.0
+        version: 9.21.0
       eslint:
         specifier: ^9.21.0
         version: 9.21.0
+      eslint-config-prettier:
+        specifier: ^10.0.2
+        version: 10.0.2(eslint@9.21.0)
+      eslint-plugin-prettier:
+        specifier: ^5.2.3
+        version: 5.2.3(eslint-config-prettier@10.0.2(eslint@9.21.0))(eslint@9.21.0)(prettier@3.5.1)
+      eslint-plugin-react:
+        specifier: ^7.37.4
+        version: 7.37.4(eslint@9.21.0)
+      eslint-plugin-react-hooks:
+        specifier: ^5.0.0
+        version: 5.1.0(eslint@9.21.0)
+      globals:
+        specifier: ^15.14.0
+        version: 15.15.0
       prettier:
         specifier: 3.5.1
         version: 3.5.1

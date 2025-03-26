@@ -53,6 +53,6 @@ export const updateUserSchema = userSchema
     {
       message: "No fields to update",
       path: [],
-    }
+    },
   );
 export type UpdateableUser = z.infer<typeof updateUserSchema>;
