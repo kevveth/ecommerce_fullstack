@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
@@ -9,9 +10,9 @@ const schema = z.object({
 
 export type FormFields = z.infer<typeof schema>;
 
-type LoginProps = {
+interface LoginProps {
   submit: (data: FormFields) => void;
-};
+}
 
 export function LoginForm({ submit }: LoginProps) {
   const {

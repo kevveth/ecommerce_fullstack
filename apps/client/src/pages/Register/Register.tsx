@@ -1,17 +1,18 @@
-// components/Register/Register.tsx (assuming file location)
-import React from 'react'; // Import React
-import { RegForm, FormFields } from './RegistrationForm'; // Import types
+import React from "react";
+import { RegForm, FormFields } from "./RegistrationForm"; // Import types
 // import { useRegisterUser } from "../../hooks/useRegisterUser"; // Uncomment when ready
 // import styles from './styles.module.css';
-import { RegistrationStatus } from './RegistrationStatus';
+import { RegistrationStatus } from "./RegistrationStatus";
 
-const Register: React.FC = () => {  // Use React.FC for type safety
+const Register: React.FC = () => {
+  // Use React.FC for type safety
   // const mutation = useRegisterUser(); // Uncomment when ready
-    const mutation = { //Mock mutation object
+  const mutation = {
+    //Mock mutation object
     isPending: false,
     isSuccess: false,
     isError: false,
-    error: { message: 'Error!' }
+    error: { message: "Error!" },
   };
 
   const handleSubmit = (data: FormFields) => {
@@ -20,9 +21,10 @@ const Register: React.FC = () => {  // Use React.FC for type safety
   };
 
   return (
-    <div> 
-        <RegForm submit={handleSubmit} />
-        <RegistrationStatus {...mutation} />
+    <div>
+      <h1>Register</h1>
+      <RegForm submit={handleSubmit} />
+      <RegistrationStatus {...mutation} />
     </div>
   );
 };

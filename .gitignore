@@ -52,3 +52,4 @@ packages/shared/.turbo/
 # Turbo Repo
 + .turbo
 .turbo
+.DS_Store
