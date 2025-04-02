@@ -20,10 +20,6 @@ export const loginUser = async (req: Request, res: any) => {
     const validLogin: LoginRequestBody = loginSchema.parse(req.body);
     const { email, password } = validLogin;
 
-    if (!email || !password) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
-
     const user = await getWithEmail(email);
     if (!user) {
       return res.status(401).json({ message: "User not found" });
@@ -34,8 +30,9 @@ export const loginUser = async (req: Request, res: any) => {
       return res.status(401).json({ message: "Invalid password" });
     }
 
-    const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user);
+    const payload = { user_id: user.user_id!, role: user.role };
+    const accessToken = generateAccessToken(payload);
+    const refreshToken = generateRefreshToken(payload);
 
     // Save refresh token with user
     await addRefreshToken(user.user_id!, refreshToken);
@@ -44,7 +41,6 @@ export const loginUser = async (req: Request, res: any) => {
     res.cookie("jwt", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 1000, // 1 hour
     });
 
     res.json({ accessToken });
