@@ -10,12 +10,7 @@ export interface UserPayload {
   role: Role;
 }
 
-export function generateAccessToken(user: User) {
-  const payload: UserPayload = {
-    user_id: user.user_id!,
-    role: user.role,
-  };
-
+export function generateAccessToken(payload: UserPayload) {
   const accessToken = jwt.sign(payload, process.env.JWT_SECRET as string, {
     expiresIn: "13s",
   });
@@ -23,12 +18,7 @@ export function generateAccessToken(user: User) {
   return accessToken;
 }
 
-export function generateRefreshToken(user: User) {
-  const payload: UserPayload = {
-    user_id: user.user_id!,
-    role: user.role,
-  };
-
+export function generateRefreshToken(payload: UserPayload) {
   const refreshToken = jwt.sign(payload, process.env.JWT_SECRET as string, {
     expiresIn: "1h",
   });
