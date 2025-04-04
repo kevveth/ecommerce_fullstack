@@ -45,8 +45,9 @@ export async function refreshToken(req: Request, res: any) {
     }
 
     // Generate new access and refresh tokens
-    const newAccessToken = generateAccessToken(user);
-    const newRefreshToken = generateRefreshToken(user);
+    const payload = { user_id: user.user_id!, role: user.role };
+    const newAccessToken = generateAccessToken(payload);
+    const newRefreshToken = generateRefreshToken(payload);
 
     // Store the new refresh token and invalidate the old one
     await addRefreshToken(user.user_id!, newRefreshToken);
