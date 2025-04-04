@@ -22,13 +22,15 @@ export const userSchema = z.object({
 export type User = z.infer<typeof userSchema>;
 
 // Zod schema for creating new users (subset of userSchema + password)
-export const newUserSchema = userSchema
-  .pick({
-    username: true,
-    email: true,
-  })
-  .extend({
-    password: z.string().min(4, "Password must be at least 4 characters"),
+export const newUserSchema = z
+  .object({
+    username: z
+      .string()
+      .min(4, { message: "Username must be at least 4 characters long" }),
+    email: z.string().email(),
+    password: z
+      .string()
+      .min(4, { message: "Password must be at least 4 characters long" }),
   })
   .refine(async (data) => !(await checkEmailExists(data.email)), {
     message: "Email already exists",
@@ -53,6 +55,6 @@ export const updateUserSchema = userSchema
     {
       message: "No fields to update",
       path: [],
-    },
+    }
   );
 export type UpdateableUser = z.infer<typeof updateUserSchema>;
