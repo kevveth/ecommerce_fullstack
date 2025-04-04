@@ -30,3 +30,27 @@
   gap: "1rem";
   margin: "1rem";
 }
+
+/* styles.module.css */
+.loginLink {
+  /* Base color: Roman Red */
+  color: var(--primary); /* Deep red */
+  text-decoration: none;
+  font-weight: bold;
+  transition:
+    color 0.2s ease,
+    filter 0.2s ease;
+}
+
+.loginLink:hover {
+  /* Option A: Lighter shade of the Roman Red */
+  color: var(--primary-accent); /* A brighter, less deep red */
+  text-decoration: underline;
+}
+
+.loginPrompt {
+  /* Optional: Style the surrounding paragraph */
+  margin-top: 1rem;
+  text-align: center;
+  color: #333; /* Or use white (#FFF) if background is dark */
+}
