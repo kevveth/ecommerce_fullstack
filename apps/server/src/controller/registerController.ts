@@ -9,8 +9,8 @@ import BadRequestError from "../errors/BadRequestError";
 export async function registerUser(req: Request, res: Response) {
   try {
     // Validate Input
-    console.log(req.body);
     const validatedData = await newUserSchema.parseAsync(req.body);
+    console.log("Validated data: ");
     console.log(validatedData);
     const { username, email, password } = validatedData; // Destructure username, email, and password from the request body
 
