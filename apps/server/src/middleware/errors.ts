@@ -7,7 +7,7 @@ export const errorHandler = (
   err: Error,
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   if (err instanceof CustomError) {
     // Handled Errors
@@ -21,15 +21,19 @@ export const errorHandler = (
             stack: err.stack,
           },
           null,
-          2,
-        ),
+          2
+        )
       );
     }
 
     res.status(statusCode).send({ errors });
   } else if (isZodErrorLike(err)) {
+    console.log(err);
     console.log(fromZodError(err).toString());
-    res.status(400).json({ errors: err });
+    res.status(400).json({
+      message: "Validation failed",
+      errors: err.flatten().fieldErrors,
+    });
   } else {
     // Unhandled Errors
     console.error(JSON.stringify(err, null, 2));
