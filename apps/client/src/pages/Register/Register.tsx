@@ -1,38 +1,37 @@
 import React from "react";
-import { RegForm, FormFields } from "./RegistrationForm"; // Import types
-import { useRegisterUser } from "../../hooks/useRegisterUser";
-// import styles from './styles.module.css';
-import { RegistrationStatus } from "./RegistrationStatus";
 import { Link } from "react-router-dom";
+
+import { RegForm, FormFields } from "./RegistrationForm"; // Import RegForm and type
+import { useRegisterUser } from "../../hooks/useRegisterUser";
+import { RegistrationStatus } from "./RegistrationStatus";
 import styles from "./styles.module.css";
 
 const Register: React.FC = () => {
+  // Only manages the mutation state now
   const mutation = useRegisterUser();
-  // const mutation = {
-  //   //Mock mutation object
-  //   isPending: false,
-  //   isSuccess: false,
-  //   isError: false,
-  //   error: { message: "Error!" },
-  // };
 
-  const handleSubmit = (data: FormFields) => {
+  const handleRegistrationSubmit = (data: FormFields) => {
     mutation.mutate(data);
-    // console.log(data);
   };
 
   return (
     <div>
       <h1>Register</h1>
-      <RegForm submit={handleSubmit} />
+      {/* Pass down the submission handler and mutation pending state */}
+      <RegForm
+        submit={handleRegistrationSubmit}
+        isMutating={mutation.isPending} // Pass mutation pending status
+      />
+      {/* RegistrationStatus displays result based on mutation state */}
       <RegistrationStatus {...mutation} />
 
+      {/* Login Link */}
       <div className={styles.loginPrompt}>
-        <h5>
+        <p>
           <Link to="/login" className={styles.loginLink}>
             Already signed up? Log in here!
           </Link>
-        </h5>
+        </p>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { create } from "../services/auth/registration";
 import { env } from "../utils/env";
 import { newUserSchema } from "../models/user.model";
 import BadRequestError from "../errors/BadRequestError";
+import { ZodError } from "zod";
 
 //Handles creating a new user.
 export async function registerUser(req: Request, res: Response) {
@@ -28,7 +29,7 @@ export async function registerUser(req: Request, res: Response) {
 
     // const user = userSchema.parse(result);
     res.status(201).send({ data: result }); // Send the newly created user with 201 status code
-  } catch {
-    throw new BadRequestError({ message: "Failed to register new user" });
+  } catch (err) {
+    throw err;
   }
 }
