@@ -40,8 +40,11 @@ app.get("/api/me", isAuthenticated, async (req: Request, res: Response) => {
 // Error Handling
 app.use(errorHandler);
 
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-});
+// Only start the server if this file is run directly (not imported in tests)
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`Server is running at http://localhost:${port}`);
+  });
+}
 
 export default app;
