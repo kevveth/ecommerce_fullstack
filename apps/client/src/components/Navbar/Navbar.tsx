@@ -1,54 +1,109 @@
-import { Link } from "react-router-dom";
-import styles from "./styles.module.css";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import styles from "./styles.module.css";
+import { useState } from "react";
 
 export const Navbar = () => {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
+  const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const handleLogout = async () => {
-    await logout();
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
   };
 
   return (
     <nav className={styles.navbar}>
-      <ul>
-        <li>
-          <Link to="/">Home</Link>
-        </li>
+      <div className={styles.navContent}>
+        <div className={styles.logoSection}>
+          <Link to="/" className={styles.logo} onClick={closeMobileMenu}>
+            Ken's Coffee Company
+          </Link>
+        </div>
 
-        {/* Show these links only when user is not authenticated */}
-        {!isAuthenticated && (
-          <>
-            <li>
-              <Link to="/register">Register</Link>
-            </li>
-            <li>
-              <Link to="/login">Login</Link>
-            </li>
-          </>
-        )}
+        <button
+          className={styles.mobileMenuButton}
+          onClick={toggleMobileMenu}
+          aria-label="Toggle navigation menu"
+        >
+          {mobileMenuOpen ? "✕" : "☰"}
+        </button>
 
-        {/* Show these links only when user is authenticated */}
-        {isAuthenticated && (
-          <>
-            <li>
-              <Link to="/profiles">Profiles</Link>
+        <ul
+          className={`${styles.navList} ${mobileMenuOpen ? styles.open : ""}`}
+        >
+          <li className={styles.navItem}>
+            <Link
+              to="/"
+              className={`${styles.navLink} ${
+                location.pathname === "/" ? styles.active : ""
+              }`}
+              onClick={closeMobileMenu}
+            >
+              Home
+            </Link>
+          </li>
+
+          {/* Only show Profile link if logged in */}
+          {isAuthenticated && (
+            <li className={styles.navItem}>
+              <Link
+                to="/profile"
+                className={`${styles.navLink} ${
+                  location.pathname === "/profile" ? styles.active : ""
+                }`}
+                onClick={closeMobileMenu}
+              >
+                Profile
+              </Link>
             </li>
-            {user && (
-              <li>
-                <Link to={`/profiles/${user.username ?? user.user_id}`}>
-                  My Profile
-                </Link>
-              </li>
-            )}
-            <li>
-              <button onClick={handleLogout} className={styles.logoutButton}>
+          )}
+
+          {/* Admin can see all profiles */}
+          {user?.role === "admin" && (
+            <li className={styles.navItem}>
+              <Link
+                to="/profiles"
+                className={`${styles.navLink} ${
+                  location.pathname === "/profiles" ? styles.active : ""
+                }`}
+                onClick={closeMobileMenu}
+              >
+                All Profiles
+              </Link>
+            </li>
+          )}
+
+          {/* Login/Logout button */}
+          <li className={styles.navItem}>
+            {isAuthenticated ? (
+              <button
+                onClick={() => {
+                  logout();
+                  closeMobileMenu();
+                }}
+                className={styles.navLink}
+              >
                 Logout
               </button>
-            </li>
-          </>
-        )}
-      </ul>
+            ) : (
+              <Link
+                to="/login"
+                className={`${styles.navLink} ${
+                  location.pathname === "/login" ? styles.active : ""
+                }`}
+                onClick={closeMobileMenu}
+              >
+                Login
+              </Link>
+            )}
+          </li>
+        </ul>
+      </div>
     </nav>
   );
 };

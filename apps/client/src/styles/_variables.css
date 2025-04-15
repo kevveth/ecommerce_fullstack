@@ -1,6 +1,39 @@
 :root {
-  --primary: #a02020; /* Roman Red */
-  --primary-accent: #c04040;
-  --secondary: #556b2f; /* Dark Olive Green */
-  --text: #fff;
+  /* Primary Colors - Warm Brown */
+  --primary: #5d4037; /* Rich brown - main brand color */
+  --primary-accent: #8d6e63; /* Lighter brown for accents and hover states */
+
+  /* Secondary Colors - Creamy Accent */
+  --secondary: #d7ccc8; /* Warm cream for calls-to-action */
+  --secondary-accent: #ffccbc; /* Soft peach for secondary elements */
+
+  /* Neutral Colors */
+  --background-light: #f5f5f5; /* Warm white background */
+  --background-dark: #3e2723; /* Deep espresso for dark mode */
+  --text-dark: #3e2723; /* Rich espresso for primary text */
+  --text-light: #ffffff; /* White text for dark backgrounds */
+
+  /* Border Colors */
+  --border-color: #d7ccc8; /* Subtle cream for borders */
+
+  /* Status Colors */
+  --error: #c62828; /* Deep red for errors */
+  --success: #2e7d32; /* Forest green for success */
+  --warning: #ef6c00; /* Amber orange for warnings */
+  --highlight: #bcaaa4; /* Light taupe for highlighting */
+
+  /* Other UI Colors */
+  --shadow: rgba(62, 39, 35, 0.1); /* Subtle shadow */
+  --overlay: rgba(62, 39, 35, 0.7); /* Dark overlay for modals */
+
+  /* Additional Colors */
+  --neutral-100: #f8f4f1; /* Lightest neutral - cream */
+  --neutral-200: #e8e6e1; /* Very light taupe */
+  --neutral-300: #d1ccc7; /* Light taupe for disabled elements */
+  --neutral-400: #bcaaa4; /* Medium light taupe */
+  --neutral-500: #a1887f; /* Medium brown for secondary text */
+  --neutral-600: #795548; /* Medium dark brown */
+  --neutral-700: #5d4037; /* Dark brown */
+  --neutral-800: #4e342e; /* Very dark brown */
+  --neutral-900: #3e2723; /* Nearly black espresso */
 }

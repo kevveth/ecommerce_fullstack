@@ -2,6 +2,7 @@ import { useState } from "react";
 import { LoginForm, LoginFormFields } from "./LoginForm";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import styles from "./styles.module.css";
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -32,7 +33,7 @@ const Login = () => {
 
   return (
     <>
-      <h1>Login</h1>
+      <h1 className={styles.loginTitle}>Login</h1>
       {loginError && <div className="error-message">{loginError}</div>}
       {isLoading ? (
         <div className="spinner">Loading...</div>

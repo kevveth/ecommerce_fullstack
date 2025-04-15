@@ -5,7 +5,7 @@ import Login from "../pages/Login/Login";
 import { NotFound } from "../errors/NotFound";
 import { Profile } from "../pages/Profile";
 import { Profiles } from "../pages/Profiles";
-import { PageLayout } from "./PageLayout";
+import PageLayout from "./PageLayout";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { useEffect } from "react";
 
@@ -19,7 +19,7 @@ export const Router: React.FC = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<PageLayout />}>
+      <Route element={<PageLayout />}>
         {/* Public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
