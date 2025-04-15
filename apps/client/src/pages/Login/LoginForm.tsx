@@ -2,16 +2,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
+import { loginSchema } from "@repo/shared/schemas";
+import styles from "./styles.module.css";
 
-const schema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8, "Password must contain at least 8 characters"),
-});
-
-export type FormFields = z.infer<typeof schema>;
+export type LoginFormFields = z.infer<typeof loginSchema>;
 
 interface LoginProps {
-  submit: (data: FormFields) => void;
+  submit: (data: LoginFormFields) => void;
 }
 
 export function LoginForm({ submit }: LoginProps) {
@@ -19,38 +16,42 @@ export function LoginForm({ submit }: LoginProps) {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<FormFields>({
-    resolver: zodResolver(schema),
+  } = useForm<LoginFormFields>({
+    resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit: SubmitHandler<FormFields> = submit;
+  const onSubmit: SubmitHandler<LoginFormFields> = (data) => submit(data);
 
   return (
     <form
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "1rem",
-        margin: "1rem",
-      }}
+      className={styles.loginFormContainer}
       onSubmit={handleSubmit(onSubmit)}
     >
-      <input {...register("email")} type="email" placeholder="Email" />
-      {errors.email && (
-        <div style={{ color: "red", fontSize: "0.8em" }}>
-          {errors.email.message}
-        </div>
-      )}
+      {/* Email */}
+      <div className={styles.inputGroup}>
+        <label htmlFor="email">Email</label>
+        <input className={styles.input} {...register("email")} type="email" />
+        {errors.email && (
+          <div className={styles.errorField}>{errors.email.message}</div>
+        )}
+      </div>
 
-      <input {...register("password")} type="password" placeholder="Password" />
-      {errors.password && (
-        <div style={{ color: "red", fontSize: "0.8em" }}>
-          {errors.password.message}
-        </div>
-      )}
+      {/* Password */}
+      <div className={styles.inputGroup}>
+        <label htmlFor="password">Password</label>
+        <input
+          className={styles.input}
+          {...register("password")}
+          type="password"
+        />
+        {errors.password && (
+          <div className={styles.errorField}>{errors.password.message}</div>
+        )}
+      </div>
 
-      <button disabled={isSubmitting} type="submit">
-        {isSubmitting ? "Loading..." : "Login"}
+      {/* Login Button  */}
+      <button disabled={isSubmitting} type="submit" className="loginButton">
+        {isSubmitting ? "Logging in..." : "Login"}
       </button>
     </form>
   );
