@@ -117,6 +117,10 @@
 
 /* Dark mode styles */
 @media (prefers-color-scheme: dark) {
+  .pageContainer {
+    background-color: var(--background-dark);
+  }
+
   .contentWrapper {
     background-color: rgba(62, 39, 35, 0.9);
     color: var(--text-light);
