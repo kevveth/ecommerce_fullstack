@@ -19,7 +19,17 @@ export const Router: React.FC = () => {
 
   return (
     <Routes>
-      <Route element={<PageLayout />}>
+      <Route
+        element={
+          <PageLayout
+            pageTitle={
+              location.pathname === "/"
+                ? "Welcome to Ken's Coffee Company"
+                : undefined
+            }
+          />
+        }
+      >
         {/* Public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
