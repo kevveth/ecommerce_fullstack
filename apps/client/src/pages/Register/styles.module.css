@@ -17,6 +17,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.3rem; /* Space between label, input, error */
+  text-align: left;
 }
 
 /* --- Labels and Inputs --- */
@@ -65,7 +66,7 @@
 /* --- Submit Button --- */
 .submitButton {
   padding: 0.75rem 1rem;
-  background-color: var(--secondary); /* Example blue */
+  background-color: var(--secondary);
   color: white;
   border: none;
   border-radius: 4px;

@@ -1,5 +1,5 @@
 import { useMutation, UseMutationResult } from "@tanstack/react-query";
-import { FormFields } from "../pages/Register/RegistrationForm";
+import { RegistrationFormFields } from "../pages/Register/RegistrationForm";
 
 interface RegistrationSuccessData {
   user_id: number;
@@ -9,7 +9,7 @@ interface RegistrationSuccessResponse {
   data: RegistrationSuccessData;
 }
 
-type FieldErrors = Partial<Record<keyof FormFields, string[]>>;
+type FieldErrors = Partial<Record<keyof RegistrationFormFields, string[]>>;
 
 interface RegistrationErrorResponse {
   message: string;
@@ -17,7 +17,7 @@ interface RegistrationErrorResponse {
 }
 
 const registerUserAPICall = async (
-  data: FormFields
+  data: RegistrationFormFields
 ): Promise<RegistrationSuccessResponse> => {
   const response = await fetch("http://localhost:3000/api/auth/register", {
     method: "POST",
@@ -38,7 +38,6 @@ const registerUserAPICall = async (
       console.error("Failed to parse error response JSON:", e);
     }
 
-    // --- Determine the best error message to throw ---
     let messageToThrow = "Registration failed due to an unknown server error."; // Final fallback
 
     // 1. Check for the specific nested email error first
@@ -55,7 +54,6 @@ const registerUserAPICall = async (
       messageToThrow =
         `HTTP error! Status: ${response.status} ${response.statusText || ""}`.trim();
     }
-    // --- End determining message ---
 
     // Throw an error containing the most specific message found
     throw new Error(messageToThrow);
@@ -70,9 +68,13 @@ const registerUserAPICall = async (
 export const useRegisterUser = (): UseMutationResult<
   RegistrationSuccessResponse,
   Error,
-  FormFields
+  RegistrationFormFields
 > => {
-  return useMutation<RegistrationSuccessResponse, Error, FormFields>({
+  return useMutation<
+    RegistrationSuccessResponse,
+    Error,
+    RegistrationFormFields
+  >({
     mutationFn: registerUserAPICall,
     onSuccess: ({ data }) => {
       console.log("Registration successful! User ID:", data.user_id);

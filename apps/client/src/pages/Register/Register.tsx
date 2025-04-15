@@ -1,16 +1,16 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { RegForm, FormFields } from "./RegistrationForm"; // Import RegForm and type
+import { RegForm, RegistrationFormFields } from "./RegistrationForm"; // Import RegForm and type
 import { useRegisterUser } from "../../hooks/useRegisterUser";
 import { RegistrationStatus } from "./RegistrationStatus";
 import styles from "./styles.module.css";
 
 const Register: React.FC = () => {
-  // Only manages the mutation state now
+  // Only manages the mutation state
   const mutation = useRegisterUser();
 
-  const handleRegistrationSubmit = (data: FormFields) => {
+  const handleRegistrationSubmit = (data: RegistrationFormFields) => {
     mutation.mutate(data);
   };
 

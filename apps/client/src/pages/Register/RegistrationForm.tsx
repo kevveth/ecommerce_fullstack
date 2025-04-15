@@ -2,18 +2,13 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import styles from "./styles.module.css"; // Your CSS Module
+import { registrationSchema } from "@repo/shared/schemas";
 
-// Define schema and type here, where useForm is called
-const registrationSchema = z.object({
-  username: z.string().min(4, "Username must be at least 4 characters"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-});
-export type FormFields = z.infer<typeof registrationSchema>;
+export type RegistrationFormFields = z.infer<typeof registrationSchema>;
 
 // Define props expected from the parent
 interface RegFormProps {
-  submit: (data: FormFields) => void; // Function to call on valid submit
+  submit: (data: RegistrationFormFields) => void;
   isMutating?: boolean; // Is the parent mutation pending?
 }
 
@@ -24,17 +19,14 @@ export function RegForm({ submit, isMutating }: RegFormProps) {
     handleSubmit,
     formState: { errors, isSubmitting: isFormSubmitting }, // RHF's state
     // reset, // Get reset if you want to clear form on success (triggered from parent maybe?)
-  } = useForm<FormFields>({
+  } = useForm<RegistrationFormFields>({
     resolver: zodResolver(registrationSchema),
     mode: "onChange", // Keep client-side validation on change
   });
 
   // This now calls the 'submit' prop passed from Register.tsx
-  const onSubmit: SubmitHandler<FormFields> = (data) => {
+  const onSubmit: SubmitHandler<RegistrationFormFields> = (data) => {
     submit(data);
-    // Note: Can't easily call reset() here based on mutation success
-    // without passing more props or state down. Usually reset on success
-    // would be handled in the parent component's mutation onSuccess callback if needed.
   };
 
   // Combine RHF submitting state with parent mutation pending state
@@ -47,12 +39,9 @@ export function RegForm({ submit, isMutating }: RegFormProps) {
       onSubmit={handleSubmit(onSubmit)}
       noValidate
     >
-      {/* Inputs and Client-Side Error Displays */}
       {/* Username */}
       <div className={styles.inputGroup}>
-        <label htmlFor="username" style={{ textAlign: "left" }}>
-          Username
-        </label>
+        <label htmlFor="username">Username</label>
         <input
           id="username"
           {...register("username")}
@@ -67,9 +56,7 @@ export function RegForm({ submit, isMutating }: RegFormProps) {
 
       {/* Email */}
       <div className={styles.inputGroup}>
-        <label htmlFor="username" style={{ textAlign: "left" }}>
-          Email
-        </label>
+        <label htmlFor="email">Email</label>
         <input
           id="email"
           {...register("email")}
@@ -85,9 +72,7 @@ export function RegForm({ submit, isMutating }: RegFormProps) {
 
       {/* Password */}
       <div className={styles.inputGroup}>
-        <label htmlFor="username" style={{ textAlign: "left" }}>
-          Password
-        </label>
+        <label htmlFor="password">Password</label>
         <input
           id="password"
           {...register("password")}
