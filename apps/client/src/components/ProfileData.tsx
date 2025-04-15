@@ -1,4 +1,4 @@
-import type { User } from '../../../server/src/models/user.model';
+import type { User } from "../../../server/src/models/user.model";
 
 interface ProfileDataProps {
   data?: User;
