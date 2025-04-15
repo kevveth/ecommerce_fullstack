@@ -3,7 +3,7 @@ import type { User } from "../../../server/src/models/user.model";
 
 export function useFetchUser(username?: string) {
   if (!username) {
-    throw new Error("Username is required)");
+    throw new Error("Username is required");
   }
 
   const { data, isPending, isError } = useQuery({

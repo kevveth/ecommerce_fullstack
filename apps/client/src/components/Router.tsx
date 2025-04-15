@@ -5,6 +5,7 @@ import Login from "../pages/Login/Login";
 import { NotFound } from "../errors/NotFound";
 import { Profile } from "../pages/Profile";
 import { Profiles } from "../pages/Profiles";
+import { MyProfile } from "../pages/MyProfile";
 import PageLayout from "./PageLayout";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { useEffect } from "react";
@@ -39,6 +40,7 @@ export const Router: React.FC = () => {
           <Route path="/" element={<Home />} />
           <Route path="/profiles" element={<Profiles />} />
           <Route path="/profiles/:username" element={<Profile />} />
+          <Route path="/profile" element={<MyProfile />} />
         </Route>
 
         {/* Admin-only routes */}
