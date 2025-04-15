@@ -54,10 +54,15 @@ createAuthRefreshInterceptor(api, refreshAuthLogic, {
 
 // Login function
 export const login = async (email: string, password: string) => {
-  const response = await api.post("/auth/login", { email, password });
-  const { accessToken } = response.data;
-  setAuthToken(accessToken);
-  return accessToken;
+  try {
+    const response = await api.post("/auth/login", { email, password });
+    const { accessToken } = response.data;
+    setAuthToken(accessToken);
+    return accessToken;
+  } catch (error) {
+    console.error("Login error:", error);
+    throw error;
+  }
 };
 
 // Logout function
@@ -75,9 +80,10 @@ export const logout = async () => {
 // Get current user profile
 export const getCurrentUser = async () => {
   try {
-    const response = await api.get("/me");
+    const response = await api.get("/users/profile");
     return response.data;
   } catch (error) {
+    console.error("Get user error:", error);
     // If the request fails due to authentication issues
     if ((error as AxiosError).response?.status === 401) {
       setAuthToken(null);
