@@ -6,7 +6,7 @@ const RoleSchema = z.enum(["admin", "user"]);
 export type Role = z.infer<typeof RoleSchema>;
 
 export const userSchema = z.object({
-  user_id: IDSchema, // Optional ID, auto-generated
+  user_id: IDSchema,
   username: z.string(),
   email: z.string().email(),
   password_hash: z.string(),
@@ -18,3 +18,14 @@ export const userSchema = z.object({
   role: RoleSchema,
 });
 export type User = z.infer<typeof userSchema>;
+
+export const registrationSchema = z.object({
+  username: z.string().min(4, "Username must be at least 4 characters"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+export const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8, "Password must contain at least 8 characters"),
+});
