@@ -16,7 +16,7 @@ const Register: React.FC = () => {
 
   return (
     <div>
-      <h1>Register</h1>
+      <h1 className={styles.registerTitle}>Register</h1>
       {/* Pass down the submission handler and mutation pending state */}
       <RegForm
         submit={handleRegistrationSubmit}

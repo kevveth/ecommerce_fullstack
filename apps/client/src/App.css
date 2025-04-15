@@ -1,8 +1,11 @@
 #root {
-  max-width: 1280px;
+  width: 100%;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 .logo {
@@ -12,10 +15,10 @@
   transition: filter 300ms;
 }
 .logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+  filter: drop-shadow(0 0 2em var(--primary-accent));
 }
 .logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+  filter: drop-shadow(0 0 2em var(--primary-accent));
 }
 
 @keyframes logo-spin {
@@ -33,10 +36,248 @@
   }
 }
 
+/* Coffee theme card styles */
 .card {
   padding: 2em;
+  background-color: var(--neutral-100);
+  border-radius: 8px;
+  box-shadow: 0 3px 10px var(--shadow);
+  border: 1px solid var(--neutral-300);
+  margin: 1rem 0;
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--text-dark);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px var(--shadow);
+  border-color: var(--primary-accent);
 }
 
 .read-the-docs {
-  color: #888;
+  color: var(--neutral-600);
+  margin: 1rem 0;
+  font-style: italic;
+  font-family: "Georgia", serif;
+}
+
+/* Enhanced coffee theme specific styles */
+.coffee-bg {
+  background-color: var(--background-light);
+  position: relative;
+}
+
+.coffee-bg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("/coffee-beans-bg.png");
+  background-size: 200px;
+  background-repeat: repeat;
+  opacity: 0.05;
+  z-index: -1;
+}
+
+.coffee-text {
+  font-family: "Georgia", serif;
+  color: var(--neutral-700);
+  line-height: 1.6;
+}
+
+.coffee-title {
+  color: var(--primary);
+  font-family: "Georgia", serif;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  text-shadow: 1px 1px 2px var(--shadow);
+  position: relative;
+}
+
+.coffee-title::after {
+  content: "";
+  display: block;
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(to right, var(--primary), var(--primary-accent));
+  margin: 0.5rem auto 1rem;
+  border-radius: 2px;
+}
+
+.coffee-subtitle {
+  color: var(--primary-accent);
+  font-family: "Georgia", serif;
+  font-size: 1.8rem;
+  margin-bottom: 0.8rem;
+}
+
+/* Accent elements */
+.coffee-accent {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: var(--primary);
+  color: var(--text-light);
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.coffee-highlight {
+  color: var(--primary);
+  font-weight: bold;
+  position: relative;
+  display: inline-block;
+}
+
+.coffee-highlight::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 3px;
+  background-color: var(--secondary-accent);
+  border-radius: 2px;
+  opacity: 0.4;
+}
+
+/* Container for responsiveness */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Grid system */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1rem;
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 1024px) {
+  .grid {
+    gap: 0.75rem;
+  }
+
+  .card {
+    padding: 1.5em;
+  }
+
+  .logo {
+    height: 5em;
+    padding: 1.25em;
+  }
+
+  .coffee-title {
+    font-size: 2.25rem;
+  }
+
+  .coffee-subtitle {
+    font-size: 1.6rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.5rem;
+  }
+
+  .card {
+    padding: 1.25em;
+  }
+
+  .container {
+    padding: 0 0.75rem;
+  }
+
+  .logo {
+    height: 4em;
+    padding: 1em;
+  }
+
+  .coffee-title {
+    font-size: 2rem;
+  }
+
+  .coffee-subtitle {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .card {
+    padding: 1em;
+    margin: 0.75rem 0;
+  }
+
+  .container {
+    padding: 0 0.5rem;
+  }
+
+  .logo {
+    height: 3.5em;
+    padding: 0.75em;
+  }
+
+  .read-the-docs {
+    font-size: 0.9rem;
+  }
+
+  .coffee-title {
+    font-size: 1.75rem;
+  }
+
+  .coffee-subtitle {
+    font-size: 1.4rem;
+  }
+
+  .coffee-title::after {
+    width: 60px;
+    height: 2px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .card {
+    background-color: var(--neutral-800);
+    border-color: var(--neutral-700);
+    color: var(--text-light);
+  }
+
+  .read-the-docs {
+    color: var(--neutral-400);
+  }
+
+  .coffee-text {
+    color: var(--neutral-300);
+  }
+
+  .coffee-title {
+    color: var(--secondary-accent);
+  }
+
+  .coffee-subtitle {
+    color: var(--secondary);
+  }
+
+  .coffee-highlight::after {
+    background-color: var(--primary-accent);
+  }
+
+  .coffee-bg::before {
+    opacity: 0.07;
+  }
 }
