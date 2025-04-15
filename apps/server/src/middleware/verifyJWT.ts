@@ -18,16 +18,17 @@ declare global {
 export const authenticate = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   const { authorization } = req.headers;
-  if (!authorization?.startsWith("Bearer "))
-    next(
+  if (!authorization?.startsWith("Bearer ")) {
+    return next(
       new UnauthorizedError({
         message: "Unauthorized: Missing token",
         logging: true,
-      }),
+      })
     );
+  }
 
   const token = authorization?.split(" ")[1];
   // console.log(token);
@@ -35,13 +36,14 @@ export const authenticate = async (
   let decoded = null;
   if (token) decoded = verifyToken(token);
 
-  if (!decoded)
-    next(
+  if (!decoded) {
+    return next(
       new UnauthorizedError({
         message: "Unauthorized: Invalid token",
         logging: true,
-      }),
+      })
     );
+  }
 
   try {
     req.user = {
@@ -70,7 +72,7 @@ export const authorize = (requiredRole: string) => {
 export function isAuthenticated(
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) {
   if (req.user) {
     next();
