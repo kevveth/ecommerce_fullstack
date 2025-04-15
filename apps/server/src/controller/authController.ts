@@ -4,7 +4,7 @@ import { addRefreshToken } from "../services/auth/refresh";
 
 import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
 import { z } from "zod";
-import type { User } from "@repo/shared/types";
+import type { User } from "@repo/shared/schemas";
 import { getWithEmail } from "../services/users";
 
 const loginSchema = z.object({
