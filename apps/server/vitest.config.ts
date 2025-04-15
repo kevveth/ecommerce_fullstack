@@ -3,10 +3,9 @@ import { defineConfig } from "vitest/config"; // Import from 'vitest/config'
 
 export default defineConfig({
   test: {
-    // Configure Vitest for your *server-side* tests here
     globals: true, // Often useful for Node.js testing
     environment: "node", // IMPORTANT: Set the environment to 'node'
-    // Add other Vitest options as needed
+    setupFiles: ["./src/test/setup.ts"], // Use our centralized setup file
     coverage: {
       provider: "v8", // or 'istanbul' - for code coverage
       reporter: ["text", "json", "html"], // Example reporters
@@ -17,5 +16,6 @@ export default defineConfig({
         "**/*.spec.ts", // Exclude test files themselves
       ],
     },
+    testTimeout: 10000, // Increase timeout for API tests
   },
 });

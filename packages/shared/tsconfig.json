@@ -4,6 +4,7 @@
     "module": "NodeNext", // Or "CommonJS", "UMD", etc., depending on usage
     "moduleResolution": "NodeNext", // or "Node", "Node16", "Classic"
     "declaration": true, // Generate .d.ts files
+    "declarationMap": true,
     "outDir": "./dist",
     "esModuleInterop": true, // Enables interoperability between CommonJS and ES modules
     "forceConsistentCasingInFileNames": true,
