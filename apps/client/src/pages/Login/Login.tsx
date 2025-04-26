@@ -2,8 +2,8 @@ import { useState } from "react";
 import { LoginForm } from "./LoginForm";
 import { useNavigate, useLocation, Link } from "react-router";
 import { useAuth } from "../../context/AuthContext";
-import { LoginInput } from "@repo/shared/schemas";
 import styles from "./styles.module.css";
+import { LoginInput } from "@repo/shared/schemas";
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);

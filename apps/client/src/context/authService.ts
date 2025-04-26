@@ -75,6 +75,7 @@ if (token) {
 // Login function using the LoginInput type
 export const login = async (loginData: LoginInput): Promise<AuthResponse> => {
   try {
+    // Using the proper API path with /auth/login instead of just /login
     const response = await api.post<AuthResponse>("/auth/login", loginData);
     const { accessToken } = response.data;
     setAuthToken(accessToken);
