@@ -114,4 +114,18 @@ export const getCurrentUser = async (): Promise<AuthResponse> => {
   }
 };
 
+// Handle Google authentication callback
+export const handleGoogleAuthCallback = async (
+  token: string
+): Promise<AuthResponse> => {
+  try {
+    setAuthToken(token);
+    const userData = await getCurrentUser();
+    return userData;
+  } catch (error) {
+    console.error("Google auth callback error:", error);
+    throw error;
+  }
+};
+
 export default api;

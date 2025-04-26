@@ -24,6 +24,8 @@ interface AuthContextType {
   isLoading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => void;
+  handleAuthCallback: (token: string) => Promise<any>;
   logout: () => Promise<void>;
 }
 
@@ -34,6 +36,8 @@ const AuthContext = createContext<AuthContextType>({
   isLoading: true,
   error: null,
   login: async () => {},
+  loginWithGoogle: () => {},
+  handleAuthCallback: async () => ({}),
   logout: async () => {},
 });
 
@@ -139,6 +143,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // Fixed Google login handler with absolute URL
+  const loginWithGoogle = () => {
+    // Use the server URL directly instead of relying on environment variables
+    // Default to localhost:3001 if not in production
+    const serverUrl =
+      process.env.NODE_ENV === "production"
+        ? import.meta.env.VITE_SERVER_URL
+        : "http://localhost:3001";
+
+    window.location.href = `${serverUrl}/api/auth/google`;
+  };
+
+  // Add function to handle token from URL after Google redirect
+  const handleAuthCallback = async (token: string) => {
+    try {
+      // Store the token
+      authService.setAuthToken(token);
+
+      // Get the current user data
+      const userData = await authService.getCurrentUser();
+      setUser(userData.user);
+      return userData;
+    } catch (err: any) {
+      setError("Failed to process authentication");
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = async () => {
     setIsLoading(true);
 
@@ -159,6 +193,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isLoading,
     error,
     login,
+    loginWithGoogle,
+    handleAuthCallback,
     logout,
   };
 

@@ -31,7 +31,8 @@ router.get(
         new NotFoundError({ message: "User not found", logging: true })
       );
 
-    const privateUser = await getWithId(req.user.user_id as number);
+    // Now that we've extended the Express.User interface, TypeScript knows about user_id
+    const privateUser = await getWithId(req.user.user_id);
 
     if (!privateUser)
       return next(
@@ -41,7 +42,8 @@ router.get(
         })
       );
 
-    const safeUser: Omit<User, "password"> = privateUser;
+    // Create a safe user object without password
+    const { password_hash, ...safeUser } = privateUser;
 
     res.json({ message: "User Profile Data", user: safeUser });
   }

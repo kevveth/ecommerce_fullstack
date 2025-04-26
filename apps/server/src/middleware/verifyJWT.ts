@@ -4,11 +4,11 @@ import { getWithId } from "../services/users";
 import UnauthorizedError from "../errors/UnauthorizedError";
 import type { UserPayload } from "../utils/jwt";
 
+// Use a module augmentation approach instead of declaring a conflicting interface
 declare global {
   namespace Express {
-    interface Request {
-      user?: UserPayload;
-    }
+    // Extend the User interface to include our properties
+    interface User extends UserPayload {}
   }
 }
 
@@ -56,7 +56,7 @@ export const authenticate = async (
 
 export const authorize = (requiredRole: string) => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    if (req.user?.role !== requiredRole) {
+    if (!req.user || req.user.role !== requiredRole) {
       return next(
         new UnauthorizedError({
           message: "Forbidden: Insufficient permissions",

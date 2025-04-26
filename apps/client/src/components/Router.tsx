@@ -7,6 +7,7 @@ import { Profile } from "../pages/Profile/Profile";
 import { Profiles } from "../pages/Profiles/Profiles";
 import PageLayout from "./PageLayout/PageLayout";
 import { ProtectedRoute } from "./ProtectedRoute";
+import AuthCallback from "./AuthCallback/AuthCallback";
 
 export const Router: React.FC = () => {
   const location = useLocation();
@@ -19,6 +20,7 @@ export const Router: React.FC = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/" element={<Home />} />
+        <Route path="/auth/success" element={<AuthCallback />} />
 
         {/* protected routes - wrapped with ProtectedRoute */}
         <Route element={<ProtectedRoute />}>

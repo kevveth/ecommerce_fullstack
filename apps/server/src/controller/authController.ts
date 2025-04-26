@@ -54,6 +54,17 @@ export const loginUser = async (
       );
     }
 
+    // Check if the user has a password_hash (if not, they're using OAuth)
+    if (!user.password_hash) {
+      return next(
+        new UnauthorizedError({
+          message:
+            "This account uses social login. Please sign in with Google.",
+          logging: false,
+        })
+      );
+    }
+
     const passwordMatch = await bcrypt.compare(password, user.password_hash);
     if (!passwordMatch) {
       return next(

@@ -165,6 +165,61 @@
   border: 1px solid var(--error);
 }
 
+/* --- Google Sign-In Button --- */
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.divider span {
+  padding: 0 10px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.socialLogin {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.googleButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background-color: white;
+  color: #444;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%;
+}
+
+.googleButton:hover {
+  background-color: #f5f5f5;
+}
+
+.googleIcon {
+  width: 18px;
+  height: 18px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 480px) {
   .loginFormContainer {

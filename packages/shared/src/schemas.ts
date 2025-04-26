@@ -15,13 +15,14 @@ export const userSchema = z.object({
   user_id: IDSchema,
   username: z.string().min(4, "Username must be at least 4 characters"),
   email: z.string().email("Invalid email format"),
-  password_hash: z.string(),
+  password_hash: z.string().nullable(), // Changed to nullable to support OAuth users
   street_address: z.string().nullish(),
   city: z.string().nullish(),
   state: z.string().nullish(),
   zip_code: z.string().nullish(),
   country: z.string().nullish(),
   role: RoleSchema,
+  google_id: z.string().nullish(), // Added google_id for OAuth authentication
 });
 export type User = z.infer<typeof userSchema>;
 
