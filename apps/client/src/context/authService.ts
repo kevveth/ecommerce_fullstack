@@ -1,5 +1,6 @@
 import axios, { AxiosError, AxiosInstance } from "axios";
 import createAuthRefreshInterceptor from "axios-auth-refresh";
+import { LoginInput } from "@repo/shared/schemas";
 
 // Create a base axios instance
 const api: AxiosInstance = axios.create({
@@ -10,12 +11,25 @@ const api: AxiosInstance = axios.create({
   withCredentials: true, // Important for cookies
 });
 
+// Interface for auth responses
+interface AuthResponse {
+  accessToken: string;
+  user: {
+    user_id: number;
+    username: string;
+    email: string;
+    role: string;
+  };
+}
+
 // Function to set the auth token on all requests
 export const setAuthToken = (token: string | null) => {
   if (token) {
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    localStorage.setItem("accessToken", token); // Optional: store in localStorage
   } else {
     delete api.defaults.headers.common["Authorization"];
+    localStorage.removeItem("accessToken"); // Optional: remove from localStorage
   }
 };
 
@@ -23,7 +37,7 @@ export const setAuthToken = (token: string | null) => {
 const refreshAuthLogic = async (failedRequest: any) => {
   try {
     // Call the refresh token endpoint
-    const response = await axios.post(
+    const response = await axios.post<AuthResponse>(
       "/api/auth/refresh-token",
       {},
       { withCredentials: true } // Important to include HttpOnly cookies
@@ -52,13 +66,19 @@ createAuthRefreshInterceptor(api, refreshAuthLogic, {
   pauseInstanceWhileRefreshing: true, // Prevent other requests during refresh
 });
 
-// Login function
-export const login = async (email: string, password: string) => {
+// Initialize auth header from storage (if available)
+const token = localStorage.getItem("accessToken");
+if (token) {
+  setAuthToken(token);
+}
+
+// Login function using the LoginInput type
+export const login = async (loginData: LoginInput): Promise<AuthResponse> => {
   try {
-    const response = await api.post("/auth/login", { email, password });
+    const response = await api.post<AuthResponse>("/auth/login", loginData);
     const { accessToken } = response.data;
     setAuthToken(accessToken);
-    return accessToken;
+    return response.data;
   } catch (error) {
     console.error("Login error:", error);
     throw error;
@@ -74,13 +94,14 @@ export const logout = async () => {
     console.error("Logout error:", error);
     // Even if the logout API fails, still clear the token locally
     setAuthToken(null);
+    throw error;
   }
 };
 
-// Get current user profile
-export const getCurrentUser = async () => {
+// Get current user profile with proper typing
+export const getCurrentUser = async (): Promise<AuthResponse> => {
   try {
-    const response = await api.get("/users/profile");
+    const response = await api.get<AuthResponse>("/users/profile");
     return response.data;
   } catch (error) {
     console.error("Get user error:", error);

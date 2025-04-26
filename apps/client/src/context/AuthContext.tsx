@@ -5,20 +5,21 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import * as authService from "./authService";
+import { User, LoginInput } from "@repo/shared/schemas";
 
-// Define the user type
-interface User {
+// Define the auth user type (subset of full User type)
+interface AuthUser {
   user_id: number;
   username: string;
+  email: string;
   role: string;
-  // Add any other user properties you need
 }
 
-// Define the context type
+// Define the context type with improved error handling
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
@@ -45,7 +46,7 @@ interface AuthProviderProps {
 
 // Create the Auth Provider component
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -72,11 +73,66 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setError(null);
 
     try {
-      await authService.login(email, password);
-      const userData = await authService.getCurrentUser();
-      setUser(userData.user);
+      // Create a proper login input object and pass it to the service
+      const loginData: LoginInput = { email, password };
+      const response = await authService.login(loginData);
+      setUser(response.user);
     } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to login");
+      // Improved error handling to handle different error response formats
+      let errorMessage = "Failed to login";
+
+      if (err.response?.data) {
+        // Handle structured Zod validation errors
+        if (err.response.data.errors) {
+          try {
+            const fieldErrors: string[] = [];
+
+            // Extract field errors using a safer approach
+            Object.entries(err.response.data.errors).forEach(
+              ([field, value]) => {
+                // Skip the _errors property at the root level
+                if (field === "_errors") {
+                  const rootErrors = Array.isArray(value) ? value : [];
+                  if (rootErrors.length > 0) {
+                    fieldErrors.push(...rootErrors);
+                  }
+                }
+                // Handle nested field errors (_errors array within each field)
+                else if (
+                  value &&
+                  typeof value === "object" &&
+                  "_errors" in value
+                ) {
+                  const errors = Array.isArray(value._errors)
+                    ? value._errors
+                    : [];
+                  if (errors.length > 0) {
+                    fieldErrors.push(`${field}: ${errors.join(", ")}`);
+                  }
+                }
+              }
+            );
+
+            if (fieldErrors.length > 0) {
+              errorMessage = fieldErrors.join("; ");
+            } else {
+              errorMessage = err.response.data.message || errorMessage;
+            }
+          } catch (parseErr) {
+            console.error("Error parsing validation errors:", parseErr);
+            errorMessage = err.response.data.message || errorMessage;
+          }
+        }
+        // Handle simple message errors
+        else if (err.response.data.message) {
+          errorMessage = err.response.data.message;
+        }
+      } else if (err.message) {
+        // Handle direct error message
+        errorMessage = err.message;
+      }
+
+      setError(errorMessage);
       throw err;
     } finally {
       setIsLoading(false);

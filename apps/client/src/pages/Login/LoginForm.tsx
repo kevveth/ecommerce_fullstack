@@ -1,14 +1,11 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { z } from "zod";
-import { loginSchema } from "@repo/shared/schemas";
+import { loginSchema, LoginInput } from "@repo/shared/schemas";
 import styles from "./styles.module.css";
 
-export type LoginFormFields = z.infer<typeof loginSchema>;
-
 interface LoginProps {
-  submit: (data: LoginFormFields) => void;
+  submit: (data: LoginInput) => void;
 }
 
 export function LoginForm({ submit }: LoginProps) {
@@ -16,11 +13,11 @@ export function LoginForm({ submit }: LoginProps) {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormFields>({
+  } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit: SubmitHandler<LoginFormFields> = (data) => submit(data);
+  const onSubmit: SubmitHandler<LoginInput> = (data) => submit(data);
 
   return (
     <form

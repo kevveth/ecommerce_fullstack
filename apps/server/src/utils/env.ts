@@ -1,42 +1,101 @@
 import { z } from "zod";
 
-// Zod schema for validating environment variables
+// Custom error map for more descriptive environment variable validation errors
+const envErrorMap: z.ZodErrorMap = (issue, ctx) => {
+  if (issue.code === "invalid_type") {
+    return {
+      message: `${issue.path.join(".")} is required or has an invalid type`,
+    };
+  }
+  if (issue.code === "custom") {
+    return { message: ctx.defaultError };
+  }
+  return { message: ctx.defaultError };
+};
+
+// Improved Zod schema for validating environment variables with more specific validations
 const envSchema = z
   .object({
-    PORT: z
+    NODE_ENV: z
+      .enum(["development", "test", "production"])
+      .default("development"),
+    PORT: z.coerce
+      .number()
+      .int()
+      .positive()
+      .max(65535, "Port number must be less than 65535")
+      .default(3000),
+    DB_DATABASE: z
       .string()
-      .optional()
-      .default("3000")
-      .refine((v) => Number(v) < 65535, "Invalid port range"),
-    DB_DATABASE: z.string().optional().default("ecommerce"),
-    DB_HOST: z.string().optional().default("localhost"),
-    DB_PORT: z.string().optional().default("5432"),
+      .min(1, "Database name is required")
+      .default("ecommerce"),
+    DB_HOST: z
+      .string()
+      .min(1, "Database host is required")
+      .default("localhost"),
+    DB_PORT: z.coerce
+      .number()
+      .int()
+      .positive()
+      .max(65535, "Database port must be less than 65535")
+      .default(5432),
     DB_USER: z.string().optional(),
     DB_PASSWORD: z.string().optional(),
-    DB_URL: z.string().optional(),
-    SALT_ROUNDS: z.string().optional().default("10"),
-    JWT_SECRET: z.string().optional(),
-    JWT_ACCESS_TOKEN_EXPIRY: z.string().optional(),
-    JWT_REFRESH_TOKEN_EXPIRY: z.string().optional(),
+    DB_URL: z.string().url("Database URL must be a valid URL").optional(),
+    SALT_ROUNDS: z.coerce
+      .number()
+      .int()
+      .min(10, "Salt rounds should be at least 10 for security")
+      .max(20, "Salt rounds should not exceed 20 for performance")
+      .default(12),
+    JWT_SECRET: z
+      .string()
+      .min(32, "JWT secret should be at least 32 characters for security")
+      .optional(),
+    JWT_ACCESS_TOKEN_EXPIRY: z
+      .string()
+      .regex(
+        /^\d+[smhd]$/,
+        "Token expiry must be in format like '15m', '24h', '7d'"
+      )
+      .default("15m"),
+    JWT_REFRESH_TOKEN_EXPIRY: z
+      .string()
+      .regex(
+        /^\d+[smhd]$/,
+        "Token expiry must be in format like '15m', '24h', '7d'"
+      )
+      .default("7d"),
   })
-  .transform((data) => {
-    const port = parseInt(data.PORT);
-    const dbPort = parseInt(data.DB_PORT);
-    const saltRounds = parseInt(data.SALT_ROUNDS);
-    const user = data.DB_USER ?? undefined;
-    const password = data.DB_PASSWORD ?? undefined;
-    const accessTokenExpiry = data.JWT_ACCESS_TOKEN_EXPIRY ?? undefined;
+  .refine(
+    (data) => {
+      // If we're in production, JWT_SECRET is required
+      return data.NODE_ENV !== "production" || !!data.JWT_SECRET;
+    },
+    {
+      message: "JWT_SECRET is required in production environment",
+      path: ["JWT_SECRET"],
+    }
+  );
 
-    return {
-      ...data,
-      PORT: port,
-      DB_PORT: dbPort,
-      SALT_ROUNDS: saltRounds,
-      DB_USER: user,
-      DB_PASSWORD: password,
-      JWT_ACCESS_TOKEN_EXPIRY: accessTokenExpiry,
-    };
-  });
+// Define the strongly typed environment schema
+export type Env = z.infer<typeof envSchema>;
 
-// Parse environment variables and validate against the schema.  Throws an error if validation fails.
-export const env = envSchema.parse(process.env);
+// Attempt to parse and validate environment variables
+function loadEnv(): Env {
+  try {
+    return envSchema.parse(process.env);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      console.error(
+        "❌ Invalid environment variables:",
+        JSON.stringify(error.format(), null, 2)
+      );
+      process.exit(1);
+    }
+    throw error;
+  }
+}
+
+// Export validated and typed environment variables
+export const env = loadEnv();

@@ -6,141 +6,221 @@ import {
   getWithUsername,
   getAll,
 } from "../services/users";
-import {
-  UpdateableUser,
-  updateUserSchema,
-  User,
-  userSchema,
-} from "../models/user.model";
+import { UpdateableUser, updateUserSchema } from "../models/user.model";
+import { userSchema } from "@repo/shared/schemas";
 import NotFoundError from "../errors/NotFoundError";
-import z from "zod";
+import { z } from "zod";
 
+// Enhanced param schemas with better error messages
 const idParamSchema = z.object({
   id: z
     .string()
-    .regex(/^[1-9]\d*$/) // Matches positive integers only
+    .regex(/^[1-9]\d*$/, { message: "ID must be a positive integer" })
     .transform((str) => parseInt(str)),
 });
 
 const usernameParamSchema = z.object({
-  username: z.string(),
+  username: z.string().min(1, { message: "Username cannot be empty" }),
 });
 
-export async function getAllUsers(req: Request, res: Response) {
-  const result = await getAll();
-
-  if (!result) {
-    throw new NotFoundError({
-      message: "User not found!",
-      logging: true,
-      context: {
-        method: "GET",
-        expected: "users",
-        received: "undefined",
-        path: ["users"],
-      },
-    });
+// Custom error map for better validation errors
+const paramErrorMap: z.ZodErrorMap = (issue, ctx) => {
+  if (issue.code === "invalid_string" && issue.path.includes("id")) {
+    return { message: "Invalid ID format" };
   }
+  return { message: ctx.defaultError };
+};
 
-  const users = result.map((user) => userSchema.parse(user));
-  res.status(200).send({ data: users });
+export async function getAllUsers(req: Request, res: Response) {
+  try {
+    const result = await getAll();
+
+    if (!result || result.length === 0) {
+      return res.status(200).json({ data: [], message: "No users found" });
+    }
+
+    // Parse all users with better error handling
+    const users = result.map((user) => userSchema.parse(user));
+    res.status(200).json({ data: users });
+  } catch (error) {
+    console.error("Error fetching all users:", error);
+    res.status(500).json({ message: "Failed to fetch users" });
+  }
 }
 
 //Handles getting a user by ID
 export async function getUser(req: Request, res: Response, next: NextFunction) {
-  const { id } = idParamSchema.parse(req.params); // Validate and get user ID from request parameters
-
-  const result = await getWithId(id); // Get the user from the database
-
-  if (!result) {
-    throw new NotFoundError({
-      message: "User not found!",
-      logging: true,
-      context: {
-        method: "GET",
-        expected: "user",
-        received: "undefined",
-        path: ["users", "id"],
-        id,
-      },
+  try {
+    // Validate ID param with custom error mapping
+    const idResult = idParamSchema.safeParse(req.params, {
+      errorMap: paramErrorMap,
     });
-  }
 
-  const user = userSchema.parse(result);
-  res.status(200).send({ data: user });
+    if (!idResult.success) {
+      return res.status(400).json({
+        message: "Invalid user ID",
+        errors: idResult.error.format(),
+      });
+    }
+
+    const { id } = idResult.data;
+    const result = await getWithId(id);
+
+    if (!result) {
+      throw new NotFoundError({
+        message: "User not found",
+        logging: true,
+        context: {
+          method: "GET",
+          expected: "user",
+          received: "undefined",
+          path: ["users", "id"],
+          id,
+        },
+      });
+    }
+
+    const user = userSchema.parse(result);
+    res.status(200).json({ data: user });
+  } catch (error) {
+    // Pass errors to next for centralized error handling
+    next(error);
+  }
 }
 
 export async function getUserByUsername(
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) {
-  const { username } = usernameParamSchema.parse(req.params); // Validate and get user ID from request parameters
+  try {
+    // Use safeParse for better error handling
+    const usernameResult = usernameParamSchema.safeParse(req.params);
 
-  const result = await getWithUsername(username); // Get the user from the database
+    if (!usernameResult.success) {
+      return res.status(400).json({
+        message: "Invalid username",
+        errors: usernameResult.error.format(),
+      });
+    }
 
-  if (!result) {
-    throw new NotFoundError({
-      message: "User not found!",
-      logging: true,
-      context: {
-        method: "GET",
-        expected: "user",
-        received: "undefined",
-        path: ["users", "username"],
-        username,
-      },
-    });
+    const { username } = usernameResult.data;
+    const result = await getWithUsername(username);
+
+    if (!result) {
+      throw new NotFoundError({
+        message: "User not found",
+        logging: true,
+        context: {
+          method: "GET",
+          expected: "user",
+          received: "undefined",
+          path: ["users", "username"],
+          username,
+        },
+      });
+    }
+
+    const user = userSchema.parse(result);
+    res.status(200).json({ data: user });
+  } catch (error) {
+    next(error);
   }
-
-  const user = userSchema.parse(result);
-  res.status(200).send({ data: user });
 }
 
 //Handles updating an existing user
-export async function updateUser(req: Request, res: Response) {
-  const { id } = idParamSchema.parse(req.params); // Get user ID from request parameters
+export async function updateUser(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    // Validate ID and update data
+    const idResult = idParamSchema.safeParse(req.params);
 
-  const result = await update(id, req.body); // Update the user in the database
+    if (!idResult.success) {
+      return res.status(400).json({
+        message: "Invalid user ID",
+        errors: idResult.error.format(),
+      });
+    }
 
-  if (!result) {
-    throw new NotFoundError({
-      message: "User not found!",
-      logging: true,
-      context: {
-        method: "PUT",
-        expected: "user",
-        received: "undefined",
-        path: ["users", "id"],
-        id,
-      },
+    const { id } = idResult.data;
+
+    // Validate update data
+    const updateResult = updateUserSchema.safeParse(req.body);
+
+    if (!updateResult.success) {
+      return res.status(400).json({
+        message: "Invalid update data",
+        errors: updateResult.error.format(),
+      });
+    }
+
+    // Update the user with validated data
+    const result = await update(id, updateResult.data);
+
+    if (!result) {
+      throw new NotFoundError({
+        message: "User not found",
+        logging: true,
+        context: {
+          method: "PUT",
+          expected: "user",
+          received: "undefined",
+          path: ["users", "id"],
+          id,
+        },
+      });
+    }
+
+    const user = userSchema.parse(result);
+    res.status(200).json({
+      message: "User updated successfully",
+      data: user,
     });
+  } catch (error) {
+    next(error);
   }
-
-  const user = userSchema.parse(result);
-  res.status(200).send({ data: user }); // Send updated user data with 200 status code
 }
 
 //Handles deleting a user
-export async function deleteUser(req: Request, res: Response) {
-  const { id } = idParamSchema.parse(req.params); // Get user ID from request parameters
+export async function deleteUser(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    // Validate ID with better error handling
+    const idResult = idParamSchema.safeParse(req.params);
 
-  const result = await remove(id); // Delete the user from the database
+    if (!idResult.success) {
+      return res.status(400).json({
+        message: "Invalid user ID",
+        errors: idResult.error.format(),
+      });
+    }
 
-  if (!result) {
-    throw new NotFoundError({
-      message: "User not found!",
-      logging: true,
-      context: {
-        method: "DELETE",
-        expected: "user",
-        received: "undefined",
-        path: ["users", "id"],
-        id,
-      },
-    });
+    const { id } = idResult.data;
+    const result = await remove(id);
+
+    if (!result) {
+      throw new NotFoundError({
+        message: "User not found",
+        logging: true,
+        context: {
+          method: "DELETE",
+          expected: "user",
+          received: "undefined",
+          path: ["users", "id"],
+          id,
+        },
+      });
+    }
+
+    // 204 No Content is more appropriate for successful DELETE
+    res.status(204).end();
+  } catch (error) {
+    next(error);
   }
-
-  const user = userSchema.parse(result);
-  res.status(204).send({ data: user });
 }

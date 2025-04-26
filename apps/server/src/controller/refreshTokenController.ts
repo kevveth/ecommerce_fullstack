@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import UnauthorizedError from "../errors/UnauthorizedError";
 import {
   generateAccessToken,
@@ -12,15 +12,20 @@ import {
 } from "../services/auth/refresh";
 import { getWithId } from "../services/users";
 
-// TODO: Fix Response type
-export async function refreshToken(req: Request, res: any) {
+export async function refreshToken(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     // Get refresh token from cookies
     const { jwt: refreshToken } = req.cookies;
     if (!refreshToken) {
-      return new UnauthorizedError({
-        message: "Unauthorized: No refresh token provided",
-      });
+      return next(
+        new UnauthorizedError({
+          message: "Unauthorized: No refresh token provided",
+        })
+      );
     }
 
     const storedRefreshToken = await findRefreshToken(refreshToken);
@@ -63,6 +68,6 @@ export async function refreshToken(req: Request, res: any) {
     res.json({ accessToken: newAccessToken });
   } catch (error) {
     console.error("Refresh token error:", error);
-    throw error;
+    next(error);
   }
 }

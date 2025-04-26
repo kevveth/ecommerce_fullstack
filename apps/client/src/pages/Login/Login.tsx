@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { LoginForm, LoginFormFields } from "./LoginForm";
-import { useNavigate, useLocation } from "react-router-dom";
+import { LoginForm } from "./LoginForm";
+import { useNavigate, useLocation, Link } from "react-router";
 import { useAuth } from "../../context/AuthContext";
+import { LoginInput } from "@repo/shared/schemas";
 import styles from "./styles.module.css";
 
 const Login = () => {
@@ -12,7 +13,7 @@ const Login = () => {
 
   const [loginError, setLoginError] = useState<string | null>(null);
 
-  const handleLoginSubmit = async (data: LoginFormFields) => {
+  const handleLoginSubmit = async (data: LoginInput) => {
     try {
       setLoginError(null);
       setIsLoading(true);
@@ -41,7 +42,7 @@ const Login = () => {
         <LoginForm submit={handleLoginSubmit} />
       )}
       <div className="register-link">
-        Don't have an account? <a href="/register">Register here</a>
+        Don't have an account? <Link to="/register">Register here</Link>
       </div>
       {/* TODO: Login with third party service like Google or Facebook */}
     </>

@@ -1,9 +1,9 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
-interface ErrorProps  {
+interface ErrorProps {
   code?: number;
   message?: string;
-};
+}
 
 export function Error(error: ErrorProps) {
   return (

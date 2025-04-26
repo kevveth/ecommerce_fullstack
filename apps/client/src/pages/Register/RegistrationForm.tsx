@@ -1,14 +1,11 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import styles from "./styles.module.css"; // Your CSS Module
-import { registrationSchema } from "@repo/shared/schemas";
-
-export type RegistrationFormFields = z.infer<typeof registrationSchema>;
+import styles from "./styles.module.css";
+import { registrationSchema, RegistrationInput } from "@repo/shared/schemas";
 
 // Define props expected from the parent
 interface RegFormProps {
-  submit: (data: RegistrationFormFields) => void;
+  submit: (data: RegistrationInput) => void;
   isMutating?: boolean; // Is the parent mutation pending?
 }
 
@@ -19,13 +16,13 @@ export function RegForm({ submit, isMutating }: RegFormProps) {
     handleSubmit,
     formState: { errors, isSubmitting: isFormSubmitting }, // RHF's state
     // reset, // Get reset if you want to clear form on success (triggered from parent maybe?)
-  } = useForm<RegistrationFormFields>({
+  } = useForm<RegistrationInput>({
     resolver: zodResolver(registrationSchema),
     mode: "onChange", // Keep client-side validation on change
   });
 
   // This now calls the 'submit' prop passed from Register.tsx
-  const onSubmit: SubmitHandler<RegistrationFormFields> = (data) => {
+  const onSubmit: SubmitHandler<RegistrationInput> = (data) => {
     submit(data);
   };
 

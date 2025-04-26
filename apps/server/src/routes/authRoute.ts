@@ -1,5 +1,4 @@
-import express, { Router } from "express";
-import { Request, Response, NextFunction } from "express";
+import express, { Router, RequestHandler } from "express";
 import { registerUser } from "../controller/registerController";
 import { loginUser } from "../controller/authController";
 import { refreshToken } from "../controller/refreshTokenController";
@@ -7,9 +6,10 @@ import { logoutUser } from "../controller/logoutController";
 
 const router: Router = express.Router();
 
-router.post("/register", registerUser);
-router.post("/login", loginUser);
-router.post("/refresh-token", refreshToken);
-router.post("/logout", logoutUser);
+// Fix route handlers by explicitly casting them to RequestHandler type
+router.post("/register", registerUser as RequestHandler);
+router.post("/login", loginUser as RequestHandler);
+router.post("/refresh-token", refreshToken as RequestHandler);
+router.post("/logout", logoutUser as RequestHandler);
 
 export default router;

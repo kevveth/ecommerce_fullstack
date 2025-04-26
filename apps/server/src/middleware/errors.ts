@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { CustomError } from "../errors/CustomError";
-import z, { ZodError } from "zod";
-import { fromZodError, isZodErrorLike } from "zod-validation-error";
+import { ZodError } from "zod";
+import { fromZodError } from "zod-validation-error";
 
 export const errorHandler = (
   err: Error,
@@ -27,12 +27,11 @@ export const errorHandler = (
     }
 
     res.status(statusCode).send({ errors });
-  } else if (isZodErrorLike(err)) {
-    console.log(err);
+  } else if (err instanceof ZodError) {
     console.log(fromZodError(err).toString());
     res.status(400).json({
       message: "Validation failed",
-      errors: err.flatten().fieldErrors,
+      errors: err.format(),
     });
   } else {
     // Unhandled Errors

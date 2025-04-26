@@ -4,18 +4,40 @@ import { create } from "../services/auth/registration";
 import { env } from "../utils/env";
 import { newUserSchema } from "../models/user.model";
 import BadRequestError from "../errors/BadRequestError";
-import { ZodError } from "zod";
+import { ZodError, z } from "zod";
+import { registrationSchema } from "@repo/shared/schemas";
+
+// Custom error map for registration-specific validation messages
+const registrationErrorMap: z.ZodErrorMap = (issue, ctx) => {
+  // Custom error messages that provide more specific feedback
+  if (issue.code === "custom" && issue.path.includes("email")) {
+    return { message: "This email is already registered" };
+  }
+
+  // Default to the error messages defined in the schema
+  return { message: ctx.defaultError };
+};
 
 //Handles creating a new user.
 export async function registerUser(req: Request, res: Response) {
   try {
-    // Validate Input
-    const validatedData = await newUserSchema.parseAsync(req.body);
-    console.log("Validated data: ");
-    console.log(validatedData);
-    const { username, email, password } = validatedData; // Destructure username, email, and password from the request body
+    // Use safeParse for more controlled error handling
+    const validationResult = await newUserSchema.safeParseAsync(req.body, {
+      errorMap: registrationErrorMap,
+    });
 
-    // Hash Password
+    if (!validationResult.success) {
+      // Format the validation errors for a better client response
+      const errors = validationResult.error.format();
+      return res.status(400).json({
+        message: "Validation failed",
+        errors,
+      });
+    }
+
+    const { username, email, password } = validationResult.data;
+
+    // Hash Password with better salt configuration
     const rounds = env.SALT_ROUNDS;
     const salt = await bcrypt.genSalt(rounds);
     const passwordHash = await bcrypt.hash(password, salt);
@@ -27,9 +49,25 @@ export async function registerUser(req: Request, res: Response) {
       password: passwordHash,
     });
 
-    // const user = userSchema.parse(result);
-    res.status(201).send({ data: result }); // Send the newly created user with 201 status code
+    // Return a successful response with the user data (minus sensitive info)
+    res.status(201).json({
+      message: "User registered successfully",
+      data: {
+        userId: result.user_id,
+        username: result.username,
+        email: result.email,
+      },
+    });
   } catch (err) {
-    throw err;
+    if (err instanceof ZodError) {
+      // Fallback for any ZodErrors not caught by safeParse
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: err.format(),
+      });
+    }
+
+    console.error("Registration error:", err);
+    res.status(500).json({ message: "Internal server error" });
   }
 }

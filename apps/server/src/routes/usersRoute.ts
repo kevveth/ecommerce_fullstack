@@ -1,4 +1,10 @@
-import express, { Router, Request, Response, NextFunction } from "express";
+import express, {
+  Router,
+  Request,
+  Response,
+  NextFunction,
+  RequestHandler,
+} from "express";
 import {
   deleteUser,
   getAllUsers,
@@ -19,10 +25,10 @@ router.get(
   "/profile",
   authenticate,
   isAuthenticated,
-  async (req: Request, res: any, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     if (!req.user)
       return next(
-        new NotFoundError({ message: "User not found", logging: true }),
+        new NotFoundError({ message: "User not found", logging: true })
       );
 
     const privateUser = await getWithId(req.user.user_id as number);
@@ -32,19 +38,19 @@ router.get(
         new NotFoundError({
           message: "User not found",
           logging: true,
-        }),
+        })
       );
 
     const safeUser: Omit<User, "password"> = privateUser;
 
     res.json({ message: "User Profile Data", user: safeUser });
-  },
+  }
 );
 
-// router.get("/:id", getUser);
-router.get("/", getAllUsers);
-router.get("/:username", getUserByUsername);
-router.put("/:id", validateUpdateData, updateUser);
-router.delete("/:id", deleteUser);
+// Explicitly cast the handlers to RequestHandler type to resolve overload issues
+router.get("/", getAllUsers as RequestHandler);
+router.get("/:username", getUserByUsername as RequestHandler);
+router.put("/:id", validateUpdateData, updateUser as RequestHandler);
+router.delete("/:id", deleteUser as RequestHandler);
 
 export default router;

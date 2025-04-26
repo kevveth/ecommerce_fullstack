@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useEffect } from "react";
+import { Navigate } from "react-router";
+import { useAuth } from "../context/AuthContext";
 
 export function MyProfile() {
   const { user, isAuthenticated, isLoading } = useAuth();

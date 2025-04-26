@@ -1,18 +1,27 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
-import { RegForm, RegistrationFormFields } from "./RegistrationForm"; // Import RegForm and type
+import { RegForm } from "./RegistrationForm";
 import { useRegisterUser } from "../../hooks/useRegisterUser";
 import { RegistrationStatus } from "./RegistrationStatus";
+import { RegistrationInput } from "@repo/shared/schemas";
 import styles from "./styles.module.css";
 
 const Register: React.FC = () => {
-  // Only manages the mutation state
+  // Use the updated mutation with improved error handling
   const mutation = useRegisterUser();
 
-  const handleRegistrationSubmit = (data: RegistrationFormFields) => {
+  const handleRegistrationSubmit = (data: RegistrationInput) => {
     mutation.mutate(data);
   };
+
+  // Create a formatted error object for RegistrationStatus
+  const formattedError = mutation.error
+    ? {
+        message: mutation.error.message,
+        errors: mutation.error.data?.errors,
+      }
+    : null;
 
   return (
     <div>
@@ -20,10 +29,15 @@ const Register: React.FC = () => {
       {/* Pass down the submission handler and mutation pending state */}
       <RegForm
         submit={handleRegistrationSubmit}
-        isMutating={mutation.isPending} // Pass mutation pending status
+        isMutating={mutation.isPending}
       />
-      {/* RegistrationStatus displays result based on mutation state */}
-      <RegistrationStatus {...mutation} />
+      {/* Pass the formatted error to RegistrationStatus */}
+      <RegistrationStatus
+        isPending={mutation.isPending}
+        isError={mutation.isError}
+        isSuccess={mutation.isSuccess}
+        error={formattedError}
+      />
 
       {/* Login Link */}
       <div className={styles.loginPrompt}>

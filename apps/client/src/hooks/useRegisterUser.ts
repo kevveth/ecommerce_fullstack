@@ -1,23 +1,29 @@
 import { useMutation, UseMutationResult } from "@tanstack/react-query";
-import { RegistrationFormFields } from "../pages/Register/RegistrationForm";
+import { RegistrationInput } from "@repo/shared/schemas";
 
 interface RegistrationSuccessData {
-  user_id: number;
+  userId: number;
+  username: string;
+  email: string;
 }
 
 interface RegistrationSuccessResponse {
+  message: string;
   data: RegistrationSuccessData;
 }
 
-type FieldErrors = Partial<Record<keyof RegistrationFormFields, string[]>>;
-
+// Improved error types to match our new Zod error format
 interface RegistrationErrorResponse {
   message: string;
-  errors?: FieldErrors;
+  errors?: {
+    [key: string]: {
+      _errors: string[];
+    };
+  };
 }
 
 const registerUserAPICall = async (
-  data: RegistrationFormFields
+  data: RegistrationInput
 ): Promise<RegistrationSuccessResponse> => {
   const response = await fetch("http://localhost:3000/api/auth/register", {
     method: "POST",
@@ -25,62 +31,55 @@ const registerUserAPICall = async (
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
+    credentials: "include", // Includes cookies in the request
   });
 
   // Check if the response status indicates an error (not 2xx)
   if (!response.ok) {
     let parsedError: RegistrationErrorResponse | null = null;
     try {
-      // Try to parse the JSON error body sent from the backend
-      parsedError = (await response.json()) as RegistrationErrorResponse;
+      parsedError = await response.json();
     } catch (e) {
-      // If parsing JSON fails, parsedError remains null
       console.error("Failed to parse error response JSON:", e);
     }
 
-    let messageToThrow = "Registration failed due to an unknown server error."; // Final fallback
+    // Create an error object with structured information
+    const error = new Error() as Error & { data?: RegistrationErrorResponse };
 
-    // 1. Check for the specific nested email error first
-    const specificEmailError = parsedError?.errors?.email?.[0];
-    if (specificEmailError) {
-      messageToThrow = specificEmailError; // Use "Email already exists"
-    }
-    // 2. If no specific email error, use the top-level message if available
-    else if (parsedError?.message) {
-      messageToThrow = parsedError.message; // Use "Validation failed"
-    }
-    // 3. Otherwise, keep the initial fallback (or refine it with status)
-    else {
-      messageToThrow =
-        `HTTP error! Status: ${response.status} ${response.statusText || ""}`.trim();
-    }
+    // Assign the parsed error data
+    error.data = parsedError || {
+      message:
+        `HTTP error! Status: ${response.status} ${response.statusText || ""}`.trim(),
+    };
 
-    // Throw an error containing the most specific message found
-    throw new Error(messageToThrow);
+    // Set a user-friendly message
+    error.message =
+      parsedError?.message ||
+      "Registration failed. Please check your information and try again.";
+
+    throw error;
   }
 
   // If response is OK, parse the success JSON body
-  const successData: RegistrationSuccessResponse =
-    (await response.json()) as RegistrationSuccessResponse;
-  return successData;
+  return await response.json();
 };
 
 export const useRegisterUser = (): UseMutationResult<
   RegistrationSuccessResponse,
-  Error,
-  RegistrationFormFields
+  Error & { data?: RegistrationErrorResponse },
+  RegistrationInput
 > => {
   return useMutation<
     RegistrationSuccessResponse,
-    Error,
-    RegistrationFormFields
+    Error & { data?: RegistrationErrorResponse },
+    RegistrationInput
   >({
     mutationFn: registerUserAPICall,
-    onSuccess: ({ data }) => {
-      console.log("Registration successful! User ID:", data.user_id);
+    onSuccess: (data) => {
+      console.log("Registration successful!", data);
     },
     onError: (error) => {
-      console.error("Registration failed:", error.message);
+      console.error("Registration failed:", error.message, error.data);
     },
     onSettled: () => {
       console.log("Register mutation finished.");

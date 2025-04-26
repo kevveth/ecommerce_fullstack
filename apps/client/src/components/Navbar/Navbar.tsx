@@ -1,11 +1,10 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useMatch } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 import styles from "./styles.module.css";
 import { useState } from "react";
 
 export const Navbar = () => {
   const { isAuthenticated, logout, user } = useAuth();
-  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => {
@@ -14,6 +13,10 @@ export const Navbar = () => {
 
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
+  };
+
+  const isActive = (path: string) => {
+    return !!useMatch(path);
   };
 
   return (
@@ -40,7 +43,7 @@ export const Navbar = () => {
             <Link
               to="/"
               className={`${styles.navLink} ${
-                location.pathname === "/" ? styles.active : ""
+                isActive("/") ? styles.active : ""
               }`}
               onClick={closeMobileMenu}
             >
@@ -52,9 +55,9 @@ export const Navbar = () => {
           {isAuthenticated && (
             <li className={styles.navItem}>
               <Link
-                to="/profile"
+                to={`/profiles/${user?.username}`}
                 className={`${styles.navLink} ${
-                  location.pathname === "/profile" ? styles.active : ""
+                  isActive("/profile") ? styles.active : ""
                 }`}
                 onClick={closeMobileMenu}
               >
@@ -69,7 +72,7 @@ export const Navbar = () => {
               <Link
                 to="/profiles"
                 className={`${styles.navLink} ${
-                  location.pathname === "/profiles" ? styles.active : ""
+                  isActive("/profiles") ? styles.active : ""
                 }`}
                 onClick={closeMobileMenu}
               >
@@ -94,7 +97,7 @@ export const Navbar = () => {
               <Link
                 to="/login"
                 className={`${styles.navLink} ${
-                  location.pathname === "/login" ? styles.active : ""
+                  isActive("/login") ? styles.active : ""
                 }`}
                 onClick={closeMobileMenu}
               >

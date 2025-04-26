@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import {
   findRefreshToken,
   removeAllRefreshTokensForUser,
@@ -6,12 +6,15 @@ import {
 } from "../services/auth/refresh";
 import { verifyToken } from "../utils/jwt";
 
-// TODO: Fix Response type
-export async function logoutUser(req: Request, res: any) {
+export async function logoutUser(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const { jwt: refreshToken } = req.cookies;
     if (!refreshToken) {
-      return res.sendStatus(204);
+      return res.sendStatus(204); // No content - nothing to logout
     }
 
     const storedRefreshToken = await findRefreshToken(refreshToken);
@@ -21,13 +24,13 @@ export async function logoutUser(req: Request, res: any) {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
       });
-      return res.status(204).send(); //No content
+      return res.status(204).send(); // No content
     }
 
     const decoded = verifyToken(refreshToken);
     if (!decoded) {
       // Even if the token is in the database, if it's not valid, clear cookie and return
-      res.clearCookie("refreshToken", {
+      res.clearCookie("jwt", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
       });
@@ -47,6 +50,6 @@ export async function logoutUser(req: Request, res: any) {
     res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
     console.error("Logout Error: ", error);
-    throw error;
+    next(error);
   }
 }

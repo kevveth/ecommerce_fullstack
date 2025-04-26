@@ -1,42 +1,28 @@
 import { z } from "zod";
 import { getWithEmail } from "../services/users";
+import { userSchema, registrationSchema } from "@repo/shared/schemas";
 
-const IDSchema = z.number().positive().optional();
-const RoleSchema = z.enum(["admin", "user"]);
-export type Role = z.infer<typeof RoleSchema>;
-
-// Zod schema for a complete User object
-
-export const userSchema = z.object({
-  user_id: IDSchema, // Optional ID, auto-generated
-  username: z.string(),
-  email: z.string().email(),
-  password_hash: z.string(),
-  street_address: z.string().nullish(),
-  city: z.string().nullish(),
-  state: z.string().nullish(),
-  zip_code: z.string().nullish(),
-  country: z.string().nullish(),
-  role: RoleSchema,
-});
+// Import the base types from shared schemas to keep consistency
 export type User = z.infer<typeof userSchema>;
+export type Role = z.infer<typeof userSchema.shape.role>;
 
-// Zod schema for creating new users (subset of userSchema + password)
-export const newUserSchema = z
-  .object({
-    username: z
-      .string()
-      .min(4, { message: "Username must be at least 4 characters long" }),
-    email: z.string().email(),
-    password: z
-      .string()
-      .min(4, { message: "Password must be at least 4 characters long" }),
-  })
-  .refine(async (data) => !(await checkEmailExists(data.email)), {
+// Define NewUser type for registration
+export type NewUser = {
+  username: string;
+  email: string;
+  password: string;
+};
+
+// Server-specific schemas that extend the shared schemas
+
+// Extended schema for new user creation that includes backend-specific logic
+export const newUserSchema = registrationSchema.refine(
+  async (data) => !(await checkEmailExists(data.email)),
+  {
     message: "Email already exists",
     path: ["email"],
-  });
-export type NewUser = z.infer<typeof newUserSchema>;
+  }
+);
 
 // Asynchronous function to check if an email exists in the database
 async function checkEmailExists(email: string): Promise<boolean> {
@@ -44,7 +30,7 @@ async function checkEmailExists(email: string): Promise<boolean> {
   return !!user;
 }
 
-// Zod schema for updating existing users (omitting ID and password)
+// Schema for updating existing users with improved validation logic
 export const updateUserSchema = userSchema
   .omit({ user_id: true, password_hash: true })
   .partial()
@@ -53,8 +39,15 @@ export const updateUserSchema = userSchema
       return Object.keys(data).length > 0;
     },
     {
-      message: "No fields to update",
+      message: "At least one field must be provided for update",
       path: [],
     }
-  );
+  )
+  .transform((data) => {
+    // Optional: transform data before storing, like trimming strings
+    if (data.email) data.email = data.email.toLowerCase().trim();
+    if (data.username) data.username = data.username.trim();
+    return data;
+  });
+
 export type UpdateableUser = z.infer<typeof updateUserSchema>;

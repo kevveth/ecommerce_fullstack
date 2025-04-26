@@ -13,8 +13,6 @@ declare global {
 }
 
 // Authentication Middleware
-
-// TODO: Fix Response type
 export const authenticate = async (
   req: Request,
   res: Response,
@@ -31,7 +29,6 @@ export const authenticate = async (
   }
 
   const token = authorization?.split(" ")[1];
-  // console.log(token);
 
   let decoded = null;
   if (token) decoded = verifyToken(token);
@@ -53,17 +50,19 @@ export const authenticate = async (
     next();
   } catch (error) {
     console.error("Authentication Middleware Error: ", error);
-    throw error;
+    next(error); // Using next() instead of throwing the error directly
   }
 };
 
-// TODO: Fix Response type
 export const authorize = (requiredRole: string) => {
-  return async (req: Request, res: any, next: NextFunction) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
     if (req.user?.role !== requiredRole) {
-      return res
-        .status(403)
-        .json({ message: "Forbidden: Insufficient permissions" });
+      return next(
+        new UnauthorizedError({
+          message: "Forbidden: Insufficient permissions",
+          logging: true,
+        })
+      );
     }
     next();
   };

@@ -11,28 +11,26 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@hookform/resolvers": "^4.1.0",
+    "@hookform/resolvers": "^4.1.3",
     "@repo/shared": "workspace:*",
-    "@tanstack/react-query": "^5.66.0",
-    "axios": "^1.7.9",
+    "@tanstack/react-query": "^5.74.4",
+    "axios": "^1.9.0",
     "axios-auth-refresh": "^3.3.6",
-    "eslint-plugin-react": "^7.37.4",
+    "eslint-plugin-react": "^7.37.5",
     "notistack": "^3.0.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-hook-form": "^7.54.2",
-    "react-router": "^7.1.3",
-    "react-router-dom": "^7.1.5"
+    "react-hook-form": "^7.56.1",
+    "react-router": "^7.5.2"
   },
   "devDependencies": {
-    "@tanstack/eslint-plugin-query": "^5.66.1",
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
+    "@tanstack/eslint-plugin-query": "^5.73.3",
+    "@types/react": "^18.3.20",
+    "@types/react-dom": "^18.3.6",
     "@types/react-router": "^5.1.20",
-    "@types/react-router-dom": "^5.3.3",
-    "@vitejs/plugin-react-swc": "^3.5.0",
-    "globals": "^15.14.0",
+    "@vitejs/plugin-react-swc": "^3.9.0",
+    "globals": "^15.15.0",
     "prettier": "3.5.1",
-    "vite": "^6.0.5"
+    "vite": "^6.3.3"
   }
 }
