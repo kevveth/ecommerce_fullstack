@@ -79,7 +79,7 @@
 
 .coffee-text {
   font-family: "Georgia", serif;
-  color: #4E1F00; /* Using explicit dark brown from the palette instead of var reference */
+  color: #4e1f00; /* Using explicit dark brown from the palette instead of var reference */
   line-height: 1.6;
   max-width: 800px;
   margin: 0 auto;
@@ -89,7 +89,7 @@
 }
 
 .coffee-subtitle {
-  color: #4E1F00; /* Changed from var(--brown) to dark brown for better visibility */
+  color: #4e1f00; /* Changed from var(--brown) to dark brown for better visibility */
   font-family: "Georgia", serif;
   font-size: 1.5rem;
   margin-bottom: 0.8rem;

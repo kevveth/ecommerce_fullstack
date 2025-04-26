@@ -45,8 +45,9 @@
 /* Hero Section */
 .heroSection {
   min-height: 600px;
-  background-image: linear-gradient(rgba(78, 31, 0, 0.7), rgba(78, 31, 0, 0.4)), 
-                    url('/coffee-beans-bg.png');
+  background-image:
+    linear-gradient(rgba(78, 31, 0, 0.7), rgba(78, 31, 0, 0.4)),
+    url("/coffee-beans-bg.png");
   background-size: cover;
   background-position: center;
   display: flex;
@@ -84,7 +85,9 @@
   font-size: 1.2rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
 }
 
 .ctaButton:hover {
@@ -164,7 +167,9 @@
   font-weight: 500;
   cursor: pointer;
   margin-top: 2rem;
-  transition: background-color 0.3s, color 0.3s;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
 }
 
 .secondaryButton:hover {
@@ -320,7 +325,7 @@
   .heroTagline {
     font-size: 1.3rem;
   }
-  
+
   .ctaButton {
     width: 100%;
   }

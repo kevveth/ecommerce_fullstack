@@ -1,9 +1,9 @@
 :root {
   /* New Color Palette */
-  --cream: #F8F4E1; /* Light cream background */
-  --gold: #FEBA17;  /* Golden yellow accent */
-  --brown: #74512D; /* Medium brown */
-  --dark-brown: #4E1F00; /* Deep dark brown */
+  --cream: #f8f4e1; /* Light cream background */
+  --gold: #feba17; /* Golden yellow accent */
+  --brown: #74512d; /* Medium brown */
+  --dark-brown: #4e1f00; /* Deep dark brown */
 
   /* Primary Colors */
   --primary: var(--dark-brown);
