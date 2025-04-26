@@ -4,49 +4,30 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  position: relative;
-  overflow-x: hidden;
   background-color: var(--background-light);
 }
 
 .mainContent {
   flex: 1;
-  padding: 2rem;
-  position: relative;
-  z-index: 1;
+  padding: 1.5rem;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .contentWrapper {
-  position: relative;
-  max-width: 1200px;
-  margin: 0 auto;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px var(--shadow);
   padding: 1.5rem;
-  background-color: rgba(255, 255, 255, 0.95);
-  border-radius: 10px;
-  box-shadow: 0 4px 15px var(--shadow);
-  border: 1px solid var(--border-color);
 }
 
 .pageTitle {
-  text-align: center;
   color: var(--primary);
   margin-bottom: 1.5rem;
-  font-size: 2.5rem;
-  text-shadow: 1px 1px 2px var(--shadow);
-  position: relative;
+  font-size: 2rem;
+  text-align: center;
   font-family: "Georgia", serif;
-}
-
-.pageTitle::after {
-  content: "";
-  position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100px;
-  height: 4px;
-  background: linear-gradient(to right, var(--primary), var(--secondary));
-  border-radius: 2px;
 }
 
 .footer {
@@ -54,64 +35,20 @@
   background-color: var(--primary);
   color: var(--text-light);
   text-align: center;
-  font-weight: bold;
-  box-shadow: 0 -2px 10px var(--shadow);
 }
 
 /* Media Queries */
-@media (max-width: 1024px) {
-  .contentWrapper {
-    max-width: 90%;
-  }
-}
-
 @media (max-width: 768px) {
   .mainContent {
-    padding: 1.5rem 1rem;
-  }
-
-  .contentWrapper {
-    padding: 1.25rem;
-    max-width: 95%;
-  }
-
-  .pageTitle {
-    font-size: 2rem;
-    margin-bottom: 1.25rem;
-  }
-
-  .pageTitle::after {
-    width: 80px;
-    height: 3px;
-  }
-}
-
-@media (max-width: 480px) {
-  .mainContent {
-    padding: 1rem 0.5rem;
+    padding: 1rem;
   }
 
   .contentWrapper {
     padding: 1rem;
-    border-radius: 8px;
-    max-width: 100%;
-    margin: 0 0.5rem;
   }
 
   .pageTitle {
     font-size: 1.75rem;
-    margin-bottom: 1rem;
-  }
-
-  .pageTitle::after {
-    width: 60px;
-    height: 3px;
-    bottom: -8px;
-  }
-
-  .footer {
-    padding: 0.75rem;
-    font-size: 0.9rem;
   }
 }
 
@@ -122,18 +59,15 @@
   }
 
   .contentWrapper {
-    background-color: rgba(62, 39, 35, 0.9);
+    background-color: rgba(116, 81, 45, 0.9);
     color: var(--text-light);
-    border-color: var(--primary-accent);
   }
 
   .pageTitle {
-    color: var(
-      --secondary-accent
-    ); /* Changed from var(--primary) to var(--secondary-accent) for better contrast */
+    color: var(--secondary);
   }
 
   .footer {
-    background-color: var(--background-dark);
+    background-color: var(--dark-brown);
   }
 }

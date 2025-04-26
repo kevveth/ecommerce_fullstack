@@ -1,265 +1,331 @@
 @import "../../styles/_variables.css";
 
-.homeTitle {
-  color: var(--neutral-700);
-  text-align: center;
-  margin-bottom: 1.5rem;
-  font-family: "Georgia", serif;
-  text-shadow: 1px 1px 2px var(--shadow);
-  position: relative;
+/* General Home Page Styling */
+.homeContainer {
+  width: 100%;
+  background-color: var(--cream);
+  color: var(--dark-brown);
 }
 
-.homeTitle::after {
+/* Section Common Styles */
+.sectionTitle {
+  font-family: "Georgia", serif;
+  font-size: 2.2rem;
+  color: var(--dark-brown);
+  margin-bottom: 1.5rem;
+  position: relative;
+  display: inline-block;
+}
+
+.sectionTitle::after {
   content: "";
   position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
+  left: 0;
+  bottom: -8px;
+  width: 100%;
   height: 3px;
-  background: linear-gradient(to right, var(--primary), var(--primary-accent));
+  background-color: var(--gold);
   border-radius: 2px;
 }
 
-.featuresGrid {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 1.5rem;
-  margin-top: 2rem;
-}
-
-.featureCard {
-  grid-column: span 4;
-  border: 1px solid var(--neutral-300);
-  border-radius: 8px;
-  padding: 1.5rem;
-  background-color: var(--neutral-100);
-  box-shadow: 0 3px 10px var(--shadow);
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.featureCard:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px var(--shadow);
-  border-color: var(--primary-accent);
-}
-
-.featureCard::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 5px;
-  height: 0;
-  background: linear-gradient(var(--primary), var(--primary-accent));
-  transition: height 0.3s ease;
-}
-
-.featureCard:hover::before {
-  height: 100%;
-}
-
-.featureTitle {
-  color: var(--primary);
-  font-family: "Georgia", serif;
-  font-size: 1.5rem;
-  margin-bottom: 0.8rem;
-  position: relative;
-  z-index: 1;
-}
-
-.featureDesc {
-  color: var(--neutral-700);
+.sectionText {
+  font-size: 1.1rem;
   line-height: 1.6;
-  position: relative;
-  z-index: 1;
-}
-
-.visitCard {
-  margin-top: 2.5rem;
-  border: 1px solid var(--neutral-300);
-  border-radius: 8px;
-  padding: 2rem;
-  background-color: var(--neutral-100);
-  box-shadow: 0 3px 10px var(--shadow);
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  background-image: linear-gradient(
-    to bottom right,
-    rgba(93, 64, 55, 0.05),
-    rgba(255, 204, 188, 0.1)
-  );
-}
-
-.visitTitle {
-  color: var(--primary);
-  font-family: "Georgia", serif;
-  font-size: 1.8rem;
-  margin-bottom: 1.2rem;
-}
-
-.visitDesc {
-  color: var(--neutral-700);
   margin-bottom: 1.5rem;
-  line-height: 1.6;
-  max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
+  color: var(--dark-brown);
+}
+
+.sectionContent {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 0 1rem;
+}
+
+/* Hero Section */
+.heroSection {
+  min-height: 600px;
+  background-image: linear-gradient(rgba(78, 31, 0, 0.7), rgba(78, 31, 0, 0.4)), 
+                    url('/coffee-beans-bg.png');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.heroContent {
+  max-width: 800px;
+}
+
+.heroTitle {
+  font-size: 4rem;
+  color: var(--cream);
+  margin-bottom: 1rem;
+  font-family: "Georgia", serif;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.heroTagline {
+  font-size: 1.8rem;
+  color: var(--gold);
+  margin-bottom: 2rem;
+  font-family: "Georgia", serif;
+}
+
+.ctaButton {
+  background-color: var(--gold);
+  color: var(--dark-brown);
+  border: none;
+  border-radius: 30px;
+  padding: 0.8rem 2.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.ctaButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* About Section */
+.aboutSection {
+  padding: 5rem 1rem;
+  background-color: var(--cream);
+}
+
+/* Products Section */
+.productsSection {
+  padding: 5rem 1rem;
+  background-color: white;
+  text-align: center;
+}
+
+.productGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 3rem auto;
+  padding: 0 1rem;
+}
+
+.productCard {
+  background-color: var(--cream);
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+}
+
+.productCard:hover {
+  transform: translateY(-10px);
+}
+
+.productImage {
+  height: 200px;
+  background-color: var(--brown);
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.productCard h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.8rem;
+  color: var(--dark-brown);
+  font-family: "Georgia", serif;
+}
+
+.productCard p {
+  color: var(--dark-brown);
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.productPrice {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--brown);
+  margin-top: 0.5rem;
+}
+
+.secondaryButton {
+  background-color: transparent;
+  color: var(--dark-brown);
+  border: 2px solid var(--gold);
+  border-radius: 30px;
+  padding: 0.7rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 2rem;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.secondaryButton:hover {
+  background-color: var(--gold);
+  color: var(--dark-brown);
+}
+
+/* Visit Section */
+.visitSection {
+  padding: 5rem 1rem;
+  background-color: var(--cream);
+}
+
+.visitContent {
+  display: flex;
+  max-width: 1100px;
+  margin: 0 auto;
+  gap: 2rem;
+}
+
+.visitInfo {
+  flex: 1;
+  text-align: left;
+}
+
+.visitMap {
+  flex: 1;
+  background-color: #e0e0e0;
+  border-radius: 10px;
+  min-height: 350px;
 }
 
 .address {
-  margin-top: 1rem;
-  font-style: italic;
-  color: var(--primary-accent);
-  font-family: "Georgia", serif;
-  position: relative;
-  display: inline-block;
-  padding-bottom: 5px;
-}
-
-.address::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 10%;
-  width: 80%;
-  height: 1px;
-  background-color: var(--primary-accent);
-  opacity: 0.5;
-}
-
-.mapContainer {
-  margin-top: 1.5rem;
-  padding: 0.5rem;
-  border: 1px solid var(--neutral-300);
-  border-radius: 6px;
+  font-style: normal;
   background-color: white;
-  box-shadow: 0 2px 5px var(--shadow);
-  height: 300px;
-  overflow: hidden;
-}
-
-.visitButton {
+  padding: 1.5rem;
+  border-radius: 8px;
+  border-left: 4px solid var(--gold);
+  color: var(--dark-brown);
+  line-height: 1.6;
+  font-size: 1.1rem;
+  margin-top: 2rem;
   display: inline-block;
-  padding: 0.8rem 1.6rem;
-  background-color: var(--primary);
-  color: var(--neutral-100);
+}
+
+/* Newsletter Section */
+.newsletterSection {
+  padding: 4rem 1rem;
+  background-color: var(--brown);
+  text-align: center;
+}
+
+.newsletterContent {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.newsletterSection .sectionTitle {
+  color: var(--cream);
+}
+
+.newsletterSection p {
+  color: var(--cream);
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+}
+
+.newsletterSection .sectionTitle::after {
+  background-color: var(--gold);
+}
+
+.newsletterForm {
+  display: flex;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.emailInput {
+  flex: 1;
+  padding: 0.9rem 1rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 4px 0 0 4px;
   font-size: 1rem;
-  font-weight: bold;
+  outline: none;
+}
+
+.subscribeButton {
+  background-color: var(--gold);
+  color: var(--dark-brown);
+  border: none;
+  border-radius: 0 4px 4px 0;
+  padding: 0 1.5rem;
+  font-weight: 600;
   cursor: pointer;
-  margin-top: 1.5rem;
-  transition: all 0.2s ease;
-  text-decoration: none;
+  transition: background-color 0.3s;
 }
 
-.visitButton:hover {
-  background-color: var(--neutral-600);
-  transform: translateY(-2px);
+.subscribeButton:hover {
+  background-color: #e5a812;
 }
 
-/* Media query for tablet screens */
+/* Responsive Styles */
+@media (max-width: 992px) {
+  .productGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .visitContent {
+    flex-direction: column;
+  }
+
+  .heroTitle {
+    font-size: 3.5rem;
+  }
+}
+
 @media (max-width: 768px) {
-  .featureCard {
-    grid-column: span 6;
+  .sectionTitle {
+    font-size: 1.9rem;
   }
 
-  .homeTitle {
-    font-size: 2rem;
+  .heroTitle {
+    font-size: 3rem;
   }
 
-  .visitCard {
-    padding: 1.5rem;
+  .heroTagline {
+    font-size: 1.5rem;
   }
 
-  .visitTitle {
-    font-size: 1.6rem;
+  .newsletterForm {
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
-  .mapContainer {
-    height: 250px;
-  }
-}
-
-/* Media query for mobile screens */
-@media (max-width: 480px) {
-  .featureCard {
-    grid-column: span 12;
-  }
-
-  .featuresGrid {
-    gap: 1rem;
-  }
-
-  .homeTitle {
-    font-size: 1.75rem;
-  }
-
-  .homeTitle::after {
-    width: 60px;
-  }
-
-  .visitCard {
-    padding: 1.25rem;
-  }
-
-  .visitTitle {
-    font-size: 1.4rem;
-  }
-
-  .visitDesc {
-    font-size: 0.95rem;
-  }
-
-  .mapContainer {
-    height: 200px;
+  .emailInput,
+  .subscribeButton {
+    width: 100%;
+    border-radius: 4px;
+    padding: 0.8rem;
   }
 }
 
-/* Dark mode styles */
-@media (prefers-color-scheme: dark) {
-  .featureCard,
-  .visitCard {
-    background-color: var(--neutral-800);
-    border-color: var(--neutral-700);
+@media (max-width: 576px) {
+  .productGrid {
+    grid-template-columns: 1fr;
   }
 
-  .featureTitle,
-  .visitTitle {
-    color: var(--secondary-accent);
+  .heroTitle {
+    font-size: 2.5rem;
   }
 
-  .featureDesc,
-  .visitDesc {
-    color: var(--neutral-300);
+  .heroTagline {
+    font-size: 1.3rem;
+  }
+  
+  .ctaButton {
+    width: 100%;
   }
 
-  .homeTitle {
-    color: var(--secondary-accent);
-  }
-
-  .address {
-    color: var(--secondary);
-  }
-
-  .address::after {
-    background-color: var(--secondary);
-  }
-
-  .mapContainer {
-    background-color: var(--neutral-900);
-    border-color: var(--neutral-700);
-  }
-
-  .visitCard {
-    background-image: linear-gradient(
-      to bottom right,
-      rgba(62, 39, 35, 0.5),
-      rgba(78, 52, 46, 0.3)
-    );
+  .secondaryButton {
+    width: 100%;
   }
 }

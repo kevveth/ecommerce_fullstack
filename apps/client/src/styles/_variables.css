@@ -1,40 +1,46 @@
 :root {
-  /* Primary Colors - Warm Brown */
-  --primary: #a02020; /* Roman Red */
-  --primary-accent: #c04040;
+  /* New Color Palette */
+  --cream: #F8F4E1; /* Light cream background */
+  --gold: #FEBA17;  /* Golden yellow accent */
+  --brown: #74512D; /* Medium brown */
+  --dark-brown: #4E1F00; /* Deep dark brown */
 
-  /* Secondary Colors - Creamy Accent */
-  --secondary: #556b2f; /* Dark Olive Green */
-  --secondary-accent: #7a9c43;
+  /* Primary Colors */
+  --primary: var(--dark-brown);
+  --primary-accent: var(--brown);
+
+  /* Secondary Colors */
+  --secondary: var(--gold);
+  --secondary-accent: var(--gold);
 
   /* Neutral Colors */
-  --background-light: #f5f5f5; /* Warm white background */
-  --background-dark: #3e2723; /* Deep espresso for dark mode */
-  --text-dark: #3e2723; /* Rich espresso for primary text */
-  --text-light: #ffffff; /* White text for dark backgrounds */
-  --text: #fff;
+  --background-light: var(--cream);
+  --background-dark: var(--dark-brown);
+  --text-dark: var(--dark-brown);
+  --text-light: var(--cream);
+  --text: var(--cream);
 
   /* Border Colors */
-  --border-color: #d7ccc8; /* Subtle cream for borders */
+  --border-color: var(--brown);
 
   /* Status Colors */
-  --error: #c62828; /* Deep red for errors */
-  --success: #2e7d32; /* Forest green for success */
-  --warning: #ef6c00; /* Amber orange for warnings */
-  --highlight: #bcaaa4; /* Light taupe for highlighting */
+  --error: #c62828; /* Keeping original error color */
+  --success: #2e7d32; /* Keeping original success color */
+  --warning: var(--gold);
+  --highlight: var(--gold);
 
   /* Other UI Colors */
-  --shadow: rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  --overlay: rgba(62, 39, 35, 0.7); /* Dark overlay for modals */
+  --shadow: rgba(78, 31, 0, 0.15);
+  --overlay: rgba(78, 31, 0, 0.7);
 
   /* Additional Colors */
-  --neutral-100: #ffffff;
-  --neutral-200: #f5f5f5;
-  --neutral-300: #e0e0e0;
-  --neutral-400: #bdbdbd;
-  --neutral-500: #9e9e9e;
-  --neutral-600: #757575;
-  --neutral-700: #616161;
-  --neutral-800: #424242;
-  --neutral-900: #212121;
+  --neutral-100: var(--cream);
+  --neutral-200: #f3efd5;
+  --neutral-300: #e6dfc0;
+  --neutral-400: #d8ceab;
+  --neutral-500: #b2a98f;
+  --neutral-600: #8c8573;
+  --neutral-700: var(--brown);
+  --neutral-800: #5c4124;
+  --neutral-900: var(--dark-brown);
 }

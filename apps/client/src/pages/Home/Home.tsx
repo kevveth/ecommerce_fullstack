@@ -1,53 +1,92 @@
-import "../../App.css";
 import styles from "./Home.module.css";
 
 export const Home = () => {
   return (
-    <div className="coffee-bg">
-      <section className="container">
-        <h1 className={styles.homeTitle}>Freshly Roasted Perfection</h1>
-        <p className="coffee-text">
-          Discover the rich, aromatic blends and exceptional coffee experiences
-          that have made Ken's Coffee Company a favorite among coffee
-          enthusiasts.
-        </p>
-
-        <div className={`grid ${styles.featuresGrid}`}>
-          <div className={`card ${styles.featureCard}`}>
-            <h3 className="coffee-subtitle">Premium Beans</h3>
-            <p>
-              Our beans are ethically sourced from the finest coffee regions
-              around the world, ensuring exceptional quality in every cup.
-            </p>
+    <div className={styles.homeContainer}>
+      {/* Hero Section */}
+      <section className={styles.heroSection}>
+        <div className={styles.heroContent}>
+          <h1 className={styles.heroTitle}>Ken's Coffee Company</h1>
+          <p className={styles.heroTagline}>Craft Coffee, Extraordinary Flavor</p>
+          <button className={styles.ctaButton}>Shop Now</button>
+        </div>
+      </section>
+      
+      {/* About Section */}
+      <section className={styles.aboutSection}>
+        <div className={styles.sectionContent}>
+          <h2 className={styles.sectionTitle}>Our Story</h2>
+          <p className={styles.sectionText}>
+            At Ken's Coffee Company, we believe that great coffee is an art form. 
+            Since 2015, we've been sourcing premium beans from sustainable farms,
+            carefully roasting them to perfection, and delivering exceptional flavor
+            in every cup. Our passion for quality and craftsmanship is at the heart
+            of everything we do.
+          </p>
+        </div>
+      </section>
+      
+      {/* Featured Products */}
+      <section className={styles.productsSection}>
+        <h2 className={styles.sectionTitle}>Featured Blends</h2>
+        <div className={styles.productGrid}>
+          <div className={styles.productCard}>
+            <div className={styles.productImage}></div>
+            <h3>Morning Sunrise Blend</h3>
+            <p>A bright, balanced medium roast with notes of citrus and chocolate.</p>
+            <span className={styles.productPrice}>$16.99</span>
           </div>
-
-          <div className={`card ${styles.featureCard}`}>
-            <h3 className="coffee-subtitle">Expert Roasting</h3>
-            <p>
-              Small-batch roasting by our master roasters brings out the unique
-              characteristics and flavors of each coffee variety.
-            </p>
+          <div className={styles.productCard}>
+            <div className={styles.productImage}></div>
+            <h3>Midnight Espresso</h3>
+            <p>Rich, bold dark roast with notes of caramel and toasted nuts.</p>
+            <span className={styles.productPrice}>$18.99</span>
           </div>
-
-          <div className={`card ${styles.featureCard}`}>
-            <h3 className="coffee-subtitle">Community Focus</h3>
-            <p>
-              We believe in creating lasting relationships with our farmers,
-              customers, and communities through sustainable practices.
-            </p>
+          <div className={styles.productCard}>
+            <div className={styles.productImage}></div>
+            <h3>Highland Reserve</h3>
+            <p>Single-origin light roast with floral notes and subtle fruitiness.</p>
+            <span className={styles.productPrice}>$21.99</span>
           </div>
         </div>
-
-        <div className={`card ${styles.visitCard}`}>
-          <h2 className="coffee-subtitle">Visit Our Shop</h2>
-          <p>
-            Join us at our café to experience our signature coffees and
-            house-made pastries in a warm, inviting atmosphere designed for
-            connection and comfort.
-          </p>
-          <p className={styles.address}>
-            123 Coffee Lane, Brewville • Open Daily 6am-8pm
-          </p>
+        <button className={styles.secondaryButton}>View All Products</button>
+      </section>
+      
+      {/* Visit Us Section */}
+      <section className={styles.visitSection}>
+        <div className={styles.visitContent}>
+          <div className={styles.visitInfo}>
+            <h2 className={styles.sectionTitle}>Visit Our Café</h2>
+            <p className={styles.sectionText}>
+              Experience our coffee in person at our flagship café. Enjoy 
+              freshly brewed coffee, house-made pastries, and a cozy atmosphere 
+              perfect for working or meeting friends.
+            </p>
+            <address className={styles.address}>
+              123 Coffee Lane, Brewville<br />
+              Open Daily 6am-8pm
+            </address>
+          </div>
+          <div className={styles.visitMap}></div>
+        </div>
+      </section>
+      
+      {/* Newsletter Section */}
+      <section className={styles.newsletterSection}>
+        <div className={styles.newsletterContent}>
+          <h2 className={styles.sectionTitle}>Stay Connected</h2>
+          <p>Subscribe to our newsletter for special offers and brewing tips</p>
+          <form className={styles.newsletterForm}>
+            <input 
+              type="email" 
+              placeholder="Your email address" 
+              className={styles.emailInput} 
+              required 
+            />
+            <button type="submit" className={styles.subscribeButton}>
+              Subscribe
+            </button>
+          </form>
         </div>
       </section>
     </div>
