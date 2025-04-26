@@ -1,6 +1,6 @@
-import { useParams } from 'react-router';
-import { ProfileData } from '../components/ProfileData';
-import { useFetchUser } from '../hooks/useFetchUser';
+import { useParams } from "react-router";
+import { ProfileData } from "../../components/ProfileData";
+import { useFetchUser } from "../../hooks/useFetchUser";
 
 interface ProfileProps extends Record<string, string | undefined> {
   username: string;

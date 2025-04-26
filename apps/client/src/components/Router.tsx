@@ -1,11 +1,11 @@
 import { Routes, Route, Navigate } from "react-router";
-import { Home } from "../pages/Home";
+import { Home } from "../pages/Home/Home";
 import Register from "../pages/Register/Register";
 import Login from "../pages/Login/Login";
 import { NotFound } from "../errors/NotFound";
-import { Profile } from "../pages/Profile";
-import { Profiles } from "../pages/Profiles";
-import PageLayout from "./PageLayout";
+import { Profile } from "../pages/Profile/Profile";
+import { Profiles } from "../pages/Profiles/Profiles";
+import PageLayout from "./PageLayout/PageLayout";
 import { useAuth } from "../context/AuthContext";
 
 // Create a Protected Route wrapper component
