@@ -53,3 +53,4 @@ packages/shared/.turbo/
 + .turbo
 .turbo
 .DS_Store
+.github/copilot-instructions.md
