@@ -9,33 +9,33 @@ export async function getAll(): Promise<User[]> {
 }
 
 // Retrieves a user by ID
-export async function getWithId(id: User["user_id"]): Promise<User> {
+export async function getWithId(id: User["user_id"]): Promise<User | null> {
   const query = "SELECT * FROM users WHERE user_id = $1";
   const result = await db.query(query, [id]);
 
-  return result.rows[0];
+  return result.rows[0] || null;
 }
 
 export async function getWithUsername(
-  username: User["username"],
-): Promise<User> {
+  username: User["username"]
+): Promise<User | null> {
   const query = "SELECT * FROM users WHERE username = $1";
   const result = await db.query(query, [username]);
 
-  return result.rows[0];
+  return result.rows[0] || null;
 }
 
-export async function getWithEmail(email: User["email"]): Promise<User> {
+export async function getWithEmail(email: User["email"]): Promise<User | null> {
   const query = "SELECT * FROM users WHERE email = $1";
   const result = await db.query(query, [email]);
 
-  return result.rows[0];
+  return result.rows[0] || null;
 }
 
 // Updates a user's information.
 export async function update(
   id: User["user_id"],
-  properties: UpdateableUser,
+  properties: UpdateableUser
 ): Promise<User> {
   const setClauses: string[] = [];
   const updateValues: string[] = []; // Array to hold the values for the SQL query
@@ -65,7 +65,7 @@ export async function update(
 
   // Build the SQL query dynamically
   const query = `UPDATE users SET ${setClauses.join(
-    ", ",
+    ", "
   )} WHERE user_id = $${index} RETURNING *;`;
 
   // Execute the SQL query using the database connection

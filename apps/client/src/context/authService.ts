@@ -14,26 +14,37 @@ const api: AxiosInstance = axios.create({
 // Interface for auth responses
 interface AuthResponse {
   accessToken: string;
-  user: {
-    user_id: number;
+  tokenType?: string;
+  user?: {
+    id: number;
     username: string;
     email: string;
     role: string;
   };
 }
 
-// Function to set the auth token on all requests
+/**
+ * Function to set the auth token on all requests
+ *
+ * @param token - The access token to set, or null to clear
+ */
 export const setAuthToken = (token: string | null) => {
   if (token) {
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    localStorage.setItem("accessToken", token); // Optional: store in localStorage
+    localStorage.setItem("accessToken", token);
   } else {
     delete api.defaults.headers.common["Authorization"];
-    localStorage.removeItem("accessToken"); // Optional: remove from localStorage
+    localStorage.removeItem("accessToken");
   }
 };
 
-// Function to refresh the access token
+/**
+ * Function to refresh the access token
+ * This is called automatically when a 401 response is received
+ *
+ * @param failedRequest - The failed request that triggered the refresh
+ * @returns Promise that resolves when the token has been refreshed
+ */
 const refreshAuthLogic = async (failedRequest: any) => {
   try {
     // Call the refresh token endpoint
@@ -72,13 +83,20 @@ if (token) {
   setAuthToken(token);
 }
 
-// Login function using the LoginInput type
-export const login = async (loginData: LoginInput): Promise<AuthResponse> => {
+/**
+ * Login function using the LoginInput type
+ *
+ * @param credentials - User login credentials
+ * @returns Promise that resolves to the auth response
+ */
+export const login = async (credentials: LoginInput): Promise<AuthResponse> => {
   try {
-    // Using the proper API path with /auth/login instead of just /login
-    const response = await api.post<AuthResponse>("/auth/login", loginData);
+    const response = await api.post<AuthResponse>("/auth/login", credentials);
     const { accessToken } = response.data;
+
+    // Set token for future requests
     setAuthToken(accessToken);
+
     return response.data;
   } catch (error) {
     console.error("Login error:", error);
@@ -86,23 +104,30 @@ export const login = async (loginData: LoginInput): Promise<AuthResponse> => {
   }
 };
 
-// Logout function
-export const logout = async () => {
+/**
+ * Logout function
+ *
+ * @returns Promise that resolves when logout is complete
+ */
+export const logout = async (): Promise<void> => {
   try {
     await api.post("/auth/logout");
     setAuthToken(null);
   } catch (error) {
     console.error("Logout error:", error);
-    // Even if the logout API fails, still clear the token locally
+    // Clear token even if the request fails
     setAuthToken(null);
-    throw error;
   }
 };
 
-// Get current user profile with proper typing
+/**
+ * Gets the current user profile
+ *
+ * @returns Promise that resolves to the user data
+ */
 export const getCurrentUser = async (): Promise<AuthResponse> => {
   try {
-    const response = await api.get<AuthResponse>("/users/profile");
+    const response = await api.get<AuthResponse>("/users/me");
     return response.data;
   } catch (error) {
     console.error("Get user error:", error);
@@ -114,7 +139,12 @@ export const getCurrentUser = async (): Promise<AuthResponse> => {
   }
 };
 
-// Handle Google authentication callback
+/**
+ * Handle Google authentication callback
+ *
+ * @param token - The token received from Google
+ * @returns Promise that resolves to the auth response
+ */
 export const handleGoogleAuthCallback = async (
   token: string
 ): Promise<AuthResponse> => {
