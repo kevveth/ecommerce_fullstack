@@ -5,7 +5,8 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
-    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""
+    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
+    "prepare": "husky"
   },
   "pnpm": {
     "overrides": {}

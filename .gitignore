@@ -28,10 +28,25 @@ apps/server/build/
 # Environment files (IMPORTANT: Keep secrets out of Git!)
 .env
 .env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Security-related files that might contain credentials
+**/credentials.*
+**/serviceAccount*.json
+**/key*.json
+**/key*.pem
+**/id_rsa*
+**/*.key
+**/*.pfx
+**/*.p12
 
 # Log files
 logs/
 *.log
+**/.log
 
 # Coverage reports (if you're generating them at the root)
 coverage/
