@@ -7,35 +7,22 @@ import { getWithEmail } from "../services/users";
 import { z } from "zod";
 import UnauthorizedError from "../errors/UnauthorizedError";
 
-// Define custom error handling for login failures
-const loginErrorMap: z.ZodErrorMap = (issue, ctx) => {
-  if (
-    issue.code === z.ZodIssueCode.invalid_type &&
-    issue.path.includes("email")
-  ) {
-    return { message: "Email is required" };
-  }
-  if (
-    issue.code === z.ZodIssueCode.invalid_type &&
-    issue.path.includes("password")
-  ) {
-    return { message: "Password is required" };
-  }
-  return { message: ctx.defaultError };
-};
-
+/**
+ * Handles user login requests
+ * Uses Zod 4's schema validation with improved error handling
+ */
 export const loginUser = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    // Use the shared loginSchema with custom error mapping
-    const result = loginSchema.safeParse(req.body, { errorMap: loginErrorMap });
+    // Use the shared loginSchema with Zod 4's validation
+    const result = loginSchema.safeParse(req.body);
 
     if (!result.success) {
-      // More structured error response
-      const formattedErrors = result.error.format();
+      // Use Zod 4's prettifyError for better formatted errors
+      const formattedErrors = z.prettifyError(result.error);
       return res.status(400).json({
         message: "Validation failed",
         errors: formattedErrors,

@@ -34,7 +34,7 @@ import { env } from "./utils/env";
 import cookieParser from "cookie-parser";
 import { isAuthenticated } from "./middleware/verifyJWT";
 import { setupGoogleAuth } from "./services/auth/googleAuth";
-import { runMigrations } from "./database/runMigrations";
+import { connectionManager } from "./database/connectionManager";
 import { shutdown as shutdownDatabase } from "./database/database";
 
 const corsOptions: CorsOptions = {
@@ -77,8 +77,9 @@ if (require.main === module) {
     process.exit(1);
   }
 
-  // Run database migrations before starting the server
-  runMigrations()
+  // Initialize database schema before starting the server
+  connectionManager
+    .initialize()
     .then(() => {
       const server = app.listen(port, () => {
         console.log(`Server is running at http://localhost:${port}`);
@@ -89,12 +90,14 @@ if (require.main === module) {
       process.on("SIGINT", gracefulShutdown(server));
     })
     .catch((err) => {
-      console.error("Failed to run migrations:", err);
+      console.error("Failed to initialize database:", err);
       process.exit(1);
     });
 } else {
-  // For testing purposes - don't run migrations
-  console.log("App imported (not running directly) - skipping migrations");
+  // For testing purposes - don't initialize database
+  console.log(
+    "App imported (not running directly) - skipping database initialization"
+  );
 }
 
 // Graceful shutdown function

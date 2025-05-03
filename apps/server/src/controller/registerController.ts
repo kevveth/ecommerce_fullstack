@@ -7,31 +7,20 @@ import BadRequestError from "../errors/BadRequestError";
 import { ZodError, z } from "zod";
 import { registrationSchema } from "@repo/shared/schemas";
 
-// Custom error map for registration-specific validation messages
-const registrationErrorMap: z.ZodErrorMap = (issue, ctx) => {
-  // Custom error messages that provide more specific feedback
-  if (issue.code === "custom" && issue.path.includes("email")) {
-    return { message: "This email is already registered" };
-  }
-
-  // Default to the error messages defined in the schema
-  return { message: ctx.defaultError };
-};
-
-//Handles creating a new user.
+/**
+ * Handles user registration
+ * Uses Zod 4's schema validation with improved error handling
+ */
 export async function registerUser(req: Request, res: Response) {
   try {
-    // Use safeParse for more controlled error handling
-    const validationResult = await newUserSchema.safeParseAsync(req.body, {
-      errorMap: registrationErrorMap,
-    });
+    // Use Zod 4's safeParse without custom error map
+    const validationResult = newUserSchema.safeParse(req.body);
 
     if (!validationResult.success) {
-      // Format the validation errors for a better client response
-      const errors = validationResult.error.format();
+      const formattedErrors = z.prettifyError(validationResult.error);
       return res.status(400).json({
         message: "Validation failed",
-        errors,
+        errors: formattedErrors,
       });
     }
 
@@ -60,10 +49,11 @@ export async function registerUser(req: Request, res: Response) {
     });
   } catch (err) {
     if (err instanceof ZodError) {
-      // Fallback for any ZodErrors not caught by safeParse
+      // Format errors using Zod 4's prettifyError
+      const formattedErrors = z.prettifyError(err);
       return res.status(400).json({
         message: "Validation failed",
-        errors: err.format(),
+        errors: formattedErrors,
       });
     }
 

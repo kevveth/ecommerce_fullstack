@@ -1,6 +1,7 @@
 import { Pool, PoolClient } from "pg";
 import { config } from "dotenv";
 import { env } from "../utils/env";
+import { initializeDatabase } from "./initializeDatabase";
 
 config();
 
@@ -8,6 +9,7 @@ config();
 class ConnectionManager {
   private static instance: ConnectionManager;
   private pool: Pool;
+  private initialized = false;
 
   private constructor() {
     this.pool = new Pool({
@@ -45,6 +47,22 @@ class ConnectionManager {
   // Get the connection pool
   public getPool(): Pool {
     return this.pool;
+  }
+
+  /**
+   * Initialize the database schema
+   * This ensures all required tables exist before the application starts using the database
+   */
+  public async initialize(): Promise<void> {
+    if (this.initialized) return;
+
+    try {
+      await initializeDatabase(this.pool);
+      this.initialized = true;
+    } catch (error) {
+      console.error("Failed to initialize database:", error);
+      throw error;
+    }
   }
 
   // Execute a query using the pool

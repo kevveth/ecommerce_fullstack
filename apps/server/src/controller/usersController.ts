@@ -23,13 +23,36 @@ const usernameParamSchema = z.object({
   username: z.string().min(1, { message: "Username cannot be empty" }),
 });
 
-// Custom error map for better validation errors
-const paramErrorMap: z.ZodErrorMap = (issue, ctx) => {
-  if (issue.code === "invalid_string" && issue.path.includes("id")) {
-    return { message: "Invalid ID format" };
+/**
+ * Custom error formatter function for ID-related validation errors
+ * Uses Zod's prettifyError for consistent formatting
+ *
+ * @param error - The Zod error object to format
+ * @returns A formatted error message or object
+ */
+function formatIdError(error: z.ZodError): string | Record<string, any> {
+  // Check if any error is related to the id field
+  const hasIdError = error.issues.some((issue) => {
+    // First check if this issue relates to the id field
+    if (!issue.path.includes("id")) return false;
+
+    // For Zod v4, use a string-based code check instead of enum values
+    // Check if code exists and is one of our target error types
+    return (
+      issue.code != null &&
+      ["invalid_type", "too_small", "too_big", "invalid_string"].includes(
+        issue.code
+      )
+    );
+  });
+
+  if (hasIdError) {
+    return "Invalid ID format";
   }
-  return { message: ctx.defaultError };
-};
+
+  // Use Zod's built-in error prettification as recommended in coding guidelines
+  return z.prettifyError(error);
+}
 
 export async function getAllUsers(req: Request, res: Response) {
   try {
@@ -51,15 +74,13 @@ export async function getAllUsers(req: Request, res: Response) {
 //Handles getting a user by ID
 export async function getUser(req: Request, res: Response, next: NextFunction) {
   try {
-    // Validate ID param with custom error mapping
-    const idResult = idParamSchema.safeParse(req.params, {
-      errorMap: paramErrorMap,
-    });
+    // Validate ID param without custom error mapping
+    const idResult = idParamSchema.safeParse(req.params);
 
     if (!idResult.success) {
       return res.status(400).json({
         message: "Invalid user ID",
-        errors: idResult.error.format(),
+        errors: formatIdError(idResult.error),
       });
     }
 
@@ -100,7 +121,7 @@ export async function getUserByUsername(
     if (!usernameResult.success) {
       return res.status(400).json({
         message: "Invalid username",
-        errors: usernameResult.error.format(),
+        errors: z.prettifyError(usernameResult.error),
       });
     }
 
@@ -141,7 +162,7 @@ export async function updateUser(
     if (!idResult.success) {
       return res.status(400).json({
         message: "Invalid user ID",
-        errors: idResult.error.format(),
+        errors: z.prettifyError(idResult.error),
       });
     }
 
@@ -153,7 +174,7 @@ export async function updateUser(
     if (!updateResult.success) {
       return res.status(400).json({
         message: "Invalid update data",
-        errors: updateResult.error.format(),
+        errors: z.prettifyError(updateResult.error),
       });
     }
 
@@ -197,7 +218,7 @@ export async function deleteUser(
     if (!idResult.success) {
       return res.status(400).json({
         message: "Invalid user ID",
-        errors: idResult.error.format(),
+        errors: z.prettifyError(idResult.error),
       });
     }
 
