@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Navigate } from "react-router";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 export function MyProfile() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -13,6 +13,6 @@ export function MyProfile() {
     return <Navigate to="/login" replace />;
   }
 
-  // Redirect to the user's profile page
+  // Redirect to the user's profile page using the correct username
   return <Navigate to={`/profiles/${user.username}`} replace />;
 }
