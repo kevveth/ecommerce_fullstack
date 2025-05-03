@@ -12,19 +12,17 @@ export const validateRegistrationData = async (
   next: NextFunction
 ) => {
   try {
-    // Use safeParseAsync for async validation (email uniqueness check)
-    const result = await newUserSchema.safeParseAsync(req.body);
+    const result = newUserSchema.safeParse(req.body);
 
     if (result.success) {
-      // Store the validated data in the request for use in controller
       req.body = result.data;
       return next();
     } else {
-      // Use the central error handling middleware with BadRequestError
+      const formattedErrors = z.prettifyError(result.error);
       return next(
         new BadRequestError({
           message: "Validation failed",
-          context: { errors: result.error.format() },
+          context: { errors: formattedErrors },
         })
       );
     }
@@ -45,15 +43,14 @@ export const validateUpdateData = async (
     const result = updateUserSchema.safeParse(req.body);
 
     if (result.success) {
-      // Store the validated and transformed data in the request
       req.body = result.data;
       return next();
     } else {
-      // Use the central error handling middleware with BadRequestError
+      const formattedErrors = z.prettifyError(result.error);
       return next(
         new BadRequestError({
           message: "Validation failed",
-          context: { errors: result.error.format() },
+          context: { errors: formattedErrors },
         })
       );
     }

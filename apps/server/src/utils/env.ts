@@ -1,96 +1,90 @@
 import { z } from "zod";
 
-// Custom error map for more descriptive environment variable validation errors
-const envErrorMap: z.ZodErrorMap = (issue, ctx) => {
-  if (issue.code === "invalid_type") {
-    return {
-      message: `${issue.path.join(".")} is required or has an invalid type`,
-    };
-  }
-  if (issue.code === "custom") {
-    return { message: ctx.defaultError };
-  }
-  return { message: ctx.defaultError };
-};
+/**
+ * Custom URL validator that's more lenient with local development URLs
+ */
+const urlSchema = z.string().refine(
+  (val) => {
+    try {
+      new URL(val);
+      return true;
+    } catch {
+      return false;
+    }
+  },
+  { message: "Invalid URL format" }
+);
 
-// Improved Zod schema for validating environment variables with more specific validations
+/**
+ * Environment variable schema using Zod v4 features
+ */
 const envSchema = z
   .object({
+    // Server settings
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
-    PORT: z.coerce
-      .number()
-      .int()
-      .positive()
-      .max(65535, "Port number must be less than 65535")
-      .default(3000),
-    DB_DATABASE: z
-      .string()
-      .min(1, "Database name is required")
-      .default("ecommerce"),
-    DB_HOST: z
-      .string()
-      .min(1, "Database host is required")
-      .default("localhost"),
-    DB_PORT: z.coerce
-      .number()
-      .int()
-      .positive()
-      .max(65535, "Database port must be less than 65535")
-      .default(5432),
+    PORT: z.coerce.number().int().positive().max(65535).default(3000),
+
+    // Database settings
+    DB_DATABASE: z.string().min(1).default("ecommerce"),
+    DB_HOST: z.string().min(1).default("localhost"),
+    DB_PORT: z.coerce.number().int().positive().max(65535).default(5432),
     DB_USER: z.string().optional(),
     DB_PASSWORD: z.string().optional(),
-    DB_URL: z.string().url("Database URL must be a valid URL").optional(),
-    SALT_ROUNDS: z.coerce
-      .number()
-      .int()
-      .min(10, "Salt rounds should be at least 10 for security")
-      .max(20, "Salt rounds should not exceed 20 for performance")
-      .default(12),
-    JWT_SECRET: z
-      .string()
-      .min(32, "JWT secret should be at least 32 characters for security")
-      .optional(),
+    DB_URL: urlSchema.optional(),
+
+    // Security settings
+    SALT_ROUNDS: z.coerce.number().int().min(10).max(20).default(12),
+    JWT_SECRET: z.string().min(32).optional(),
+    JWT_REFRESH_SECRET: z.string().min(32).optional(),
     JWT_ACCESS_TOKEN_EXPIRY: z
       .string()
-      .regex(
-        /^\d+[smhd]$/,
-        "Token expiry must be in format like '15m', '24h', '7d'"
-      )
+      .regex(/^\d+[smhd]$/)
       .default("15m"),
     JWT_REFRESH_TOKEN_EXPIRY: z
       .string()
-      .regex(
-        /^\d+[smhd]$/,
-        "Token expiry must be in format like '15m', '24h', '7d'"
-      )
+      .regex(/^\d+[smhd]$/)
       .default("7d"),
+
+    // Client settings
+    CLIENT_URL: urlSchema.default("http://localhost:5173"),
+
+    // OAuth settings
+    GOOGLE_CLIENT_ID: z.string().optional(),
+    GOOGLE_CLIENT_SECRET: z.string().optional(),
+  })
+  .meta({
+    description: "Server environment configuration",
+    source: "Environment variables",
+    version: "1.0",
+  })
+  .refine((data) => data.NODE_ENV !== "production" || !!data.JWT_SECRET, {
+    message: "JWT_SECRET is required in production environment",
+    path: ["JWT_SECRET"],
   })
   .refine(
-    (data) => {
-      // If we're in production, JWT_SECRET is required
-      return data.NODE_ENV !== "production" || !!data.JWT_SECRET;
-    },
+    (data) => data.NODE_ENV !== "production" || !!data.JWT_REFRESH_SECRET,
     {
-      message: "JWT_SECRET is required in production environment",
-      path: ["JWT_SECRET"],
+      message: "JWT_REFRESH_SECRET is required in production environment",
+      path: ["JWT_REFRESH_SECRET"],
     }
   );
 
 // Define the strongly typed environment schema
 export type Env = z.infer<typeof envSchema>;
 
-// Attempt to parse and validate environment variables
+/**
+ * Parses and validates environment variables
+ * @returns Validated and typed environment variables
+ */
 function loadEnv(): Env {
   try {
     return envSchema.parse(process.env);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      console.error(
-        "❌ Invalid environment variables:",
-        JSON.stringify(error.format(), null, 2)
-      );
+      console.error("❌ Environment validation failed:");
+      console.error(z.prettifyError(error));
       process.exit(1);
     }
     throw error;

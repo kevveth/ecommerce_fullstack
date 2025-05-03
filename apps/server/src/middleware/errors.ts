@@ -1,8 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import { CustomError } from "../errors/CustomError";
-import { ZodError } from "zod";
-import { fromZodError } from "zod-validation-error";
+import { ZodError, z } from "zod";
 
+/**
+ * Global error handling middleware
+ * Uses Zod 4's prettifyError for formatting validation errors
+ */
 export const errorHandler = (
   err: Error,
   req: Request,
@@ -28,10 +31,12 @@ export const errorHandler = (
 
     res.status(statusCode).send({ errors });
   } else if (err instanceof ZodError) {
-    console.log(fromZodError(err).toString());
+    // Use Zod 4's built-in prettifyError function instead of fromZodError
+    const formattedErrors = z.prettifyError(err);
+    console.log("Validation error:", JSON.stringify(formattedErrors, null, 2));
     res.status(400).json({
       message: "Validation failed",
-      errors: err.format(),
+      errors: formattedErrors,
     });
   } else {
     // Unhandled Errors
