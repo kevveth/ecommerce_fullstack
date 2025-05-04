@@ -1,0 +1,336 @@
+@import "../../styles/_variables.css";
+
+/* General Home Page Styling */
+.homeContainer {
+  width: 100%;
+  background-color: var(--cream);
+  color: var(--dark-brown);
+}
+
+/* Section Common Styles */
+.sectionTitle {
+  font-family: "Georgia", serif;
+  font-size: 2.2rem;
+  color: var(--dark-brown);
+  margin-bottom: 1.5rem;
+  position: relative;
+  display: inline-block;
+}
+
+.sectionTitle::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -8px;
+  width: 100%;
+  height: 3px;
+  background-color: var(--gold);
+  border-radius: 2px;
+}
+
+.sectionText {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  color: var(--dark-brown);
+}
+
+.sectionContent {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 0 1rem;
+}
+
+/* Hero Section */
+.heroSection {
+  min-height: 600px;
+  background-image:
+    linear-gradient(rgba(78, 31, 0, 0.7), rgba(78, 31, 0, 0.4)),
+    url("/coffee-beans-bg.png");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.heroContent {
+  max-width: 800px;
+}
+
+.heroTitle {
+  font-size: 4rem;
+  color: var(--cream);
+  margin-bottom: 1rem;
+  font-family: "Georgia", serif;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.heroTagline {
+  font-size: 1.8rem;
+  color: var(--gold);
+  margin-bottom: 2rem;
+  font-family: "Georgia", serif;
+}
+
+.ctaButton {
+  background-color: var(--gold);
+  color: var(--dark-brown);
+  border: none;
+  border-radius: 30px;
+  padding: 0.8rem 2.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
+}
+
+.ctaButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* About Section */
+.aboutSection {
+  padding: 5rem 1rem;
+  background-color: var(--cream);
+}
+
+/* Products Section */
+.productsSection {
+  padding: 5rem 1rem;
+  background-color: white;
+  text-align: center;
+}
+
+.productGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 3rem auto;
+  padding: 0 1rem;
+}
+
+.productCard {
+  background-color: var(--cream);
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+}
+
+.productCard:hover {
+  transform: translateY(-10px);
+}
+
+.productImage {
+  height: 200px;
+  background-color: var(--brown);
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.productCard h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.8rem;
+  color: var(--dark-brown);
+  font-family: "Georgia", serif;
+}
+
+.productCard p {
+  color: var(--dark-brown);
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.productPrice {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--brown);
+  margin-top: 0.5rem;
+}
+
+.secondaryButton {
+  background-color: transparent;
+  color: var(--dark-brown);
+  border: 2px solid var(--gold);
+  border-radius: 30px;
+  padding: 0.7rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 2rem;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+
+.secondaryButton:hover {
+  background-color: var(--gold);
+  color: var(--dark-brown);
+}
+
+/* Visit Section */
+.visitSection {
+  padding: 5rem 1rem;
+  background-color: var(--cream);
+}
+
+.visitContent {
+  display: flex;
+  max-width: 1100px;
+  margin: 0 auto;
+  gap: 2rem;
+}
+
+.visitInfo {
+  flex: 1;
+  text-align: left;
+}
+
+.visitMap {
+  flex: 1;
+  background-color: #e0e0e0;
+  border-radius: 10px;
+  min-height: 350px;
+}
+
+.address {
+  font-style: normal;
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border-left: 4px solid var(--gold);
+  color: var(--dark-brown);
+  line-height: 1.6;
+  font-size: 1.1rem;
+  margin-top: 2rem;
+  display: inline-block;
+}
+
+/* Newsletter Section */
+.newsletterSection {
+  padding: 4rem 1rem;
+  background-color: var(--brown);
+  text-align: center;
+}
+
+.newsletterContent {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.newsletterSection .sectionTitle {
+  color: var(--cream);
+}
+
+.newsletterSection p {
+  color: var(--cream);
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+}
+
+.newsletterSection .sectionTitle::after {
+  background-color: var(--gold);
+}
+
+.newsletterForm {
+  display: flex;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.emailInput {
+  flex: 1;
+  padding: 0.9rem 1rem;
+  border: none;
+  border-radius: 4px 0 0 4px;
+  font-size: 1rem;
+  outline: none;
+}
+
+.subscribeButton {
+  background-color: var(--gold);
+  color: var(--dark-brown);
+  border: none;
+  border-radius: 0 4px 4px 0;
+  padding: 0 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.subscribeButton:hover {
+  background-color: #e5a812;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+  .productGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .visitContent {
+    flex-direction: column;
+  }
+
+  .heroTitle {
+    font-size: 3.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .sectionTitle {
+    font-size: 1.9rem;
+  }
+
+  .heroTitle {
+    font-size: 3rem;
+  }
+
+  .heroTagline {
+    font-size: 1.5rem;
+  }
+
+  .newsletterForm {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .emailInput,
+  .subscribeButton {
+    width: 100%;
+    border-radius: 4px;
+    padding: 0.8rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .productGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .heroTitle {
+    font-size: 2.5rem;
+  }
+
+  .heroTagline {
+    font-size: 1.3rem;
+  }
+
+  .ctaButton {
+    width: 100%;
+  }
+
+  .secondaryButton {
+    width: 100%;
+  }
+}

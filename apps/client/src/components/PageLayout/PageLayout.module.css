@@ -1,0 +1,73 @@
+@import "../../styles/_variables.css";
+
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--background-light);
+}
+
+.mainContent {
+  flex: 1;
+  padding: 1.5rem;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.contentWrapper {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px var(--shadow);
+  padding: 1.5rem;
+}
+
+.pageTitle {
+  color: var(--primary);
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  text-align: center;
+  font-family: "Georgia", serif;
+}
+
+.footer {
+  padding: 1rem;
+  background-color: var(--primary);
+  color: var(--text-light);
+  text-align: center;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .mainContent {
+    padding: 1rem;
+  }
+
+  .contentWrapper {
+    padding: 1rem;
+  }
+
+  .pageTitle {
+    font-size: 1.75rem;
+  }
+}
+
+/* Dark mode styles */
+@media (prefers-color-scheme: dark) {
+  .pageContainer {
+    background-color: var(--background-dark);
+  }
+
+  .contentWrapper {
+    background-color: rgba(116, 81, 45, 0.9);
+    color: var(--text-light);
+  }
+
+  .pageTitle {
+    color: var(--secondary);
+  }
+
+  .footer {
+    background-color: var(--dark-brown);
+  }
+}

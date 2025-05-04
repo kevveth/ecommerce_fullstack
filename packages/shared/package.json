@@ -1,0 +1,11 @@
+{
+  "name": "@repo/shared",
+  "private": true,
+  "version": "1.0.0",
+  "exports": {
+    "./schemas": "./src/schemas.ts"
+  },
+  "devDependencies": {
+    "@total-typescript/tsconfig": "^1.0.4"
+  }
+}
