@@ -45,7 +45,7 @@ const corsOptions: CorsOptions = {
 const port = env.PORT || 3001;
 
 // Express initialization
-const app = express();
+const app: express.Application = express();
 app.use(cookieParser()); // JWT: For HTTP only cookies
 
 // Middleware

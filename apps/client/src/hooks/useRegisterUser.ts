@@ -1,5 +1,5 @@
 import { useMutation, UseMutationResult } from "@tanstack/react-query";
-import { RegistrationInput } from "@repo/shared/schemas";
+import { type RegistrationInput } from "@ecommerce/shared";
 
 interface RegistrationSuccessData {
   userId: number;

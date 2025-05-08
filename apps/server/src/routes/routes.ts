@@ -3,7 +3,7 @@ import authRouter from "./authRoute";
 import usersRouter from "./usersRoute";
 import adminRouter from "./adminRoute";
 
-const router = express.Router();
+const router: express.Router = express.Router();
 
 // Mount all API routes under /api
 router.use("/admin", adminRouter);

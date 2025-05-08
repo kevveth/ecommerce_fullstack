@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
+import { resolve } from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -14,6 +15,18 @@ export default defineConfig({
         secure: false,
         rewrite: (path) => path, // Keep the path as is
       },
+    },
+  },
+  resolve: {
+    alias: {
+      // Add path alias for the shared package
+      "@ecommerce/shared": resolve(__dirname, "../../packages/shared/src"),
+    },
+  },
+  build: {
+    commonjsOptions: {
+      // This helps with handling CommonJS dependencies
+      transformMixedEsModules: true,
     },
   },
 });

@@ -1,11 +1,10 @@
-import bcrypt from "bcryptjs";
 import { Request, Response } from "express";
-import { create } from "../services/auth/registration";
+import bcrypt from "bcryptjs";
+import { createUser } from "../services/users";
+import { generateTokens } from "../utils/jwt";
 import { env } from "../utils/env";
-import { newUserSchema } from "../models/user.model";
-import BadRequestError from "../errors/BadRequestError";
-import { ZodError, z } from "zod";
-import { registrationSchema } from "@repo/shared/schemas";
+import { z } from "zod";
+import { registrationSchema } from "@ecommerce/shared";
 
 /**
  * Handles user registration
@@ -14,7 +13,7 @@ import { registrationSchema } from "@repo/shared/schemas";
 export async function registerUser(req: Request, res: Response) {
   try {
     // Use Zod 4's safeParse without custom error map
-    const validationResult = newUserSchema.safeParse(req.body);
+    const validationResult = registrationSchema.safeParse(req.body);
 
     if (!validationResult.success) {
       const formattedErrors = z.prettifyError(validationResult.error);
@@ -32,7 +31,7 @@ export async function registerUser(req: Request, res: Response) {
     const passwordHash = await bcrypt.hash(password, salt);
 
     // Call service layer
-    const result = await create({
+    const result = await createUser({
       username,
       email,
       password: passwordHash,
@@ -48,7 +47,7 @@ export async function registerUser(req: Request, res: Response) {
       },
     });
   } catch (err) {
-    if (err instanceof ZodError) {
+    if (err instanceof z.ZodError) {
       // Format errors using Zod 4's prettifyError
       const formattedErrors = z.prettifyError(err);
       return res.status(400).json({

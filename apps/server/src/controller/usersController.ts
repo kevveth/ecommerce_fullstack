@@ -1,15 +1,18 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
+import { z } from "zod";
+import NotFoundError from "../errors/NotFoundError";
+import BadRequestError from "../errors/BadRequestError";
+import UnauthorizedError from "../errors/UnauthorizedError";
+import AsyncErrorHandler from "../utils/AsyncErrorHandler";
 import {
+  getAll,
   getWithId,
+  getWithUsername,
   update,
   remove,
-  getWithUsername,
-  getAll,
 } from "../services/users";
-import { UpdateableUser, updateUserSchema } from "../models/user.model";
-import { userSchema } from "@repo/shared/schemas";
-import NotFoundError from "../errors/NotFoundError";
-import { z } from "zod";
+import type { CustomRequest } from "../middleware/verifyJWT";
+import { userSchema, profileUpdateSchema } from "@ecommerce/shared"; // Updated import to use profileUpdateSchema
 
 // Enhanced param schemas with better error messages
 const idParamSchema = z.object({
@@ -54,6 +57,18 @@ function formatIdError(error: z.ZodError): string | Record<string, any> {
   return z.prettifyError(error);
 }
 
+// Update validateSchema to accept a generic type for better type inference
+function validateSchema<T>(schema: z.ZodSchema<T>, data: unknown): T {
+  const result = schema.safeParse(data);
+  if (!result.success) {
+    throw new BadRequestError({
+      message: "Validation failed",
+      context: { errors: z.prettifyError(result.error) },
+    });
+  }
+  return result.data;
+}
+
 export async function getAllUsers(req: Request, res: Response) {
   try {
     const result = await getAll();
@@ -74,17 +89,7 @@ export async function getAllUsers(req: Request, res: Response) {
 //Handles getting a user by ID
 export async function getUser(req: Request, res: Response, next: NextFunction) {
   try {
-    // Validate ID param without custom error mapping
-    const idResult = idParamSchema.safeParse(req.params);
-
-    if (!idResult.success) {
-      return res.status(400).json({
-        message: "Invalid user ID",
-        errors: formatIdError(idResult.error),
-      });
-    }
-
-    const { id } = idResult.data;
+    const { id } = validateSchema(idParamSchema, req.params);
     const result = await getWithId(id);
 
     if (!result) {
@@ -156,30 +161,10 @@ export async function updateUser(
   next: NextFunction
 ) {
   try {
-    // Validate ID and update data
-    const idResult = idParamSchema.safeParse(req.params);
+    const { id } = validateSchema(idParamSchema, req.params);
+    const updateData = validateSchema(profileUpdateSchema, req.body);
 
-    if (!idResult.success) {
-      return res.status(400).json({
-        message: "Invalid user ID",
-        errors: z.prettifyError(idResult.error),
-      });
-    }
-
-    const { id } = idResult.data;
-
-    // Validate update data
-    const updateResult = updateUserSchema.safeParse(req.body);
-
-    if (!updateResult.success) {
-      return res.status(400).json({
-        message: "Invalid update data",
-        errors: z.prettifyError(updateResult.error),
-      });
-    }
-
-    // Update the user with validated data
-    const result = await update(id, updateResult.data);
+    const result = await update(id, updateData);
 
     if (!result) {
       throw new NotFoundError({

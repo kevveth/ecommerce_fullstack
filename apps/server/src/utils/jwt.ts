@@ -107,6 +107,21 @@ export async function generateRefreshToken(
 }
 
 /**
+ * Generates both access and refresh tokens for a user
+ *
+ * @param payload - User payload
+ * @returns Object containing both tokens
+ */
+export async function generateTokens(
+  payload: UserPayload
+): Promise<{ accessToken: string; refreshToken: string }> {
+  const accessToken = await generateAccessToken(payload);
+  const refreshToken = await generateRefreshToken(payload);
+
+  return { accessToken, refreshToken };
+}
+
+/**
  * Verifies and decodes a JWT token
  *
  * @param token - Token to verify

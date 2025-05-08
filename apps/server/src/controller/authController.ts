@@ -6,7 +6,7 @@ import {
   generateRefreshToken,
   TokenType,
 } from "../utils/jwt";
-import { loginSchema } from "@repo/shared/schemas";
+import { loginSchema } from "@ecommerce/shared";
 import { getWithEmail } from "../services/users";
 import { z } from "zod";
 import UnauthorizedError from "../errors/UnauthorizedError";

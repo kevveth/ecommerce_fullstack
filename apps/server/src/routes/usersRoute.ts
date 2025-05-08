@@ -12,11 +12,12 @@ import {
   getUserByUsername,
   updateUser,
 } from "../controller/usersController";
-import { validateUpdateData } from "../validation/user.validation";
+import { validateSchema } from "../validation/user.validation"; // Replaced validateUpdateData with validateSchema
 import { authenticate, isAuthenticated } from "../middleware/verifyJWT";
 import { getWithId } from "../services/users";
 import NotFoundError from "../errors/NotFoundError";
 import { User } from "../models/user.model";
+import { profileUpdateSchema } from "@ecommerce/shared"; // Importing profileUpdateSchema from shared schemas
 
 const router: Router = express.Router();
 
@@ -52,7 +53,11 @@ router.get(
 // Explicitly cast the handlers to RequestHandler type to resolve overload issues
 router.get("/", getAllUsers as RequestHandler);
 router.get("/:username", getUserByUsername as RequestHandler);
-router.put("/:id", validateUpdateData, updateUser as RequestHandler);
+router.put(
+  "/:id",
+  validateSchema(profileUpdateSchema),
+  updateUser as RequestHandler
+);
 router.delete("/:id", deleteUser as RequestHandler);
 
 export default router;

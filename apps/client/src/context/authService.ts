@@ -1,6 +1,17 @@
 import axios, { AxiosError, AxiosInstance } from "axios";
 import createAuthRefreshInterceptor from "axios-auth-refresh";
-import { LoginInput } from "@repo/shared/schemas";
+import { type LoginInput, userSchema } from "@ecommerce/shared";
+import * as jose from "jose";
+import { z } from "zod";
+
+// Define Zod schema for auth responses using Zod v4 syntax
+const AuthResponseSchema = z.interface({
+  accessToken: z.string(),
+  tokenType: z.string().optional(),
+  user: userSchema.optional(),
+});
+
+type AuthResponse = z.infer<typeof AuthResponseSchema>;
 
 // Create a base axios instance
 const api: AxiosInstance = axios.create({
@@ -10,18 +21,6 @@ const api: AxiosInstance = axios.create({
   },
   withCredentials: true, // Important for cookies
 });
-
-// Interface for auth responses
-interface AuthResponse {
-  accessToken: string;
-  tokenType?: string;
-  user?: {
-    id: number;
-    username: string;
-    email: string;
-    role: string;
-  };
-}
 
 /**
  * Function to set the auth token on all requests
@@ -39,6 +38,23 @@ export const setAuthToken = (token: string | null) => {
 };
 
 /**
+ * Parse and validate JWT token using jose
+ *
+ * @param token - JWT token to parse
+ * @returns Decoded payload or null if invalid
+ */
+export const parseJwt = (token: string) => {
+  try {
+    // Using jose.decodeJwt for client-side token inspection only (not verification)
+    const payload = jose.decodeJwt(token);
+    return payload;
+  } catch (error) {
+    console.error("Invalid JWT token:", error);
+    return null;
+  }
+};
+
+/**
  * Function to refresh the access token
  * This is called automatically when a 401 response is received
  *
@@ -48,13 +64,23 @@ export const setAuthToken = (token: string | null) => {
 const refreshAuthLogic = async (failedRequest: any) => {
   try {
     // Call the refresh token endpoint
-    const response = await axios.post<AuthResponse>(
+    const response = await axios.post<unknown>(
       "/api/auth/refresh-token",
       {},
       { withCredentials: true } // Important to include HttpOnly cookies
     );
 
-    const { accessToken } = response.data;
+    // Validate response with Zod
+    const parsedResult = AuthResponseSchema.safeParse(response.data);
+    if (!parsedResult.success) {
+      console.error(
+        "Invalid refresh token response:",
+        z.prettifyError(parsedResult.error)
+      );
+      throw new Error("Invalid server response format");
+    }
+
+    const { accessToken } = parsedResult.data;
 
     // Update the auth token for future requests
     setAuthToken(accessToken);
@@ -80,7 +106,14 @@ createAuthRefreshInterceptor(api, refreshAuthLogic, {
 // Initialize auth header from storage (if available)
 const token = localStorage.getItem("accessToken");
 if (token) {
-  setAuthToken(token);
+  // Check if token is still valid before using it
+  const payload = parseJwt(token);
+  if (payload && payload.exp && payload.exp * 1000 > Date.now()) {
+    setAuthToken(token);
+  } else {
+    // Token expired, remove it
+    setAuthToken(null);
+  }
 }
 
 /**
@@ -91,13 +124,24 @@ if (token) {
  */
 export const login = async (credentials: LoginInput): Promise<AuthResponse> => {
   try {
-    const response = await api.post<AuthResponse>("/auth/login", credentials);
-    const { accessToken } = response.data;
+    const response = await api.post<unknown>("/auth/login", credentials);
+
+    // Validate response with Zod
+    const parsedResult = AuthResponseSchema.safeParse(response.data);
+    if (!parsedResult.success) {
+      console.error(
+        "Invalid login response:",
+        z.prettifyError(parsedResult.error)
+      );
+      throw new Error("Invalid server response format");
+    }
+
+    const { accessToken } = parsedResult.data;
 
     // Set token for future requests
     setAuthToken(accessToken);
 
-    return response.data;
+    return parsedResult.data;
   } catch (error) {
     console.error("Login error:", error);
     throw error;
@@ -127,12 +171,20 @@ export const logout = async (): Promise<void> => {
  */
 export const getCurrentUser = async (): Promise<AuthResponse> => {
   try {
-    const response = await api.get<AuthResponse>("/users/me");
-    return response.data;
+    const response = await api.get<unknown>("/users/me");
+
+    // Validate response with Zod
+    const parsedResult = AuthResponseSchema.safeParse(response.data);
+    if (!parsedResult.success) {
+      console.error("Invalid user data:", z.prettifyError(parsedResult.error));
+      throw new Error("Invalid server response format");
+    }
+
+    return parsedResult.data;
   } catch (error) {
     console.error("Get user error:", error);
     // If the request fails due to authentication issues
-    if ((error as AxiosError).response?.status === 401) {
+    if ((error as AxiosError)?.response?.status === 401) {
       setAuthToken(null);
     }
     throw error;
@@ -149,6 +201,12 @@ export const handleGoogleAuthCallback = async (
   token: string
 ): Promise<AuthResponse> => {
   try {
+    // Validate JWT token format before using it
+    const payload = parseJwt(token);
+    if (!payload) {
+      throw new Error("Invalid token format");
+    }
+
     setAuthToken(token);
     const userData = await getCurrentUser();
     return userData;

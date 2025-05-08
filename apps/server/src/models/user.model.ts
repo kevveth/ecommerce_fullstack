@@ -1,12 +1,13 @@
 import { z } from "zod";
 import { getWithEmail } from "../services/users";
 import {
-  userSchema,
+  type User,
+  type Role,
+  type RegistrationInput,
+  type ProfileUpdateInput,
   registrationSchema,
-  User,
-  Role,
   profileUpdateSchema,
-} from "@repo/shared/schemas";
+} from "@ecommerce/shared";
 
 /**
  * Re-exports shared types for server-side use

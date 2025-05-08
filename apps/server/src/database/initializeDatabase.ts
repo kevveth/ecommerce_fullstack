@@ -89,6 +89,7 @@ function findSqlFile(): string | null {
  * This ensures the app can still start even without the SQL file
  * @returns SQL content for basic schema
  */
+// Added comments to fallback SQL schema for clarity
 function getFallbackSchema(): string {
   return `
     -- Users table with google_id for OAuth support

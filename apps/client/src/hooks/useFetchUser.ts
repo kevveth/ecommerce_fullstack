@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import type { User } from "../../../server/src/models/user.model";
+import { env } from "../utils/env";
 
 /**
  * Hook to fetch user data by username
@@ -11,11 +12,8 @@ export function useFetchUser(username?: string) {
     throw new Error("Username is required");
   }
 
-  // Use a consistent API URL based on environment
-  const baseUrl =
-    process.env.NODE_ENV === "production"
-      ? import.meta.env.VITE_SERVER_URL || "http://localhost:3001"
-      : "http://localhost:3001";
+  // Get API URL from our centralized environment configuration
+  const baseUrl = new URL(env.VITE_API_URL).origin;
 
   const { data, isPending, isError, error } = useQuery({
     queryKey: ["user", { username }],

@@ -7,9 +7,13 @@ import React, {
 } from "react";
 import { useNavigate } from "react-router";
 import * as authService from "./authService";
-import { User, LoginInput } from "@repo/shared/schemas";
+import { type LoginInput, type User } from "@ecommerce/shared";
+import { env } from "../utils/env";
+import { z } from "zod";
 
-// Define the auth user type (subset of full User type)
+/**
+ * Auth user type used within the application
+ */
 interface AuthUser {
   user_id: number;
   username: string;
@@ -17,7 +21,12 @@ interface AuthUser {
   role: string;
 }
 
-// Define the context type with improved error handling
+// Using the type from authService to ensure consistency
+type AuthResponse = Awaited<ReturnType<typeof authService.login>>;
+
+/**
+ * Auth context interface defining all available authentication operations
+ */
 interface AuthContextType {
   user: AuthUser | null;
   isAuthenticated: boolean;
@@ -25,7 +34,7 @@ interface AuthContextType {
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
   loginWithGoogle: () => void;
-  handleAuthCallback: (token: string) => Promise<any>;
+  handleAuthCallback: (token: string) => Promise<AuthResponse>;
   logout: () => Promise<void>;
 }
 
@@ -37,18 +46,46 @@ const AuthContext = createContext<AuthContextType>({
   error: null,
   login: async () => {},
   loginWithGoogle: () => {},
-  handleAuthCallback: async () => ({}),
+  handleAuthCallback: async () => ({}) as AuthResponse,
   logout: async () => {},
 });
 
-// Create a hook to use the auth context
+/**
+ * Custom hook to access the auth context
+ * @returns Authentication context value
+ */
 export const useAuth = () => useContext(AuthContext);
 
+/**
+ * Props for AuthProvider component
+ */
 interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Create the Auth Provider component
+/**
+ * Transforms API user data into AuthUser format
+ * @param apiUser - User data from API
+ * @returns AuthUser object or null
+ */
+function transformUserData(
+  apiUser: AuthResponse["user"] | undefined
+): AuthUser | null {
+  if (!apiUser || apiUser.user_id === undefined) return null;
+
+  return {
+    user_id: apiUser.user_id,
+    username: apiUser.username,
+    email: apiUser.email,
+    role: apiUser.role,
+  };
+}
+
+/**
+ * Authentication provider component that manages user authentication state
+ * @param props - Component props
+ * @returns AuthProvider component
+ */
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -60,7 +97,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const checkAuthStatus = async () => {
       try {
         const userData = await authService.getCurrentUser();
-        setUser(userData.user);
+        setUser(transformUserData(userData.user));
       } catch (err) {
         // Clear any existing tokens if verification fails
         setUser(null);
@@ -72,6 +109,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkAuthStatus();
   }, []);
 
+  /**
+   * Log in with email and password
+   * @param email - User's email
+   * @param password - User's password
+   */
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     setError(null);
@@ -80,60 +122,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Create a proper login input object and pass it to the service
       const loginData: LoginInput = { email, password };
       const response = await authService.login(loginData);
-      setUser(response.user);
-    } catch (err: any) {
+      setUser(transformUserData(response.user));
+    } catch (err: unknown) {
       // Improved error handling to handle different error response formats
       let errorMessage = "Failed to login";
 
-      if (err.response?.data) {
-        // Handle structured Zod validation errors
-        if (err.response.data.errors) {
-          try {
-            const fieldErrors: string[] = [];
-
-            // Extract field errors using a safer approach
-            Object.entries(err.response.data.errors).forEach(
-              ([field, value]) => {
-                // Skip the _errors property at the root level
-                if (field === "_errors") {
-                  const rootErrors = Array.isArray(value) ? value : [];
-                  if (rootErrors.length > 0) {
-                    fieldErrors.push(...rootErrors);
-                  }
-                }
-                // Handle nested field errors (_errors array within each field)
-                else if (
-                  value &&
-                  typeof value === "object" &&
-                  "_errors" in value
-                ) {
-                  const errors = Array.isArray(value._errors)
-                    ? value._errors
-                    : [];
-                  if (errors.length > 0) {
-                    fieldErrors.push(`${field}: ${errors.join(", ")}`);
-                  }
-                }
-              }
-            );
-
-            if (fieldErrors.length > 0) {
-              errorMessage = fieldErrors.join("; ");
-            } else {
-              errorMessage = err.response.data.message || errorMessage;
-            }
-          } catch (parseErr) {
-            console.error("Error parsing validation errors:", parseErr);
-            errorMessage = err.response.data.message || errorMessage;
-          }
-        }
-        // Handle simple message errors
-        else if (err.response.data.message) {
-          errorMessage = err.response.data.message;
-        }
-      } else if (err.message) {
-        // Handle direct error message
+      if (err instanceof Error) {
         errorMessage = err.message;
+      }
+
+      // Handle structured API errors
+      if (err && typeof err === "object" && "response" in err) {
+        const errorObj = err as {
+          response?: { data?: { message?: string; errors?: unknown } };
+        };
+        if (errorObj.response?.data?.message) {
+          errorMessage = errorObj.response.data.message;
+        }
+
+        // Handle Zod validation errors
+        if (errorObj.response?.data?.errors instanceof z.ZodError) {
+          errorMessage = z.prettifyError(errorObj.response.data.errors);
+        }
       }
 
       setError(errorMessage);
@@ -143,29 +153,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // Fixed Google login handler with absolute URL
+  /**
+   * Redirect to Google OAuth login
+   */
   const loginWithGoogle = () => {
-    // Use the server URL directly instead of relying on environment variables
-    // Default to localhost:3001 if not in production
-    const serverUrl =
-      process.env.NODE_ENV === "production"
-        ? import.meta.env.VITE_SERVER_URL
-        : "http://localhost:3001";
-
+    // Get API URL origin from our centralized environment config
+    const serverUrl = new URL(env.VITE_API_URL).origin;
     window.location.href = `${serverUrl}/api/auth/google`;
   };
 
-  // Add function to handle token from URL after Google redirect
-  const handleAuthCallback = async (token: string) => {
+  /**
+   * Handle token from URL after Google redirect
+   * @param token - The access token to process
+   */
+  const handleAuthCallback = async (token: string): Promise<AuthResponse> => {
     try {
       // Store the token
       authService.setAuthToken(token);
 
       // Get the current user data
       const userData = await authService.getCurrentUser();
-      setUser(userData.user);
+      setUser(transformUserData(userData.user));
       return userData;
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError("Failed to process authentication");
       throw err;
     } finally {
@@ -173,6 +183,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  /**
+   * Log out the current user
+   */
   const logout = async () => {
     setIsLoading(true);
 
@@ -180,8 +193,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await authService.logout();
       setUser(null);
       navigate("/login");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to logout");
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { message?: string } } };
+      setError(errorObj.response?.data?.message || "Failed to logout");
     } finally {
       setIsLoading(false);
     }

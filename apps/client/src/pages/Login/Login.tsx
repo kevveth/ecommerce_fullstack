@@ -3,7 +3,7 @@ import { LoginForm } from "./LoginForm";
 import { useNavigate, useLocation, Link } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 import styles from "./styles.module.css";
-import { LoginInput } from "@repo/shared/schemas";
+import { LoginInput } from "@ecommerce/shared";
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);

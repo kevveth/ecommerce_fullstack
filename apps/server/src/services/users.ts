@@ -1,6 +1,29 @@
 import * as db from "../database/database";
 import { User, UpdateableUser } from "../models/user.model";
 
+/**
+ * Creates a new user in the database
+ *
+ * @param userData - User data to create (username, email, password hash)
+ * @returns The created user record
+ */
+export async function createUser(userData: {
+  username: string;
+  email: string;
+  password: string;
+}): Promise<User> {
+  const { username, email, password } = userData;
+
+  const query = `
+    INSERT INTO users (username, email, password) 
+    VALUES ($1, $2, $3) 
+    RETURNING *
+  `;
+
+  const result = await db.query(query, [username, email, password]);
+  return result.rows[0];
+}
+
 export async function getAll(): Promise<User[]> {
   const query = "SELECT * FROM users";
   const result = await db.query(query);

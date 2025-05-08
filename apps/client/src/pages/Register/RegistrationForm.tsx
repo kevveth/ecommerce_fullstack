@@ -1,15 +1,18 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { registrationSchema, type RegistrationInput } from "@ecommerce/shared";
 import styles from "./styles.module.css";
-import { registrationSchema, RegistrationInput } from "@repo/shared/schemas";
 
 // Define props expected from the parent
-interface RegFormProps {
+interface RegistrationFormProps {
   submit: (data: RegistrationInput) => void;
   isMutating?: boolean; // Is the parent mutation pending?
 }
 
-export function RegForm({ submit, isMutating }: RegFormProps) {
+export function RegistrationForm({
+  submit,
+  isMutating,
+}: RegistrationFormProps) {
   // --- useForm is back inside the form component ---
   const {
     register,

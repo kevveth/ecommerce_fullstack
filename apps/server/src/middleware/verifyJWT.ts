@@ -10,6 +10,11 @@ declare global {
   }
 }
 
+// Define CustomRequest type to extend Express Request with user property
+export interface CustomRequest extends Request {
+  user?: UserPayload;
+}
+
 /**
  * Authentication middleware that verifies JWT tokens in request headers
  *
