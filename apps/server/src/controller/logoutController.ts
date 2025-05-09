@@ -5,6 +5,7 @@ import {
   removeRefreshToken,
 } from "../services/auth/refresh";
 import { safeVerifyToken, TokenType } from "../utils/jwt";
+import UnauthorizedError from "../errors/UnauthorizedError";
 
 /**
  * Handles user logout by invalidating refresh tokens

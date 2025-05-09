@@ -7,6 +7,9 @@ export const Navbar = () => {
   const { isAuthenticated, logout, user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  console.log("Navbar - isAuthenticated:", isAuthenticated);
+  console.log("Navbar - user:", user);
+
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
@@ -51,13 +54,13 @@ export const Navbar = () => {
             </Link>
           </li>
 
-          {/* Only show Profile link if logged in */}
-          {isAuthenticated && (
+          {/* Only show Profile link if logged in and username is defined */}
+          {isAuthenticated && user?.username && (
             <li className={styles.navItem}>
               <Link
-                to={`/profiles/${user?.username}`}
+                to={`/profiles/${user.username}`}
                 className={`${styles.navLink} ${
-                  isActive("/profile") ? styles.active : ""
+                  isActive(`/profiles/${user.username}`) ? styles.active : ""
                 }`}
                 onClick={closeMobileMenu}
               >

@@ -36,6 +36,8 @@ import { isAuthenticated } from "./middleware/verifyJWT";
 import { setupGoogleAuth } from "./services/auth/googleAuth";
 import { connectionManager } from "./database/connectionManager";
 import { shutdown as shutdownDatabase } from "./database/database";
+import { getWithUsername } from "./services/users";
+import NotFoundError from "./errors/NotFoundError";
 
 const corsOptions: CorsOptions = {
   origin: `http://localhost:5173`,
@@ -63,8 +65,37 @@ app.get("/", (req, res) => {
 
 app.use("/api", apiRoutes);
 
-app.get("/api/me", isAuthenticated, async (req: Request, res: Response) => {
-  res.send({ user: req.user });
+// Removed the /me route and replaced it with /users/:username
+app.get("/api/users/:username", isAuthenticated, async (req, res, next) => {
+  try {
+    const { username } = req.params;
+
+    if (!username) {
+      return next(
+        new NotFoundError({
+          message: "Username is required",
+          logging: true,
+        })
+      );
+    }
+
+    const user = await getWithUsername(username);
+
+    if (!user) {
+      return next(
+        new NotFoundError({
+          message: "User not found",
+          logging: true,
+        })
+      );
+    }
+
+    // Return user data without sensitive information
+    const { password_hash, ...safeUser } = user;
+    res.json({ data: safeUser });
+  } catch (error) {
+    next(error);
+  }
 });
 
 // Error Handling

@@ -13,6 +13,11 @@ export function MyProfile() {
     return <Navigate to="/login" replace />;
   }
 
+  // Check if the username is undefined and handle it gracefully
+  if (!user.username) {
+    return <p>Error: Username is missing. Please try again later.</p>;
+  }
+
   // Redirect to the user's profile page using the correct username
   return <Navigate to={`/profiles/${user.username}`} replace />;
 }

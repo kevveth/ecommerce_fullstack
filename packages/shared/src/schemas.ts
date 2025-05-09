@@ -17,8 +17,8 @@ const RoleSchema = z.enum(["admin", "user"], {
 });
 export type Role = z.infer<typeof RoleSchema>;
 
-// Base user schema with refined constraints - using z.interface() for better performance
-export const userSchema = z.interface({
+// Base user schema with refined constraints - using z.object() for better performance
+export const userSchema = z.object({
   user_id: IDSchema,
   username: z
     .string()
@@ -43,7 +43,7 @@ export const userSchema = z.interface({
 export type User = z.infer<typeof userSchema>;
 
 // More specific registration schema with validations using Zod v4 syntax
-export const registrationSchema = z.interface({
+export const registrationSchema = z.object({
   username: z
     .string()
     .min(3, {
@@ -75,7 +75,7 @@ export const registrationSchema = z.interface({
 export type RegistrationInput = z.infer<typeof registrationSchema>;
 
 // Login schema with better validation messages using Zod v4 syntax
-export const loginSchema = z.interface({
+export const loginSchema = z.object({
   email: z
     .string()
     .email({

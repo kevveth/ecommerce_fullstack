@@ -57,7 +57,7 @@ function formatIdError(error: z.ZodError): string | Record<string, any> {
   return z.prettifyError(error);
 }
 
-// Update validateSchema to accept a generic type for better type inference
+// Update validateSchema to return a strongly typed object
 function validateSchema<T>(schema: z.ZodSchema<T>, data: unknown): T {
   const result = schema.safeParse(data);
   if (!result.success) {
@@ -66,7 +66,7 @@ function validateSchema<T>(schema: z.ZodSchema<T>, data: unknown): T {
       context: { errors: z.prettifyError(result.error) },
     });
   }
-  return result.data;
+  return result.data; // Return strongly typed data
 }
 
 export async function getAllUsers(req: Request, res: Response) {
@@ -131,6 +131,14 @@ export async function getUserByUsername(
     }
 
     const { username } = usernameResult.data;
+
+    // Handle special cases for 'me' or undefined username
+    if (username === "me" || !username) {
+      return res.status(400).json({
+        message: "Invalid username. Please provide a valid username.",
+      });
+    }
+
     const result = await getWithUsername(username);
 
     if (!result) {
@@ -162,7 +170,19 @@ export async function updateUser(
 ) {
   try {
     const { id } = validateSchema(idParamSchema, req.params);
-    const updateData = validateSchema(profileUpdateSchema, req.body);
+
+    // Ensure `updateData` is properly typed
+    const updateData = validateSchema(profileUpdateSchema, req.body) as Record<
+      string,
+      unknown
+    >;
+
+    // Check if `updateData` is empty
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({
+        message: "At least one field must be provided for update.",
+      });
+    }
 
     const result = await update(id, updateData);
 

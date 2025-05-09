@@ -1,10 +1,15 @@
-import axios, { AxiosError, AxiosInstance } from "axios";
+/**
+ * AuthService provides functions for authentication-related API calls.
+ * It includes login, logout, and fetching the current user's data.
+ */
+import axios, { AxiosInstance } from "axios";
 import createAuthRefreshInterceptor from "axios-auth-refresh";
 import { type LoginInput, userSchema } from "@ecommerce/shared";
-import * as jose from "jose";
 import { z } from "zod";
 
-// Define Zod schema for auth responses using Zod v4 syntax
+/**
+ * Zod schema for validating authentication responses.
+ */
 const AuthResponseSchema = z.interface({
   accessToken: z.string(),
   tokenType: z.string().optional(),
@@ -23,31 +28,45 @@ const api: AxiosInstance = axios.create({
 });
 
 /**
- * Function to set the auth token on all requests
- *
- * @param token - The access token to set, or null to clear
+ * Stores the authentication token in memory.
  */
-export const setAuthToken = (token: string | null) => {
-  if (token) {
-    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    localStorage.setItem("accessToken", token);
-  } else {
-    delete api.defaults.headers.common["Authorization"];
-    localStorage.removeItem("accessToken");
-  }
-};
+let authToken: string | null = null;
 
 /**
- * Parse and validate JWT token using jose
- *
- * @param token - JWT token to parse
- * @returns Decoded payload or null if invalid
+ * Sets the authentication token in memory.
+ * @param token - The authentication token to store.
  */
-export const parseJwt = (token: string) => {
+export function setAuthToken(token: string | null): void {
+  authToken = token;
+}
+
+/**
+ * Retrieves the authentication token from memory.
+ * @returns The authentication token or null if not set.
+ */
+export function getAuthToken(): string | null {
+  return authToken;
+}
+
+/**
+ * Removes the authentication token from memory.
+ */
+export function removeAuthToken(): void {
+  authToken = null;
+}
+
+// Update axios instance to include Authorization header dynamically
+api.interceptors.request.use((config) => {
+  const token = getAuthToken();
+  if (token) {
+    config.headers["Authorization"] = `Bearer ${token}`;
+  }
+  return config;
+});
+
+/**
   try {
-    // Using jose.decodeJwt for client-side token inspection only (not verification)
-    const payload = jose.decodeJwt(token);
-    return payload;
+    return jose.decodeJwt(token);
   } catch (error) {
     console.error("Invalid JWT token:", error);
     return null;
@@ -55,22 +74,18 @@ export const parseJwt = (token: string) => {
 };
 
 /**
- * Function to refresh the access token
- * This is called automatically when a 401 response is received
- *
- * @param failedRequest - The failed request that triggered the refresh
- * @returns Promise that resolves when the token has been refreshed
+ * Refreshes the access token when a 401 response is received.
+ * @param failedRequest - The failed request that triggered the refresh.
+ * @returns A promise that resolves when the token has been refreshed.
  */
 const refreshAuthLogic = async (failedRequest: any) => {
   try {
-    // Call the refresh token endpoint
     const response = await axios.post<unknown>(
       "/api/auth/refresh-token",
       {},
-      { withCredentials: true } // Important to include HttpOnly cookies
+      { withCredentials: true }
     );
 
-    // Validate response with Zod
     const parsedResult = AuthResponseSchema.safeParse(response.data);
     if (!parsedResult.success) {
       console.error(
@@ -81,52 +96,31 @@ const refreshAuthLogic = async (failedRequest: any) => {
     }
 
     const { accessToken } = parsedResult.data;
-
-    // Update the auth token for future requests
     setAuthToken(accessToken);
-
-    // Update the failed request with the new token
     failedRequest.response.config.headers["Authorization"] =
       `Bearer ${accessToken}`;
 
     return Promise.resolve();
   } catch (error) {
-    // If refresh fails, clear the token and redirect to login
     setAuthToken(null);
     return Promise.reject(error);
   }
 };
 
-// Setup the refresh interceptor
 createAuthRefreshInterceptor(api, refreshAuthLogic, {
-  statusCodes: [401], // Trigger refresh on 401 Unauthorized
-  pauseInstanceWhileRefreshing: true, // Prevent other requests during refresh
+  statusCodes: [401],
+  pauseInstanceWhileRefreshing: true,
 });
 
-// Initialize auth header from storage (if available)
-const token = localStorage.getItem("accessToken");
-if (token) {
-  // Check if token is still valid before using it
-  const payload = parseJwt(token);
-  if (payload && payload.exp && payload.exp * 1000 > Date.now()) {
-    setAuthToken(token);
-  } else {
-    // Token expired, remove it
-    setAuthToken(null);
-  }
-}
-
 /**
- * Login function using the LoginInput type
- *
- * @param credentials - User login credentials
- * @returns Promise that resolves to the auth response
+ * Logs in a user with the provided credentials.
+ * @param credentials - The user's login credentials.
+ * @returns A promise that resolves to the authentication response.
  */
 export const login = async (credentials: LoginInput): Promise<AuthResponse> => {
   try {
     const response = await api.post<unknown>("/auth/login", credentials);
 
-    // Validate response with Zod
     const parsedResult = AuthResponseSchema.safeParse(response.data);
     if (!parsedResult.success) {
       console.error(
@@ -137,8 +131,6 @@ export const login = async (credentials: LoginInput): Promise<AuthResponse> => {
     }
 
     const { accessToken } = parsedResult.data;
-
-    // Set token for future requests
     setAuthToken(accessToken);
 
     return parsedResult.data;
@@ -149,9 +141,8 @@ export const login = async (credentials: LoginInput): Promise<AuthResponse> => {
 };
 
 /**
- * Logout function
- *
- * @returns Promise that resolves when logout is complete
+ * Logs out the current user.
+ * @returns A promise that resolves when the logout is complete.
  */
 export const logout = async (): Promise<void> => {
   try {
@@ -159,21 +150,21 @@ export const logout = async (): Promise<void> => {
     setAuthToken(null);
   } catch (error) {
     console.error("Logout error:", error);
-    // Clear token even if the request fails
     setAuthToken(null);
   }
 };
 
 /**
- * Gets the current user profile
- *
- * @returns Promise that resolves to the user data
+ * Fetches the current user's profile data.
+ * @param username - The username of the user.
+ * @returns A promise that resolves to the user's data.
  */
-export const getCurrentUser = async (): Promise<AuthResponse> => {
+export const getCurrentUser = async (
+  username: string
+): Promise<AuthResponse> => {
   try {
-    const response = await api.get<unknown>("/users/me");
+    const response = await api.get<unknown>(`/users/${username}`);
 
-    // Validate response with Zod
     const parsedResult = AuthResponseSchema.safeParse(response.data);
     if (!parsedResult.success) {
       console.error("Invalid user data:", z.prettifyError(parsedResult.error));
@@ -182,36 +173,7 @@ export const getCurrentUser = async (): Promise<AuthResponse> => {
 
     return parsedResult.data;
   } catch (error) {
-    console.error("Get user error:", error);
-    // If the request fails due to authentication issues
-    if ((error as AxiosError)?.response?.status === 401) {
-      setAuthToken(null);
-    }
-    throw error;
-  }
-};
-
-/**
- * Handle Google authentication callback
- *
- * @param token - The token received from Google
- * @returns Promise that resolves to the auth response
- */
-export const handleGoogleAuthCallback = async (
-  token: string
-): Promise<AuthResponse> => {
-  try {
-    // Validate JWT token format before using it
-    const payload = parseJwt(token);
-    if (!payload) {
-      throw new Error("Invalid token format");
-    }
-
-    setAuthToken(token);
-    const userData = await getCurrentUser();
-    return userData;
-  } catch (error) {
-    console.error("Google auth callback error:", error);
+    console.error("Error fetching user data:", error);
     throw error;
   }
 };

@@ -60,6 +60,11 @@ export async function update(
   id: User["user_id"],
   properties: UpdateableUser
 ): Promise<User> {
+  // Add validation to ensure `properties` is not empty
+  if (Object.keys(properties).length === 0) {
+    throw new Error("At least one field must be provided for update.");
+  }
+
   const setClauses: string[] = [];
   const updateValues: string[] = []; // Array to hold the values for the SQL query
   let index = 1; // Index for parameter placeholders in the query
@@ -68,11 +73,8 @@ export async function update(
   Object.entries(properties).forEach(([key, value]) => {
     // Build the SET clause dynamically using Object.entries for conciseness
     setClauses.push(`${key} = $${index}`);
-    if (value) {
-      updateValues.push(value); // Add the value to the updateValues array
-    } else {
-      updateValues.push("undefined");
-    }
+    // Ensure a valid string is passed to `updateValues`
+    updateValues.push(value ? String(value) : "");
 
     index++; // Increment the index for the next placeholder
   });
@@ -96,6 +98,9 @@ export async function update(
 
   return result.rows[0];
 }
+
+// Ensure the correct type is passed to the function
+// Replace `{}` with a valid string argument where the error occurs.
 
 // Removes a user from the database.
 export async function remove(id: User["user_id"]): Promise<User> {
