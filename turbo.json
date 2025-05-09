@@ -18,8 +18,10 @@
       "outputs": []
     },
     "test": {
-      "dependsOn": ["^build"],
-      "outputs": ["coverage/**"]
+      "outputs": [],
+      "cache": true,
+      "dependsOn": ["^test"],
+      "env": ["NODE_ENV"]
     },
     "clean": {
       "cache": false

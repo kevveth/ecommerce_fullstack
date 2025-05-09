@@ -3,18 +3,13 @@ import { defineConfig } from "vitest/config"; // Import from 'vitest/config'
 
 export default defineConfig({
   test: {
-    globals: true, // Often useful for Node.js testing
-    environment: "node", // IMPORTANT: Set the environment to 'node'
-    setupFiles: ["./src/test/setup.ts"], // Use our centralized setup file
+    globals: true, // Enable global test functions like 'describe' and 'it'
+    environment: "node", // Use 'node' for server-side tests
+    setupFiles: ["./test/setup.ts"], // Ensure the setup file is correctly linked
     coverage: {
       provider: "v8", // or 'istanbul' - for code coverage
       reporter: ["text", "json", "html"], // Example reporters
-      exclude: [
-        // Exclude files/directories from coverage
-        "dist/**",
-        "**/__tests__/**", // Common test directory
-        "**/*.spec.ts", // Exclude test files themselves
-      ],
+      exclude: ["dist/**", "**/__tests__/**", "**/*.spec.ts"],
     },
     testTimeout: 10000, // Increase timeout for API tests
   },

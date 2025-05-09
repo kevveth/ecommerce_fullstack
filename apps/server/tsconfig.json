@@ -25,7 +25,8 @@
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node"]
   },
   "include": ["src/**/*", "src/**/*.sql"],
   "exclude": ["node_modules", "**/*.spec.ts", "vitest.config.ts"],
