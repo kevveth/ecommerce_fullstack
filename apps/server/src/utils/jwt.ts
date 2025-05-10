@@ -137,17 +137,13 @@ export async function verifyToken(
     const secretKey = getSecretKey(type);
     const { payload } = await jose.jwtVerify(token, secretKey);
 
-    // Debug the raw payload to see what's causing the validation failure
-    console.log(`Raw JWT payload:`, JSON.stringify(payload, null, 2));
-
     // Validate the payload structure
     const result = UserPayloadSchema.safeParse(payload);
     if (!result.success) {
-      // Log the specific validation errors
-      console.error(
-        `JWT validation error:`,
-        JSON.stringify(z.prettifyError(result.error), null, 2)
-      );
+      // Only log validation errors in development
+      if (process.env.NODE_ENV === "development") {
+        console.error(`JWT validation error:`, z.prettifyError(result.error));
+      }
       throw new Error(`Invalid token structure`);
     }
 

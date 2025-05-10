@@ -1,6 +1,8 @@
 import { Navigate, useLocation, Outlet } from "react-router";
 import { useRequireAuth } from "../hooks/useRequireAuth";
 
+const ROUTE_STORAGE_KEY = "last-route";
+
 interface ProtectedRouteProps {
   requiredRole?: string;
 }
@@ -19,7 +21,12 @@ export const ProtectedRoute = ({ requiredRole }: ProtectedRouteProps) => {
   }
 
   if (!isAuthenticated) {
-    // Redirect to login if not authenticated, but save the location they tried to access
+    // Save the current location to localStorage before redirecting
+    if (location.pathname !== "/login") {
+      localStorage.setItem(ROUTE_STORAGE_KEY, location.pathname);
+    }
+
+    // Redirect to login if not authenticated
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

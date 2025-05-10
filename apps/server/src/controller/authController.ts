@@ -91,10 +91,10 @@ export const loginUser = async (
       // Set the refresh token as HTTP only cookie with improved security options
       res.cookie("jwt", refreshToken, {
         httpOnly: true,
-        sameSite: "strict",
+        sameSite: "lax", // Changed from "strict" to "lax" to allow cookies on page loads
         secure: process.env.NODE_ENV === "production",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        path: "/api/auth/refresh-token", // Restrict cookie to refresh token endpoint
+        path: "/", // Allow cookie to be sent with all requests
       });
 
       // Return success response

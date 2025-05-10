@@ -1,7 +1,7 @@
 import { Link, useMatch } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 import styles from "./styles.module.css";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 /**
  * Navbar component displays navigation links based on authentication state.
@@ -12,14 +12,6 @@ import { useState, useEffect } from "react";
 export const Navbar = () => {
   const { isAuthenticated, logout, user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  // Add debug logging to see what auth state we have
-  useEffect(() => {
-    console.log("Navbar: Auth state updated");
-    console.log("- isAuthenticated:", isAuthenticated);
-    console.log("- user:", user);
-    console.log("- user?.username:", user?.username);
-  }, [isAuthenticated, user]);
 
   // Toggle mobile menu open/close
   const toggleMobileMenu = () => {

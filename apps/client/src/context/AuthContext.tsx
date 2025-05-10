@@ -1,15 +1,15 @@
 /**
  * AuthContext provides authentication state and actions to the application.
- * It includes user data, authentication status, and methods for login, logout, and more.
+ * Enhanced with TanStack Query for improved data fetching and state management.
  */
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
+import { createContext, useContext, useState, ReactNode, useMemo } from "react";
 import { useNavigate } from "react-router";
+import { useQuery, useMutation, QueryClient } from "@tanstack/react-query";
+import {
+  PersistQueryClientProvider,
+  persistQueryClientRestore,
+} from "@tanstack/react-query-persist-client";
+import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import * as authService from "./authService";
 
 /**
@@ -33,168 +33,242 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   loginWithGoogle: () => void;
   logout: () => Promise<void>;
+  refreshToken: () => Promise<boolean>;
+  clearError: () => void;
 }
 
-// Default context value to ensure type safety
-const defaultAuthContext: AuthContextType = {
-  user: null,
-  isAuthenticated: false,
-  isLoading: false,
-  error: null,
-  login: async () => {},
-  loginWithGoogle: () => {},
-  logout: async () => {},
-};
-
-const AuthContext = createContext<AuthContextType>(defaultAuthContext);
+// Create the auth context
+const AuthContext = createContext<AuthContextType | null>(null);
 
 /**
  * Custom hook to access the AuthContext.
- * @returns The authentication context value.
+ * @returns The authentication context value
  */
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === null) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};
 
 /**
  * Props for the AuthProvider component.
  */
 interface AuthProviderProps {
   children: ReactNode;
+  queryClient: QueryClient;
 }
 
+// Create a storage persister
+const localStoragePersister = createSyncStoragePersister({
+  storage: window.localStorage,
+  key: "auth-cache", // key in localStorage where cache will be stored
+});
+
 /**
- * AuthProvider component that manages authentication state and provides it to the application.
- * @param props - The children components to wrap with the provider.
+ * AuthProvider component that manages authentication state using TanStack Query.
  */
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+export const AuthProvider = ({ children, queryClient }: AuthProviderProps) => {
+  // Local state for error handling
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // Add logging whenever user state changes
-  useEffect(() => {
-    console.log("AuthContext: User state changed", {
-      isAuthenticated: !!user,
-      user,
-    });
-  }, [user]);
+  // Clear error helper function
+  const clearError = () => setError(null);
 
-  useEffect(() => {
-    /**
-     * Initializes authentication state on app load.
-     * Attempts to refresh the access token using the refresh token cookie,
-     * then fetches the current user if successful.
-     */
-    const initializeAuth = async () => {
+  /**
+   * Main authentication query - fetches user data if authenticated
+   */
+  const userQuery = useQuery({
+    queryKey: ["auth", "user"],
+    queryFn: async () => {
       try {
-        console.log("AuthContext: Attempting to refresh token on app load...");
-
-        // Attempt to refresh the access token using the refresh token cookie
-        const refreshResponse = await authService.api.post<any>(
-          "/auth/refresh-token",
-          {},
-          { withCredentials: true }
-        );
-
-        // Make sure we update the token in memory
-        if (refreshResponse.data?.accessToken) {
-          console.log("AuthContext: Successfully refreshed token");
-          authService.setAuthToken(refreshResponse.data.accessToken);
-        } else {
-          console.log("AuthContext: No access token in refresh response");
+        // Skip if no cookies
+        if (document.cookie.length === 0) {
+          return null;
         }
 
-        // Now fetch the current user (will use the new access token)
-        console.log("AuthContext: Fetching current user...");
-        const response = await authService.getCurrentUser("me");
+        // Attempt to refresh token and get user data
+        const refreshResult = await authService.refreshAuthToken();
 
-        if (response.user) {
-          console.log(
-            "AuthContext: User fetch successful",
-            response.user.username
-          );
-          const { user_id = 0, username, email, role } = response.user;
-          setUser({ user_id, username, email, role });
-          console.log("AuthContext: User state updated with:", {
-            user_id,
-            username,
-            email,
-            role,
-          });
-        } else {
-          console.log("AuthContext: User data missing in response");
+        if (refreshResult?.accessToken) {
+          const userResponse = await authService.getCurrentUser("me");
+
+          if (userResponse?.user) {
+            return {
+              user_id: userResponse.user.user_id,
+              username: userResponse.user.username,
+              email: userResponse.user.email,
+              role: userResponse.user.role,
+            };
+          }
         }
+        return null;
       } catch (error) {
-        console.error("AuthContext initialization error:", error);
-        setUser(null);
-      } finally {
-        setIsLoading(false);
+        console.error("Auth query error:", error);
+        return null;
       }
-    };
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 24 * 60 * 60 * 1000, // 24 hours - important for persistence
+    refetchOnWindowFocus: false,
+    retry: false,
+  });
 
-    initializeAuth();
-  }, []);
-
-  const login = async (email: string, password: string): Promise<void> => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      console.log("AuthContext: Attempting login...");
-      const response = await authService.login({ email, password });
-      console.log("AuthContext: Login successful, response:", response);
-
-      if (response.user) {
-        const { user_id = 0, username, email, role } = response.user;
-        console.log("AuthContext: Setting user state after login:", {
-          user_id,
-          username,
-          email,
-          role,
+  /**
+   * Login mutation
+   */
+  const loginMutation = useMutation({
+    mutationFn: async ({
+      email,
+      password,
+    }: {
+      email: string;
+      password: string;
+    }) => {
+      return authService.login({ email, password });
+    },
+    onSuccess: (data) => {
+      if (data.user) {
+        // Update query cache directly with user data
+        queryClient.setQueryData(["auth", "user"], {
+          user_id: data.user.user_id,
+          username: data.user.username,
+          email: data.user.email,
+          role: data.user.role,
         });
-        setUser({ user_id, username, email, role });
-      } else {
-        console.log("AuthContext: No user data in login response");
+
+        // Persist the updated cache to localStorage
+        persistQueryClientRestore({
+          queryClient,
+          persister: localStoragePersister,
+        });
       }
-    } catch (error) {
-      console.error("AuthContext: Login failed:", error);
-      setError("Failed to login. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
+    },
+    onError: (error) => {
+      setError(error instanceof Error ? error.message : "Failed to login");
+    },
+  });
+
+  /**
+   * Logout mutation
+   */
+  const logoutMutation = useMutation({
+    mutationFn: authService.logout,
+    onSuccess: () => {
+      // Clear auth data
+      authService.removeAuthToken();
+      queryClient.setQueryData(["auth", "user"], null);
+
+      // Persist the cleared cache to localStorage
+      persistQueryClientRestore({
+        queryClient,
+        persister: localStoragePersister,
+      });
+
+      navigate("/login");
+    },
+    onError: () => {
+      // Force logout even on error
+      authService.removeAuthToken();
+      queryClient.setQueryData(["auth", "user"], null);
+
+      // Persist the cleared cache to localStorage
+      persistQueryClientRestore({
+        queryClient,
+        persister: localStoragePersister,
+      });
+
+      navigate("/login");
+    },
+  });
+
+  /**
+   * Token refresh mutation
+   */
+  const refreshTokenMutation = useMutation({
+    mutationFn: authService.refreshAuthToken,
+    onSuccess: (data) => {
+      if (data?.accessToken) {
+        // Trigger refetch of user data
+        queryClient.invalidateQueries({ queryKey: ["auth", "user"] });
+        return true;
+      }
+      return false;
+    },
+  });
+
+  // Derive auth state from query data
+  // Ensure user is AuthUser | null, not undefined
+  const user = userQuery.data ?? null;
+  const isAuthenticated = !!user;
+  const isLoading = userQuery.isLoading;
+
+  // Auth methods
+  const login = async (email: string, password: string) => {
+    await loginMutation.mutateAsync({ email, password });
   };
 
-  const loginWithGoogle = (): void => {
-    console.log(
-      "Google OAuth flow initiated (credentials not provided yet). Clicked the button."
-    );
+  const loginWithGoogle = () => {
+    console.info("Google login flow initiated");
+    // Implementation would go here
   };
 
   const logout = async () => {
-    setIsLoading(true);
-
-    try {
-      await authService.logout();
-      setUser(null);
-      navigate("/login");
-    } catch {
-      setError("Failed to logout. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
+    await logoutMutation.mutateAsync();
   };
 
-  const value = {
-    user,
-    isAuthenticated: !!user,
-    isLoading,
-    error,
-    login,
-    loginWithGoogle,
-    logout,
+  const refreshToken = async () => {
+    const result = await refreshTokenMutation.mutateAsync();
+    return !!result?.accessToken;
   };
+
+  // Create context value
+  const value: AuthContextType = useMemo(
+    () => ({
+      user,
+      isAuthenticated,
+      isLoading,
+      error,
+      login,
+      loginWithGoogle,
+      logout,
+      refreshToken,
+      clearError,
+    }),
+    [user, isLoading, error, isAuthenticated]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+/**
+ * Wrapper component that combines AuthProvider with PersistQueryClientProvider.
+ */
+interface PersistAuthProviderProps {
+  children: ReactNode;
+  queryClient: QueryClient;
+}
+
+export const PersistAuthProvider = ({
+  children,
+  queryClient,
+}: PersistAuthProviderProps) => {
+  return (
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{
+        persister: localStoragePersister,
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      }}
+      onSuccess={() => {
+        console.info("Successfully restored auth state");
+      }}
+    >
+      <AuthProvider queryClient={queryClient}>{children}</AuthProvider>
+    </PersistQueryClientProvider>
+  );
 };
 
 export default AuthContext;

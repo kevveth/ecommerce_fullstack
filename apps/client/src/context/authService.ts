@@ -2,7 +2,7 @@
  * AuthService provides functions for authentication-related API calls.
  * It includes login, logout, and fetching the current user's data.
  */
-import axios, { AxiosInstance } from "axios";
+import axios, { AxiosInstance, AxiosError } from "axios";
 import createAuthRefreshInterceptor from "axios-auth-refresh";
 import { type LoginInput, userSchema } from "@ecommerce/shared";
 import { z } from "zod";
@@ -10,7 +10,7 @@ import { z } from "zod";
 /**
  * Zod schema for validating authentication responses.
  */
-const AuthResponseSchema = z.interface({
+const AuthResponseSchema = z.object({
   accessToken: z.string(),
   tokenType: z.string().optional(),
   user: userSchema.optional(),
@@ -69,11 +69,14 @@ api.interceptors.request.use((config) => {
  * @param failedRequest - The failed request that triggered the refresh.
  * @returns A promise that resolves when the token has been refreshed.
  */
-const refreshAuthLogic = async (failedRequest: any) => {
+const refreshAuthLogic = async (failedRequest: AxiosError) => {
   try {
     // Use the configured api instance instead of global axios
-    const response = await api.post<unknown>(
-      "/auth/refresh-token",
+    const response = await api.post<{
+      accessToken: string;
+      tokenType?: string;
+    }>(
+      "/auth/refresh-token", // This path is relative to baseURL which is already set to '/api'
       {},
       { withCredentials: true }
     );
@@ -89,8 +92,16 @@ const refreshAuthLogic = async (failedRequest: any) => {
 
     const { accessToken } = parsedResult.data;
     setAuthToken(accessToken);
-    failedRequest.response.config.headers["Authorization"] =
-      `Bearer ${accessToken}`;
+
+    // Update the Authorization header on the original request's config.
+    // axios-auth-refresh uses failedRequest.config to retry the request.
+    // The 'config' property on AxiosError (failedRequest.config) is of type InternalAxiosRequestConfig | undefined.
+    // The 'headers' property on InternalAxiosRequestConfig is non-optional.
+    if (failedRequest.config) {
+      failedRequest.config.headers["Authorization"] = `Bearer ${accessToken}`;
+    }
+    // If failedRequest.config is undefined, the library might not be able to retry the request.
+    // This scenario is unlikely for a typical API request that would trigger a 401 error.
 
     return Promise.resolve();
   } catch (error) {
@@ -105,6 +116,42 @@ createAuthRefreshInterceptor(api, refreshAuthLogic, {
 });
 
 /**
+ * Explicitly refreshes the authentication token.
+ * This function can be called directly when needed to refresh the token.
+ *
+ * @returns A promise resolving to an object containing the new access token, or null if refresh failed
+ */
+export const refreshAuthToken = async (): Promise<{
+  accessToken: string;
+} | null> => {
+  try {
+    console.log("Explicitly refreshing auth token");
+    const response = await api.post<{
+      accessToken: string;
+      tokenType?: string;
+    }>("/auth/refresh-token", {}, { withCredentials: true });
+
+    const parsedResult = AuthResponseSchema.safeParse(response.data);
+    if (!parsedResult.success) {
+      console.error(
+        "Invalid refresh token response:",
+        z.prettifyError(parsedResult.error)
+      );
+      return null;
+    }
+
+    const { accessToken } = parsedResult.data;
+    console.log("Token refreshed successfully");
+    setAuthToken(accessToken);
+    return { accessToken };
+  } catch (error) {
+    console.error("Token refresh failed:", error);
+    setAuthToken(null);
+    return null;
+  }
+};
+
+/**
  * Logs in a user with the provided credentials.
  * @param credentials - The user's login credentials.
  * @returns A promise that resolves to the authentication response.
@@ -113,7 +160,60 @@ export const login = async (credentials: LoginInput): Promise<AuthResponse> => {
   try {
     const response = await api.post<unknown>("/auth/login", credentials);
 
-    const parsedResult = AuthResponseSchema.safeParse(response.data);
+    // Create a normalized response that matches our schema
+    interface ServerLoginResponse {
+      accessToken: string;
+      tokenType?: string;
+      user?: {
+        id?: number;
+        user_id?: number;
+        username: string;
+        email: string;
+        role: string;
+        password_hash?: string | null;
+        [key: string]: unknown;
+      };
+    }
+
+    let normalizedData: {
+      accessToken: string;
+      tokenType?: string;
+      user?: {
+        user_id?: number;
+        username?: string;
+        email?: string;
+        role?: string;
+        password_hash: string | null;
+        [key: string]: unknown;
+      };
+    } = {
+      accessToken: "",
+      tokenType: "Bearer",
+    };
+
+    if (response.data && typeof response.data === "object") {
+      // Extract the main fields we expect
+      const responseData = response.data as ServerLoginResponse;
+
+      normalizedData = {
+        accessToken: responseData.accessToken,
+        tokenType: responseData.tokenType || "Bearer",
+      };
+
+      // Handle the user object if it exists
+      if (responseData.user) {
+        normalizedData.user = {
+          ...responseData.user,
+          // Ensure password_hash is null if undefined (to match our schema)
+          password_hash: responseData.user.password_hash || null,
+          // Normalize the id field if necessary
+          user_id: responseData.user.id || responseData.user.user_id,
+        };
+      }
+    }
+
+    // Now validate with our schema
+    const parsedResult = AuthResponseSchema.safeParse(normalizedData);
     if (!parsedResult.success) {
       console.error(
         "Invalid login response:",
@@ -158,62 +258,84 @@ export const getCurrentUser = async (
     // If username is "me", use the /users/me endpoint explicitly
     const endpoint = username === "me" ? "/users/me" : `/users/${username}`;
 
-    // Log the current auth token status before making the request
-    const hasToken = !!getAuthToken();
-    console.log(
-      `getCurrentUser: Fetching from ${endpoint}, Auth token present: ${hasToken}`
-    );
-
     // Make the request with the current auth token
     const response = await api.get<unknown>(endpoint);
 
-    // Log the raw response for troubleshooting
-    console.log("getCurrentUser raw response:", response.data);
+    // Define interfaces for the different response formats
+    interface UserData {
+      user_id?: number;
+      id?: number;
+      username?: string;
+      email?: string;
+      role?: string;
+      password_hash?: string | null;
+      [key: string]: unknown;
+    }
 
-    // Create a modified response that matches our schema expectations
-    // The server response shape is { user: { ...userData } }
-    let userData: any = {};
+    interface UserResponse {
+      user?: UserData;
+      data?: UserData;
+      accessToken?: string;
+    }
+
+    // Create a normalized response that matches our schema
+    let userData: {
+      accessToken: string;
+      user?: {
+        user_id?: number;
+        username?: string;
+        email?: string;
+        role?: string;
+        password_hash: string | null;
+        [key: string]: unknown;
+      };
+    } = {
+      accessToken: getAuthToken() || "",
+    };
 
     if (response.data && typeof response.data === "object") {
-      // Handle the standard user response format
-      if ("user" in response.data) {
-        const user = (response.data as any).user;
+      const responseData = response.data as UserResponse;
 
-        // Ensure user has all required fields with proper types
+      // Handle the standard user response format
+      if ("user" in responseData && responseData.user) {
         userData = {
           accessToken: getAuthToken() || "",
           user: {
-            ...user,
+            ...responseData.user,
             // Ensure password_hash is null if undefined (to match our schema)
-            password_hash: user.password_hash || null,
+            password_hash: responseData.user.password_hash || null,
+            // Normalize the id field if necessary
+            user_id: responseData.user.id || responseData.user.user_id,
           },
         };
       }
       // Handle data format from other endpoints
-      else if ("data" in response.data) {
-        const user = (response.data as any).data;
+      else if ("data" in responseData && responseData.data) {
         userData = {
           accessToken: getAuthToken() || "",
           user: {
-            ...user,
-            password_hash: user.password_hash || null,
+            ...responseData.data,
+            password_hash: responseData.data.password_hash || null,
+            user_id: responseData.data.id || responseData.data.user_id,
           },
         };
       }
       // If response already has accessToken and user fields
-      else if ("accessToken" in response.data && "user" in response.data) {
-        const { accessToken, user } = response.data as any;
+      else if (
+        "accessToken" in responseData &&
+        "user" in responseData &&
+        responseData.user
+      ) {
         userData = {
-          accessToken,
+          accessToken: responseData.accessToken || getAuthToken() || "",
           user: {
-            ...user,
-            password_hash: user.password_hash || null,
+            ...responseData.user,
+            password_hash: responseData.user.password_hash || null,
+            user_id: responseData.user.id || responseData.user.user_id,
           },
         };
       }
     }
-
-    console.log("Normalized user data:", userData);
 
     // Now validate with our schema
     const parsedResult = AuthResponseSchema.safeParse(userData);
@@ -222,7 +344,6 @@ export const getCurrentUser = async (
         "Invalid user data format:",
         z.prettifyError(parsedResult.error)
       );
-      console.error("Raw data received:", userData);
       throw new Error("Invalid server response format");
     }
 

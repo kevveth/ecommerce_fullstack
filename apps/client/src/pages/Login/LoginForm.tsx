@@ -20,10 +20,11 @@ export function LoginForm({ submit }: LoginFormProps) {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isSubmitted },
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
-    mode: "onChange",
+    mode: "onSubmit", // Only validate on submit, not on blur
+    reValidateMode: "onSubmit", // Only re-validate when the user submits again
   });
 
   const onSubmit: SubmitHandler<LoginInput> = (data) => submit(data);
@@ -44,7 +45,7 @@ export function LoginForm({ submit }: LoginFormProps) {
           type="email"
           className={styles.input}
         />
-        {errors.email && (
+        {isSubmitted && errors.email && (
           <div className={styles.errorField}>{errors.email.message}</div>
         )}
       </div>
@@ -58,7 +59,7 @@ export function LoginForm({ submit }: LoginFormProps) {
           type="password"
           className={styles.input}
         />
-        {errors.password && (
+        {isSubmitted && errors.password && (
           <div className={styles.errorField}>{errors.password.message}</div>
         )}
       </div>

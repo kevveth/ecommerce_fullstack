@@ -47,8 +47,10 @@ export const googleAuthCallback = AsyncErrorHandler(
           // Set HTTP-only cookie with refresh token - using the same cookie name as authController.ts (jwt)
           res.cookie("jwt", refreshToken, {
             httpOnly: true,
+            sameSite: "lax", // Changed to "lax" for consistency with other auth endpoints
             secure: process.env.NODE_ENV === "production",
-            maxAge: 24 * 60 * 60 * 1000, // 24 hours
+            maxAge: 7 * 24 * 60 * 60 * 1000, // Updated to 7 days for consistency
+            path: "/", // Added path for consistency
           });
 
           // Redirect to client with access token in URL

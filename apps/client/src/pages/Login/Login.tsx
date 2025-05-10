@@ -1,34 +1,68 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LoginForm } from "./LoginForm";
 import { useNavigate, useLocation, Link } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 import styles from "./styles.module.css";
 import { LoginInput } from "@ecommerce/shared";
 
+const ROUTE_STORAGE_KEY = "last-route";
+
+/**
+ * Login page component handles user authentication and redirects
+ * appropriately based on authentication status.
+ */
 const Login = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const { login, loginWithGoogle, error: authError } = useAuth();
+  const {
+    login,
+    loginWithGoogle,
+    error: authError,
+    clearError,
+    isAuthenticated,
+  } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Extract redirect information from location state
+  const fromLocation = location.state?.from;
+  const redirectPath =
+    fromLocation?.pathname || localStorage.getItem(ROUTE_STORAGE_KEY) || "/";
+  const redirectMessage = location.state?.message || null;
+
+  // Set the redirect message if it exists
+  useEffect(() => {
+    if (redirectMessage) {
+      setLoginError(redirectMessage);
+    }
+
+    return () => {
+      clearError();
+    };
+  }, [redirectMessage, clearError]);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(redirectPath, { replace: true });
+    }
+  }, [isAuthenticated, navigate, redirectPath]);
 
   const handleLoginSubmit = async (data: LoginInput) => {
     try {
       setLoginError(null);
-      setIsLoading(true);
+      setIsSubmitting(true);
 
       await login(data.email, data.password);
 
-      // Redirect to the page user was trying to visit before being sent to login
-      // Or default to home page if they went directly to login
-      const from = location.state?.from?.pathname || "/";
-      navigate(from, { replace: true });
+      // The redirect will happen automatically in the effect hook
+      // when isAuthenticated becomes true
     } catch (err) {
-      // The error is already set in the auth context
+      // Set login error from auth context or fallback error
       setLoginError(authError || "Failed to login. Please try again.");
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -41,8 +75,8 @@ const Login = () => {
     <>
       <h1 className={styles.loginTitle}>Login</h1>
       {loginError && <div className="error-message">{loginError}</div>}
-      {isLoading ? (
-        <div className="spinner">Loading...</div>
+      {isSubmitting ? (
+        <div className="spinner">Logging in...</div>
       ) : (
         <>
           <LoginForm submit={handleLoginSubmit} />

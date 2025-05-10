@@ -35,7 +35,7 @@ export async function logoutUser(
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
-        path: "/api/auth/refresh-token", // Match the path used when setting the cookie
+        path: "/", // Match the path used when setting the cookie
       });
       return res.status(204).send(); // No content
     }
@@ -56,7 +56,7 @@ export async function logoutUser(
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      path: "/api/auth/refresh-token", // Match the path used when setting the cookie
+      path: "/", // Match the path used when setting the cookie
     });
 
     res.status(200).json({ message: "Logged out successfully" });
