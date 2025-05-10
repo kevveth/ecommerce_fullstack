@@ -125,7 +125,6 @@ export const refreshAuthToken = async (): Promise<{
   accessToken: string;
 } | null> => {
   try {
-    console.log("Explicitly refreshing auth token");
     const response = await api.post<{
       accessToken: string;
       tokenType?: string;
@@ -141,7 +140,6 @@ export const refreshAuthToken = async (): Promise<{
     }
 
     const { accessToken } = parsedResult.data;
-    console.log("Token refreshed successfully");
     setAuthToken(accessToken);
     return { accessToken };
   } catch (error) {

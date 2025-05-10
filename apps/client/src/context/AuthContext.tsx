@@ -5,10 +5,7 @@
 import { createContext, useContext, useState, ReactNode, useMemo } from "react";
 import { useNavigate } from "react-router";
 import { useQuery, useMutation, QueryClient } from "@tanstack/react-query";
-import {
-  PersistQueryClientProvider,
-  persistQueryClientRestore,
-} from "@tanstack/react-query-persist-client";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import * as authService from "./authService";
 
@@ -84,25 +81,30 @@ export const AuthProvider = ({ children, queryClient }: AuthProviderProps) => {
     queryKey: ["auth", "user"],
     queryFn: async () => {
       try {
-        // Skip if no cookies
+        // Only attempt refresh if we have cookies
         if (document.cookie.length === 0) {
           return null;
         }
 
-        // Attempt to refresh token and get user data
-        const refreshResult = await authService.refreshAuthToken();
+        // Check for existing token first
+        const token = authService.getAuthToken();
+        const refreshNeeded = !token;
 
-        if (refreshResult?.accessToken) {
-          const userResponse = await authService.getCurrentUser("me");
+        // Only refresh if we don't have a token
+        if (refreshNeeded) {
+          const refreshResult = await authService.refreshAuthToken();
+          if (!refreshResult?.accessToken) return null;
+        }
 
-          if (userResponse?.user) {
-            return {
-              user_id: userResponse.user.user_id,
-              username: userResponse.user.username,
-              email: userResponse.user.email,
-              role: userResponse.user.role,
-            };
-          }
+        // Fetch user data with current token
+        const userResponse = await authService.getCurrentUser("me");
+        if (userResponse?.user) {
+          return {
+            user_id: userResponse.user.user_id,
+            username: userResponse.user.username,
+            email: userResponse.user.email,
+            role: userResponse.user.role,
+          };
         }
         return null;
       } catch (error) {
@@ -120,30 +122,19 @@ export const AuthProvider = ({ children, queryClient }: AuthProviderProps) => {
    * Login mutation
    */
   const loginMutation = useMutation({
-    mutationFn: async ({
-      email,
-      password,
-    }: {
-      email: string;
-      password: string;
-    }) => {
+    mutationFn: ({ email, password }: { email: string; password: string }) => {
       return authService.login({ email, password });
     },
     onSuccess: (data) => {
       if (data.user) {
-        // Update query cache directly with user data
+        // Update user data directly and invalidate dependent queries
         queryClient.setQueryData(["auth", "user"], {
           user_id: data.user.user_id,
           username: data.user.username,
           email: data.user.email,
           role: data.user.role,
         });
-
-        // Persist the updated cache to localStorage
-        persistQueryClientRestore({
-          queryClient,
-          persister: localStoragePersister,
-        });
+        queryClient.invalidateQueries({ queryKey: ["user"] });
       }
     },
     onError: (error) => {
@@ -160,26 +151,13 @@ export const AuthProvider = ({ children, queryClient }: AuthProviderProps) => {
       // Clear auth data
       authService.removeAuthToken();
       queryClient.setQueryData(["auth", "user"], null);
-
-      // Persist the cleared cache to localStorage
-      persistQueryClientRestore({
-        queryClient,
-        persister: localStoragePersister,
-      });
-
+      queryClient.invalidateQueries({ queryKey: ["user"] });
       navigate("/login");
     },
     onError: () => {
       // Force logout even on error
       authService.removeAuthToken();
       queryClient.setQueryData(["auth", "user"], null);
-
-      // Persist the cleared cache to localStorage
-      persistQueryClientRestore({
-        queryClient,
-        persister: localStoragePersister,
-      });
-
       navigate("/login");
     },
   });
@@ -190,8 +168,8 @@ export const AuthProvider = ({ children, queryClient }: AuthProviderProps) => {
   const refreshTokenMutation = useMutation({
     mutationFn: authService.refreshAuthToken,
     onSuccess: (data) => {
+      // Only invalidate queries if we successfully received a token
       if (data?.accessToken) {
-        // Trigger refetch of user data
         queryClient.invalidateQueries({ queryKey: ["auth", "user"] });
         return true;
       }
