@@ -11,12 +11,11 @@ import React, {
 } from "react";
 import { useNavigate } from "react-router";
 import * as authService from "./authService";
-import { env } from "../utils/env";
 
 /**
  * Represents the authenticated user.
  */
-interface AuthUser {
+export interface AuthUser {
   user_id?: number;
   username: string;
   email: string;
@@ -72,15 +71,61 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
+  // Add logging whenever user state changes
   useEffect(() => {
+    console.log("AuthContext: User state changed", {
+      isAuthenticated: !!user,
+      user,
+    });
+  }, [user]);
+
+  useEffect(() => {
+    /**
+     * Initializes authentication state on app load.
+     * Attempts to refresh the access token using the refresh token cookie,
+     * then fetches the current user if successful.
+     */
     const initializeAuth = async () => {
       try {
-        const response = await authService.getCurrentUser("me"); // Fetch current user data
+        console.log("AuthContext: Attempting to refresh token on app load...");
+
+        // Attempt to refresh the access token using the refresh token cookie
+        const refreshResponse = await authService.api.post<any>(
+          "/auth/refresh-token",
+          {},
+          { withCredentials: true }
+        );
+
+        // Make sure we update the token in memory
+        if (refreshResponse.data?.accessToken) {
+          console.log("AuthContext: Successfully refreshed token");
+          authService.setAuthToken(refreshResponse.data.accessToken);
+        } else {
+          console.log("AuthContext: No access token in refresh response");
+        }
+
+        // Now fetch the current user (will use the new access token)
+        console.log("AuthContext: Fetching current user...");
+        const response = await authService.getCurrentUser("me");
+
         if (response.user) {
+          console.log(
+            "AuthContext: User fetch successful",
+            response.user.username
+          );
           const { user_id = 0, username, email, role } = response.user;
           setUser({ user_id, username, email, role });
+          console.log("AuthContext: User state updated with:", {
+            user_id,
+            username,
+            email,
+            role,
+          });
+        } else {
+          console.log("AuthContext: User data missing in response");
         }
-      } catch {
+      } catch (error) {
+        console.error("AuthContext initialization error:", error);
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -95,12 +140,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setError(null);
 
     try {
+      console.log("AuthContext: Attempting login...");
       const response = await authService.login({ email, password });
+      console.log("AuthContext: Login successful, response:", response);
+
       if (response.user) {
         const { user_id = 0, username, email, role } = response.user;
+        console.log("AuthContext: Setting user state after login:", {
+          user_id,
+          username,
+          email,
+          role,
+        });
         setUser({ user_id, username, email, role });
+      } else {
+        console.log("AuthContext: No user data in login response");
       }
-    } catch {
+    } catch (error) {
+      console.error("AuthContext: Login failed:", error);
       setError("Failed to login. Please try again.");
     } finally {
       setIsLoading(false);

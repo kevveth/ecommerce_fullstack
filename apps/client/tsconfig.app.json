@@ -16,6 +16,7 @@
     "allowSyntheticDefaultImports": true,
     "moduleDetection": "force",
     "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
 
     /* Path mappings for workspace packages */
     "baseUrl": ".",

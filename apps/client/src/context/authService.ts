@@ -65,23 +65,15 @@ api.interceptors.request.use((config) => {
 });
 
 /**
-  try {
-    return jose.decodeJwt(token);
-  } catch (error) {
-    console.error("Invalid JWT token:", error);
-    return null;
-  }
-};
-
-/**
  * Refreshes the access token when a 401 response is received.
  * @param failedRequest - The failed request that triggered the refresh.
  * @returns A promise that resolves when the token has been refreshed.
  */
 const refreshAuthLogic = async (failedRequest: any) => {
   try {
-    const response = await axios.post<unknown>(
-      "/api/auth/refresh-token",
+    // Use the configured api instance instead of global axios
+    const response = await api.post<unknown>(
+      "/auth/refresh-token",
       {},
       { withCredentials: true }
     );
@@ -156,18 +148,81 @@ export const logout = async (): Promise<void> => {
 
 /**
  * Fetches the current user's profile data.
- * @param username - The username of the user.
+ * @param username - The username of the user or "me" for the current user.
  * @returns A promise that resolves to the user's data.
  */
 export const getCurrentUser = async (
   username: string
 ): Promise<AuthResponse> => {
   try {
-    const response = await api.get<unknown>(`/users/${username}`);
+    // If username is "me", use the /users/me endpoint explicitly
+    const endpoint = username === "me" ? "/users/me" : `/users/${username}`;
 
-    const parsedResult = AuthResponseSchema.safeParse(response.data);
+    // Log the current auth token status before making the request
+    const hasToken = !!getAuthToken();
+    console.log(
+      `getCurrentUser: Fetching from ${endpoint}, Auth token present: ${hasToken}`
+    );
+
+    // Make the request with the current auth token
+    const response = await api.get<unknown>(endpoint);
+
+    // Log the raw response for troubleshooting
+    console.log("getCurrentUser raw response:", response.data);
+
+    // Create a modified response that matches our schema expectations
+    // The server response shape is { user: { ...userData } }
+    let userData: any = {};
+
+    if (response.data && typeof response.data === "object") {
+      // Handle the standard user response format
+      if ("user" in response.data) {
+        const user = (response.data as any).user;
+
+        // Ensure user has all required fields with proper types
+        userData = {
+          accessToken: getAuthToken() || "",
+          user: {
+            ...user,
+            // Ensure password_hash is null if undefined (to match our schema)
+            password_hash: user.password_hash || null,
+          },
+        };
+      }
+      // Handle data format from other endpoints
+      else if ("data" in response.data) {
+        const user = (response.data as any).data;
+        userData = {
+          accessToken: getAuthToken() || "",
+          user: {
+            ...user,
+            password_hash: user.password_hash || null,
+          },
+        };
+      }
+      // If response already has accessToken and user fields
+      else if ("accessToken" in response.data && "user" in response.data) {
+        const { accessToken, user } = response.data as any;
+        userData = {
+          accessToken,
+          user: {
+            ...user,
+            password_hash: user.password_hash || null,
+          },
+        };
+      }
+    }
+
+    console.log("Normalized user data:", userData);
+
+    // Now validate with our schema
+    const parsedResult = AuthResponseSchema.safeParse(userData);
     if (!parsedResult.success) {
-      console.error("Invalid user data:", z.prettifyError(parsedResult.error));
+      console.error(
+        "Invalid user data format:",
+        z.prettifyError(parsedResult.error)
+      );
+      console.error("Raw data received:", userData);
       throw new Error("Invalid server response format");
     }
 
@@ -177,5 +232,7 @@ export const getCurrentUser = async (
     throw error;
   }
 };
+
+export { api };
 
 export default api;

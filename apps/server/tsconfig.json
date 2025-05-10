@@ -8,7 +8,7 @@
 
     /* Transpilation */
     "module": "NodeNext",
-    "moduleResolution": "nodenext",
+    "moduleResolution": "node16",
     "rootDir": "./src",
     "outDir": "./dist",
     "composite": true,

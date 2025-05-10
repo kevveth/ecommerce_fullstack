@@ -11,13 +11,14 @@ export enum TokenType {
 
 /**
  * Simple schema for user payload in JWT tokens
+ * Note: We use passthrough() instead of strict() to allow standard JWT claims like iat and exp
  */
 export const UserPayloadSchema = z
   .object({
     user_id: z.number().int().positive(),
     role: z.string(),
   })
-  .strict();
+  .passthrough(); // Allow extra properties like iat and exp added by jose
 
 /**
  * Type derived from the schema for TypeScript usage
@@ -136,9 +137,17 @@ export async function verifyToken(
     const secretKey = getSecretKey(type);
     const { payload } = await jose.jwtVerify(token, secretKey);
 
+    // Debug the raw payload to see what's causing the validation failure
+    console.log(`Raw JWT payload:`, JSON.stringify(payload, null, 2));
+
     // Validate the payload structure
     const result = UserPayloadSchema.safeParse(payload);
     if (!result.success) {
+      // Log the specific validation errors
+      console.error(
+        `JWT validation error:`,
+        JSON.stringify(z.prettifyError(result.error), null, 2)
+      );
       throw new Error(`Invalid token structure`);
     }
 

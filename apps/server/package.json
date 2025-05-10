@@ -11,7 +11,8 @@
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
     "dev-server": "tsc-watch --noClear -p ./tsconfig.json --onSuccess \"node ./dist/app.js\"",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "clear-refresh-tokens": "psql \"$DB_URL\" -c 'DELETE FROM refresh_tokens;'"
   },
   "keywords": [],
   "author": "",

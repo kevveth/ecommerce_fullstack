@@ -1,16 +1,20 @@
 import { Navigate, useLocation, Outlet } from "react-router";
-import { useAuth } from "../context/AuthContext";
+import { useRequireAuth } from "../hooks/useRequireAuth";
 
 interface ProtectedRouteProps {
   requiredRole?: string;
 }
 
+/**
+ * ProtectedRoute ensures only authenticated users (and optionally, users with a specific role)
+ * can access the wrapped route. Shows a spinner while loading, redirects to login if not authenticated.
+ */
 export const ProtectedRoute = ({ requiredRole }: ProtectedRouteProps) => {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useRequireAuth();
   const location = useLocation();
 
   if (isLoading) {
-    // You could show a loading spinner here
+    // Show a loading spinner while checking authentication
     return <div>Loading...</div>;
   }
 

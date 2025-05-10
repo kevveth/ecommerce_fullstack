@@ -50,6 +50,33 @@ router.get(
   }
 );
 
+// Add /me route to return the authenticated user's info
+router.get(
+  "/me",
+  authenticate,
+  isAuthenticated,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (!req.user) {
+        return next(
+          new NotFoundError({ message: "User not found", logging: true })
+        );
+      }
+      const privateUser = await getWithId(req.user.user_id);
+      if (!privateUser) {
+        return next(
+          new NotFoundError({ message: "User not found", logging: true })
+        );
+      }
+      // Remove sensitive info
+      const { password_hash, ...safeUser } = privateUser;
+      res.json({ user: safeUser });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 // Explicitly cast the handlers to RequestHandler type to resolve overload issues
 router.get("/", getAllUsers as RequestHandler);
 router.get("/:username", getUserByUsername as RequestHandler);

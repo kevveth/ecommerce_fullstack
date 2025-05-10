@@ -80,6 +80,14 @@ export const loginUser = async (
       // Save refresh token with user
       await addRefreshToken(user.user_id!, refreshToken);
 
+      // Log user info on successful login (do not log sensitive data)
+      console.log("User logged in:", {
+        user_id: user.user_id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      });
+
       // Set the refresh token as HTTP only cookie with improved security options
       res.cookie("jwt", refreshToken, {
         httpOnly: true,

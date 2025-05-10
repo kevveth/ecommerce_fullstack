@@ -1,23 +1,37 @@
 import { Link, useMatch } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 import styles from "./styles.module.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
+/**
+ * Navbar component displays navigation links based on authentication state.
+ * - Shows Profile and Logout if authenticated.
+ * - Shows Login if not authenticated.
+ * - Home and public links are always visible.
+ */
 export const Navbar = () => {
   const { isAuthenticated, logout, user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  console.log("Navbar - isAuthenticated:", isAuthenticated);
-  console.log("Navbar - user:", user);
+  // Add debug logging to see what auth state we have
+  useEffect(() => {
+    console.log("Navbar: Auth state updated");
+    console.log("- isAuthenticated:", isAuthenticated);
+    console.log("- user:", user);
+    console.log("- user?.username:", user?.username);
+  }, [isAuthenticated, user]);
 
+  // Toggle mobile menu open/close
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
 
+  // Close mobile menu (used on link click)
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
   };
 
+  // Helper to check if a route is active
   const isActive = (path: string) => {
     return !!useMatch(path);
   };
@@ -42,6 +56,7 @@ export const Navbar = () => {
         <ul
           className={`${styles.navList} ${mobileMenuOpen ? styles.open : ""}`}
         >
+          {/* Home is always visible */}
           <li className={styles.navItem}>
             <Link
               to="/"
@@ -54,7 +69,7 @@ export const Navbar = () => {
             </Link>
           </li>
 
-          {/* Only show Profile link if logged in and username is defined */}
+          {/* Profile link: only if authenticated and username exists */}
           {isAuthenticated && user?.username && (
             <li className={styles.navItem}>
               <Link
@@ -69,7 +84,7 @@ export const Navbar = () => {
             </li>
           )}
 
-          {/* Admin can see all profiles */}
+          {/* Admin-only: All Profiles link */}
           {user?.role === "admin" && (
             <li className={styles.navItem}>
               <Link
@@ -84,7 +99,7 @@ export const Navbar = () => {
             </li>
           )}
 
-          {/* Login/Logout button */}
+          {/* Auth button: Login if not authenticated, Logout if authenticated */}
           <li className={styles.navItem}>
             {isAuthenticated ? (
               <button
