@@ -2,19 +2,20 @@ import { z } from "zod";
 
 // Define base schemas with more specific error messages using Zod v4 syntax
 const IDSchema = z
-  .number({
-    error: (issue) =>
-      issue.input === undefined
-        ? "ID is required"
-        : "ID must be a positive number",
+  .number()
+  .positive({
+    message: "ID must be a positive number",
   })
-  .positive()
-  .optional();
+  .optional()
+  .describe("User identifier");
 
-// Define the RoleSchema using proper Zod v4 syntax - using literal array
-const RoleSchema = z.enum(["admin", "user"], {
-  message: `Role must be either "admin" or "user"`,
-});
+// Define the RoleSchema using proper Zod v4 syntax - using enum values literal
+const roles = ["admin", "user"] as const; // Define roles as a tuple of string literals
+export const RoleSchema = z
+  .enum(roles, {
+    error: () => "Role must be either 'admin' or 'user'",
+  })
+  .describe("User role");
 export type Role = z.infer<typeof RoleSchema>;
 
 // Base user schema with refined constraints - using z.object() for better performance
@@ -28,7 +29,7 @@ export const userSchema = z.object({
     .max(12, {
       message: "Username cannot exceed 12 characters",
     }),
-  email: z.string().email({
+  email: z.email({
     message: "Invalid email format",
   }),
   password_hash: z.string().nullable(), // Changed to nullable to support OAuth users
@@ -54,30 +55,26 @@ export const registrationSchema = z.object({
     })
     .trim(),
   email: z
-    .string()
     .email({
       message: "Invalid email address",
     })
     .trim()
     .toLowerCase(),
-  password: z
-    .string()
-    .min(8, {
-      message: "Password must be at least 8 characters",
-    })
-    .regex(/[A-Z]/, {
-      message: "Password must contain at least one uppercase letter",
-    })
-    .regex(/[0-9]/, {
-      message: "Password must contain at least one number",
-    }),
+  password: z.string().min(8, {
+    message: "Password must be at least 8 characters",
+  }),
+  // .regex(/[A-Z]/, {
+  //   message: "Password must contain at least one uppercase letter",
+  // })
+  // .regex(/[0-9]/, {
+  //   message: "Password must contain at least one number",
+  // }),
 });
 export type RegistrationInput = z.infer<typeof registrationSchema>;
 
 // Login schema with better validation messages using Zod v4 syntax
 export const loginSchema = z.object({
   email: z
-    .string()
     .email({
       message: "Please enter a valid email address",
     })

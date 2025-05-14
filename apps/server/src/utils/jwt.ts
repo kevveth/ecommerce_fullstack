@@ -1,29 +1,12 @@
 import * as jose from "jose";
 import { z } from "zod";
-
-/**
- * Token types supported by the application
- */
-export enum TokenType {
-  ACCESS = "access",
-  REFRESH = "refresh",
-}
-
-/**
- * Simple schema for user payload in JWT tokens
- * Note: We use passthrough() instead of strict() to allow standard JWT claims like iat and exp
- */
-export const UserPayloadSchema = z
-  .object({
-    user_id: z.number().int().positive(),
-    role: z.string(),
-  })
-  .passthrough(); // Allow extra properties like iat and exp added by jose
-
-/**
- * Type derived from the schema for TypeScript usage
- */
-export type UserPayload = z.infer<typeof UserPayloadSchema>;
+import {
+  SecretKeySchema,
+  Token,
+  UserPayloadSchema,
+  UserPayload,
+} from "@ecommerce/shared/schemas/";
+import { env } from "./env";
 
 /**
  * Gets the appropriate secret key for token operations
@@ -31,17 +14,24 @@ export type UserPayload = z.infer<typeof UserPayloadSchema>;
  * @param type - The type of token (access or refresh)
  * @returns The secret key as a Uint8Array
  */
-function getSecretKey(type: TokenType): Uint8Array {
+function getSecretKey(type: Token): Uint8Array {
   const secret =
-    type === TokenType.REFRESH
-      ? process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET
-      : process.env.JWT_SECRET;
+    type === "REFRESH"
+      ? env.JWT_REFRESH_SECRET || env.JWT_SECRET
+      : env.JWT_SECRET;
 
-  if (!secret) {
-    throw new Error(`JWT secret not defined in environment variables`);
+  // Use safeParse to validate secret key
+  const result = SecretKeySchema.safeParse(secret);
+
+  if (!result.success) {
+    const formattederror = z.prettifyError(result.error);
+    throw new Error(
+      `JWT secret validation failed: ${JSON.stringify(formattederror)}`
+    );
   }
 
-  return new TextEncoder().encode(secret);
+  // Return the transformed secret key
+  return result.data;
 }
 
 /**
@@ -54,7 +44,7 @@ function getSecretKey(type: TokenType): Uint8Array {
  */
 export async function generateToken(
   payload: UserPayload,
-  type: TokenType,
+  type: Token,
   expiresIn?: string
 ): Promise<string> {
   // Validate payload with Zod
@@ -66,17 +56,27 @@ export async function generateToken(
 
   const secretKey = getSecretKey(type);
 
-  // Default expiration times
-  const defaultExpiry = type === TokenType.ACCESS ? "15m" : "7d";
+  // Default expiration times based on token type
+  const defaultExpiry = type === "ACCESS" ? "15m" : "7d";
+  const expiration = expiresIn || defaultExpiry;
 
   // Create and sign the JWT
-  const token = await new jose.SignJWT(result.data)
-    .setProtectedHeader({ alg: "HS256" })
-    .setIssuedAt()
-    .setExpirationTime(expiresIn || defaultExpiry)
-    .sign(secretKey);
+  try {
+    const token = await new jose.SignJWT(result.data)
+      .setProtectedHeader({ alg: "HS256" })
+      .setIssuedAt()
+      .setExpirationTime(expiration)
+      .sign(secretKey);
 
-  return token;
+    return token;
+  } catch (error) {
+    const message =
+      error instanceof jose.errors.JOSEError
+        ? `Token signing failed: ${error.message}`
+        : "Unexpected error during token signing";
+
+    throw new Error(message);
+  }
 }
 
 /**
@@ -86,11 +86,11 @@ export async function generateToken(
  * @param expiresIn - Optional expiration time
  * @returns Signed access token
  */
-export async function generateAccessToken(
+export function generateAccessToken(
   payload: UserPayload,
   expiresIn?: string
 ): Promise<string> {
-  return generateToken(payload, TokenType.ACCESS, expiresIn);
+  return generateToken(payload, "ACCESS", expiresIn);
 }
 
 /**
@@ -100,11 +100,11 @@ export async function generateAccessToken(
  * @param expiresIn - Optional expiration time
  * @returns Signed refresh token
  */
-export async function generateRefreshToken(
+export function generateRefreshToken(
   payload: UserPayload,
   expiresIn?: string
 ): Promise<string> {
-  return generateToken(payload, TokenType.REFRESH, expiresIn);
+  return generateToken(payload, "REFRESH", expiresIn);
 }
 
 /**
@@ -116,8 +116,11 @@ export async function generateRefreshToken(
 export async function generateTokens(
   payload: UserPayload
 ): Promise<{ accessToken: string; refreshToken: string }> {
-  const accessToken = await generateAccessToken(payload);
-  const refreshToken = await generateRefreshToken(payload);
+  // Generate tokens in parallel
+  const [accessToken, refreshToken] = await Promise.all([
+    generateAccessToken(payload),
+    generateRefreshToken(payload),
+  ]);
 
   return { accessToken, refreshToken };
 }
@@ -131,7 +134,7 @@ export async function generateTokens(
  */
 export async function verifyToken(
   token: string,
-  type: TokenType
+  type: Token
 ): Promise<UserPayload> {
   try {
     const secretKey = getSecretKey(type);
@@ -172,7 +175,7 @@ export async function verifyToken(
  */
 export async function safeVerifyToken(
   token: string,
-  type: TokenType
+  type: Token
 ): Promise<UserPayload | null> {
   try {
     return await verifyToken(token, type);
