@@ -1,12 +1,11 @@
 import styles from "./styles.module.css";
-import { ZodIssue } from "zod";
 
-// More detailed error interface that matches our improved API error responses
+// Error interface that matches the API error structure
 interface ValidationError {
   message: string;
   errors?: {
     [key: string]: {
-      _errors: string[];
+      errors: string[];
     };
   };
 }
@@ -36,8 +35,8 @@ export function RegistrationStatus({
         {/* Display field-specific validation errors if they exist */}
         {error.errors && (
           <ul className={styles.errorList}>
-            {Object.entries(error.errors).map(([field, errorInfo]) =>
-              errorInfo._errors.map((msg, idx) => (
+            {Object.entries(error.errors).map(([field, fieldErrors]) =>
+              fieldErrors.errors.map((msg: string, idx: number) => (
                 <li key={`${field}-${idx}`} className={styles.errorItem}>
                   <strong>{field}:</strong> {msg}
                 </li>

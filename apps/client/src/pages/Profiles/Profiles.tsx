@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import { User } from '../../../server/src/models/user.model';
+import { useQuery } from "@tanstack/react-query";
+import { User } from "../../../../../packages/shared/dist/esm/schemas";
 
 interface Users {
   data: User[];
@@ -11,7 +11,7 @@ export function Profiles() {
     isError,
     isPending,
   } = useQuery({
-    queryKey: ['users'],
+    queryKey: ["users"],
     queryFn: async () => {
       const response = await fetch(`http://localhost:3000/api/users/`);
       return (await response.json()) as Users;

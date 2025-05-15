@@ -1,13 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import passport from "passport";
-import {
-  generateAccessToken,
-  generateRefreshToken,
-  UserPayload,
-} from "../utils/jwt";
+import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
 import { addRefreshToken } from "../services/auth/refresh";
 import AsyncErrorHandler from "../utils/AsyncErrorHandler";
-import { User } from "../models/user.model";
+import { User, UserPayload } from "@ecommerce/shared/schemas";
 
 // Initiate Google OAuth flow
 export const googleAuth = (req: Request, res: Response, next: NextFunction) => {

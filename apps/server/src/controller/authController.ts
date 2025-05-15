@@ -1,12 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcryptjs";
 import { addRefreshToken } from "../services/auth/refresh";
-import {
-  generateAccessToken,
-  generateRefreshToken,
-  TokenType,
-} from "../utils/jwt";
-import { loginSchema } from "@ecommerce/shared";
+import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
+import { loginSchema } from "../../../../packages/shared/dist/cjs/schemas";
 import { getWithEmail } from "../services/users";
 import { z } from "zod";
 import UnauthorizedError from "../errors/UnauthorizedError";

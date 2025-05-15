@@ -4,9 +4,8 @@ import {
   removeAllRefreshTokensForUser,
   removeRefreshToken,
 } from "../services/auth/refresh";
-import { safeVerifyToken, TokenType } from "../utils/jwt";
-import UnauthorizedError from "../errors/UnauthorizedError";
-
+import { safeVerifyToken } from "../utils/jwt";
+import { Token } from "@ecommerce/shared/schemas";
 /**
  * Handles user logout by invalidating refresh tokens
  *
@@ -41,7 +40,7 @@ export async function logoutUser(
     }
 
     // Verify token validity
-    const decoded = await safeVerifyToken(refreshToken, TokenType.REFRESH);
+    const decoded = await safeVerifyToken(refreshToken, "REFRESH");
 
     // Delete token from database regardless of validity
     await removeRefreshToken(refreshToken);

@@ -7,7 +7,7 @@ import {
   type ProfileUpdateInput,
   registrationSchema,
   profileUpdateSchema,
-} from "@ecommerce/shared";
+} from "../../../../packages/shared/dist/esm/schemas";
 
 /**
  * Re-exports shared types for server-side use
@@ -50,13 +50,13 @@ async function checkEmailExists(email: string): Promise<boolean> {
  * Schema for updating existing users with server-specific validation logic
  * Extends the shared profileUpdateSchema with additional transformations
  */
-export const updateUserSchema = profileUpdateSchema.transform(
-  (data: ProfileUpdateInput) => {
+export const updateUserSchema = profileUpdateSchema.pipe(
+  z.transform((data: ProfileUpdateInput) => {
     // Server-specific transformations before storing
     if (data.email) data.email = data.email.toLowerCase().trim();
     if (data.username) data.username = data.username.trim();
     return data;
-  }
+  })
 );
 
 export type UpdateableUser = z.infer<typeof updateUserSchema>;

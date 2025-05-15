@@ -5,7 +5,7 @@ import {
   Token,
   UserPayloadSchema,
   UserPayload,
-} from "@ecommerce/shared/schemas/";
+} from "@ecommerce/shared/schemas";
 import { env } from "./env";
 
 /**

@@ -1,5 +1,5 @@
 import { useMutation, UseMutationResult } from "@tanstack/react-query";
-import { type RegistrationInput } from "@ecommerce/shared";
+import { type RegistrationInput } from "../../../../packages/shared/dist/esm/schemas";
 
 interface RegistrationSuccessData {
   userId: number;
@@ -17,7 +17,7 @@ interface RegistrationErrorResponse {
   message: string;
   errors?: {
     [key: string]: {
-      _errors: string[];
+      errors: string[];
     };
   };
 }

@@ -13,6 +13,7 @@ const Register: React.FC = () => {
     mutation.mutate(data);
   };
 
+  // Simply pass the error from the mutation directly
   const formattedError = mutation.error
     ? {
         message: mutation.error.message,

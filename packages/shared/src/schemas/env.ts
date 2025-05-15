@@ -46,11 +46,28 @@ export const serverEnvSchema = z.object({
 
   // Database Configuration
   DB_URL: z
-    .url({
-      message:
-        "Invalid URL format. Ensure it includes a semicolon if no password is provided.",
-    })
-    .default("postgres://localhost:5432/ecommerce")
+    .string()
+    .refine(
+      (url) => {
+        // Handle both URL format and connection string format for PostgreSQL
+        try {
+          // Try to parse as standard URL first
+          new URL(url);
+          return true;
+        } catch {
+          // If not a standard URL, check if it's a PostgreSQL connection string
+          // Format: postgresql://username:password@hostname:port/database
+          // Or: postgres://username:password@hostname:port/database
+          return /^postgres(?:ql)?:\/\/(?:[^:@\/]+(?::[^@\/]+)?@)?[^:@\/]+(?::\d+)?(?:\/[^?]*)?(?:\?.*)?$/.test(
+            url
+          );
+        }
+      },
+      {
+        message: "Invalid PostgreSQL connection string format",
+      }
+    )
+    .default("postgres://kennethrathbun:@localhost:5432/ecommerce")
     .describe("Database connection URL"),
   DB_HOST: z.string().default("localhost"),
   DB_PORT: z.coerce.number().positive().default(5432),

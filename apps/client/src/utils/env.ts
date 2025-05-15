@@ -1,7 +1,7 @@
 /**
  * Client environment configuration using shared schema
  */
-import { clientEnvSchema, type ClientEnv } from "@ecommerce/shared";
+import { clientEnvSchema, type ClientEnv } from "@ecommerce/shared/schemas/env";
 import { z } from "zod";
 
 /**

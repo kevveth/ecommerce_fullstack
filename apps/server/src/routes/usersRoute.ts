@@ -17,7 +17,7 @@ import { authenticate, isAuthenticated } from "../middleware/verifyJWT";
 import { getWithId } from "../services/users";
 import NotFoundError from "../errors/NotFoundError";
 import { User } from "../models/user.model";
-import { profileUpdateSchema } from "@ecommerce/shared"; // Importing profileUpdateSchema from shared schemas
+import { profileUpdateSchema } from "../../../../packages/shared/dist/cjs/schemas"; // Importing profileUpdateSchema from shared schemas
 
 const router: Router = express.Router();
 

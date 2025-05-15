@@ -1,6 +1,9 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { registrationSchema, type RegistrationInput } from "@ecommerce/shared";
+import {
+  registrationSchema,
+  type RegistrationInput,
+} from "../../../../../packages/shared/dist/esm/schemas";
 import styles from "./styles.module.css";
 
 // Define props expected from the parent

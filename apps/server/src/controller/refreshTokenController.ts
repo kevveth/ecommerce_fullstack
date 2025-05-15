@@ -4,8 +4,8 @@ import {
   generateAccessToken,
   generateRefreshToken,
   safeVerifyToken,
-  TokenType,
 } from "../utils/jwt";
+import { Token } from "@ecommerce/shared/schemas";
 import {
   addRefreshToken,
   findRefreshToken,
@@ -47,7 +47,7 @@ export async function refreshToken(
     }
 
     // Verify the token is valid cryptographically
-    const decoded = await safeVerifyToken(refreshToken, TokenType.REFRESH);
+    const decoded = await safeVerifyToken(refreshToken, "REFRESH");
     if (!decoded) {
       await removeRefreshToken(refreshToken); // Remove invalid token from database
       return res

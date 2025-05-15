@@ -12,7 +12,10 @@ import {
   remove,
 } from "../services/users";
 import type { CustomRequest } from "../middleware/verifyJWT";
-import { userSchema, profileUpdateSchema } from "@ecommerce/shared"; // Updated import to use profileUpdateSchema
+import {
+  userSchema,
+  profileUpdateSchema,
+} from "../../../../packages/shared/dist/cjs/schemas"; // Updated import to use profileUpdateSchema
 
 // Enhanced param schemas with better error messages
 const idParamSchema = z.object({

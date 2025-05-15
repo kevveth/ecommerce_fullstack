@@ -4,7 +4,10 @@
  */
 import axios, { AxiosInstance, AxiosError } from "axios";
 import createAuthRefreshInterceptor from "axios-auth-refresh";
-import { type LoginInput, userSchema } from "@ecommerce/shared";
+import {
+  type LoginInput,
+  userSchema,
+} from "../../../../packages/shared/dist/esm/schemas";
 import { z } from "zod";
 
 /**
