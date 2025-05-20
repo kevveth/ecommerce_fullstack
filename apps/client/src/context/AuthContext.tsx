@@ -236,65 +236,62 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     },
   });
 
-  const authContextValue = useMemo(
-    () => {
-      const userFromQuery = userQuery.data || null;
-      // const tokenInMemory = authService.getAuthToken(); // No longer explicitly checked here for isAuthenticated
-      // isAuthenticated now directly depends on whether user data exists from the query.
-      // The userQuery.queryFn is responsible for ensuring user data is null if auth fails (e.g. refresh fails).
-      const calculatedIsAuthenticated = !!userFromQuery;
+  const authContextValue = useMemo(() => {
+    const userFromQuery = userQuery.data || null;
+    // const tokenInMemory = authService.getAuthToken(); // No longer explicitly checked here for isAuthenticated
+    // isAuthenticated now directly depends on whether user data exists from the query.
+    // The userQuery.queryFn is responsible for ensuring user data is null if auth fails (e.g. refresh fails).
+    const calculatedIsAuthenticated = !!userFromQuery;
 
-      // console.log(
-      //   `[AuthContext.useMemo] Calculating isAuthenticated: userQuery.data exists? ${!!userFromQuery}, authService.getAuthToken() exists? ${!!tokenInMemory}. Result: ${calculatedIsAuthenticated}`
-      // ); // DEBUG LOG - REMOVED
-      // console.log(`[AuthContext.useMemo] userQuery.isLoading: ${userQuery.isLoading}, userQuery.isError: ${userQuery.isError}`); // DEBUG LOG - REMOVED
+    // console.log(
+    //   `[AuthContext.useMemo] Calculating isAuthenticated: userQuery.data exists? ${!!userFromQuery}, authService.getAuthToken() exists? ${!!tokenInMemory}. Result: ${calculatedIsAuthenticated}`
+    // ); // DEBUG LOG - REMOVED
+    // console.log(`[AuthContext.useMemo] userQuery.isLoading: ${userQuery.isLoading}, userQuery.isError: ${userQuery.isError}`); // DEBUG LOG - REMOVED
 
-      return {
-        user: userFromQuery,
-        isAuthenticated: calculatedIsAuthenticated,
-        isLoading:
-          userQuery.isLoading ||
-          loginMutation.isPending ||
-          logoutMutation.isPending ||
-          handleAuthCallbackMutation.isPending, // Added callback pending state
-        loginError,
-        logoutError,
-        userFetchError: userQuery.error?.message || null,
-        callbackError, // Added callback error
-        login: async (credentials: LoginInput) => {
-          clearLoginError();
-          await loginMutation.mutateAsync(credentials);
-        },
-        logout: async () => {
-          clearLogoutError();
-          await logoutMutation.mutateAsync();
-        },
-        handleAuthCallback: async (token: string) => {
-          clearCallbackError();
-          await handleAuthCallbackMutation.mutateAsync(token);
-        },
-        clearLoginError,
-        clearLogoutError,
-        clearUserFetchError,
-        clearCallbackError, // Added
-      };
-    },
-    [
-      userQuery.data,
-      userQuery.isLoading, // Added isLoading to dependencies
-      userQuery.isError, // Added isError to dependencies
-      userQuery.error,
-      loginMutation.isPending,
-      logoutMutation.isPending,
-      handleAuthCallbackMutation.isPending, // Added
+    return {
+      user: userFromQuery,
+      isAuthenticated: calculatedIsAuthenticated,
+      isLoading:
+        userQuery.isLoading ||
+        loginMutation.isPending ||
+        logoutMutation.isPending ||
+        handleAuthCallbackMutation.isPending, // Added callback pending state
       loginError,
       logoutError,
-      userQuery.error?.message, // For userFetchError
-      callbackError, // Added
-      queryClient,
-      navigate,
-    ]
-  );
+      userFetchError: userQuery.error?.message || null,
+      callbackError, // Added callback error
+      login: async (credentials: LoginInput) => {
+        clearLoginError();
+        await loginMutation.mutateAsync(credentials);
+      },
+      logout: async () => {
+        clearLogoutError();
+        await logoutMutation.mutateAsync();
+      },
+      handleAuthCallback: async (token: string) => {
+        clearCallbackError();
+        await handleAuthCallbackMutation.mutateAsync(token);
+      },
+      clearLoginError,
+      clearLogoutError,
+      clearUserFetchError,
+      clearCallbackError, // Added
+    };
+  }, [
+    userQuery.data,
+    userQuery.isLoading, // Added isLoading to dependencies
+    userQuery.isError, // Added isError to dependencies
+    userQuery.error,
+    loginMutation.isPending,
+    logoutMutation.isPending,
+    handleAuthCallbackMutation.isPending, // Added
+    loginError,
+    logoutError,
+    userQuery.error?.message, // For userFetchError
+    callbackError, // Added
+    queryClient,
+    navigate,
+  ]);
 
   return (
     <AuthContext.Provider value={authContextValue}>
