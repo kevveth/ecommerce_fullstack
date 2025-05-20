@@ -114,7 +114,10 @@ const refreshAuthLogic = async (failedRequest: AxiosError) => {
     }
     return Promise.resolve();
   } catch (error) {
-    console.error("[AuthService.refreshAuthLogic] Token refresh failed:", error);
+    console.error(
+      "[AuthService.refreshAuthLogic] Token refresh failed:",
+      error
+    );
     removeAuthToken(); // Clear token on any refresh error
     // IMPORTANT: Navigate to login or notify user
     // For now, just reject to let the original call fail.

@@ -7,7 +7,7 @@ import { useNavigate } from "react-router"; // Added useNavigate
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as authService from "./authService";
 import type { User as SharedUser, LoginInput } from "@ecommerce/shared";
-import axios, { AxiosError } from "axios"; // Added AxiosError import
+import { AxiosError } from "axios"; // Removed unused 'axios' default import, kept AxiosError
 
 /**
  * Represents the authenticated user, mapping from SharedUser.
@@ -239,8 +239,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const authContextValue = useMemo(
     () => {
       const userFromQuery = userQuery.data || null;
-      const tokenInMemory = authService.getAuthToken();
-      const calculatedIsAuthenticated = !!userFromQuery && !!tokenInMemory;
+      // const tokenInMemory = authService.getAuthToken(); // No longer explicitly checked here for isAuthenticated
+      // isAuthenticated now directly depends on whether user data exists from the query.
+      // The userQuery.queryFn is responsible for ensuring user data is null if auth fails (e.g. refresh fails).
+      const calculatedIsAuthenticated = !!userFromQuery;
+
+      // console.log(
+      //   `[AuthContext.useMemo] Calculating isAuthenticated: userQuery.data exists? ${!!userFromQuery}, authService.getAuthToken() exists? ${!!tokenInMemory}. Result: ${calculatedIsAuthenticated}`
+      // ); // DEBUG LOG - REMOVED
+      // console.log(`[AuthContext.useMemo] userQuery.isLoading: ${userQuery.isLoading}, userQuery.isError: ${userQuery.isError}`); // DEBUG LOG - REMOVED
 
       return {
         user: userFromQuery,

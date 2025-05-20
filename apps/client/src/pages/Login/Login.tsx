@@ -48,13 +48,9 @@ const Login = () => {
     <>
       <h1 className={styles.loginTitle}>Login</h1>
       {/* Display redirectMessage if it exists */}
-      {redirectMessage && (
-        <div className="info-message">{redirectMessage}</div>
-      )}
+      {redirectMessage && <div className="info-message">{redirectMessage}</div>}
       {/* Display loginError from context */}
-      {loginError && (
-        <div className="error-message">{loginError}</div>
-      )}
+      {loginError && <div className="error-message">{loginError}</div>}
       {isSubmitting ? (
         <div className="spinner">Logging in...</div>
       ) : (
