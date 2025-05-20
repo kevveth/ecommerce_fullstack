@@ -1,10 +1,11 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  registrationSchema,
-  type RegistrationInput,
-} from "../../../../../packages/shared/dist/esm/schemas";
+import { registrationSchema } from "@ecommerce/shared/schemas"; // Correctly import registrationSchema
 import styles from "./styles.module.css";
+import { z } from "zod"; // Import z
+
+// Define RegistrationInput type from the schema
+export type RegistrationInput = z.infer<typeof registrationSchema>;
 
 // Define props expected from the parent
 interface RegistrationFormProps {

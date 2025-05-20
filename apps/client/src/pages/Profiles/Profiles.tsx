@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { User } from "../../../../../packages/shared/dist/esm/schemas";
+import { User } from "@ecommerce/shared/schemas"; // Updated import
 
 interface Users {
   data: User[];

@@ -3,7 +3,7 @@ import { LoginForm } from "./LoginForm";
 import { useLocation, Link, Navigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 import styles from "./styles.module.css";
-import { LoginInput } from "../../../../../packages/shared/dist/esm/schemas";
+import { LoginInput } from "@ecommerce/shared/schemas";
 
 const ROUTE_STORAGE_KEY = "last-route";
 

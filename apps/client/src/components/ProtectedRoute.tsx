@@ -20,7 +20,8 @@ export const ProtectedRoute = ({
   loadingComponent = <div className="auth-loading">Verifying access...</div>,
 }: ProtectedRouteProps) => {
   // useRequireAuth now returns an object with redirectPath and shouldRedirect
-  const { isAuthenticated, isLoading, user, redirectPath, shouldRedirect } =
+  // Removed unused isAuthenticated from destructuring
+  const { isLoading, user, redirectPath, shouldRedirect } =
     useRequireAuth(requiredRole);
   const location = useLocation();
 
@@ -50,15 +51,6 @@ export const ProtectedRoute = ({
     );
   }
 
-  // Fallback checks, though useRequireAuth should handle these scenarios
-  if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
-
-  if (requiredRole && (!user || user.role !== requiredRole)) {
-    return <Navigate to="/" state={{ message: "Access denied." }} replace />;
-  }
-
-  // If authenticated and authorized, render the child routes
+  // If not loading and no redirect is needed (all checks passed in useRequireAuth), render the child routes
   return <Outlet />;
 };

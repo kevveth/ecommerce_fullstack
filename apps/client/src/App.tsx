@@ -1,7 +1,8 @@
 import "./App.css";
-import { Router } from "./components/Router";
+// Router import removed
 import { useRoutePersistence } from "./hooks/useRoutePersistence";
 import { useAuth } from "./context/AuthContext"; // Corrected import
+import { Outlet } from "react-router"; // Import Outlet
 
 /**
  * Main application component
@@ -15,7 +16,8 @@ function App() {
 
   return (
     <>
-      <Router />
+      {/* Router component removed, Outlet added */}
+      <Outlet />
     </>
   );
 }
