@@ -86,16 +86,6 @@ export const serverEnvSchema = z.object({
 
   // Salt rounds for password hashing
   SALT_ROUNDS: z.coerce.number().int().positive().default(12),
-
-  // Google OAuth Configuration (optional - only required when using OAuth)
-  GOOGLE_CLIENT_ID: z
-    .string()
-    .optional()
-    .describe("Google OAuth client ID for authentication"),
-  GOOGLE_CLIENT_SECRET: z
-    .string()
-    .optional()
-    .describe("Google OAuth client secret for authentication"),
 });
 
 /**

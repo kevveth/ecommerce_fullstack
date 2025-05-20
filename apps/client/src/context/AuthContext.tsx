@@ -2,21 +2,29 @@
  * AuthContext provides authentication state and actions to the application.
  * Enhanced with TanStack Query for improved data fetching and state management.
  */
-import { createContext, useContext, useState, ReactNode, useMemo } from "react";
-import { useNavigate } from "react-router";
-import { useQuery, useMutation, QueryClient } from "@tanstack/react-query";
-import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
-import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
+import { createContext, useContext, useState, ReactNode, useMemo } from "react"; // Added ReactNode, useMemo, useState, useContext, createContext
+import { useNavigate } from "react-router"; // Added useNavigate
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as authService from "./authService";
+import type { User as SharedUser, LoginInput } from "@ecommerce/shared";
+import axios, { AxiosError } from "axios"; // Added AxiosError import
 
 /**
- * Represents the authenticated user.
+ * Represents the authenticated user, mapping from SharedUser.
  */
-export interface AuthUser {
-  user_id?: number;
-  username: string;
-  email: string;
-  role: string;
+export interface AuthUser
+  extends Omit<
+    SharedUser,
+    | "password_hash"
+    | "google_id"
+    | "street_address"
+    | "city"
+    | "state"
+    | "zip_code"
+    | "country"
+  > {
+  // We generally don't need password_hash or google_id on the client for AuthUser
+  // Address fields can be added if specifically needed for display in auth-related contexts
 }
 
 /**
@@ -25,13 +33,16 @@ export interface AuthUser {
 interface AuthContextType {
   user: AuthUser | null;
   isAuthenticated: boolean;
-  isLoading: boolean;
-  error: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  loginWithGoogle: () => void;
+  isLoading: boolean; // Combined loading state
+  loginError: string | null; // Specific error for login
+  logoutError: string | null; // Specific error for logout
+  userFetchError: string | null; // Specific error for user fetching
+  login: (credentials: LoginInput) => Promise<void>;
   logout: () => Promise<void>;
-  refreshToken: () => Promise<boolean>;
-  clearError: () => void;
+  handleAuthCallback: (token: string) => Promise<void>; // Added for OAuth callback
+  clearLoginError: () => void;
+  clearLogoutError: () => void;
+  clearUserFetchError: () => void;
 }
 
 // Create the auth context
@@ -54,198 +65,234 @@ export const useAuth = () => {
  */
 interface AuthProviderProps {
   children: ReactNode;
-  queryClient: QueryClient;
 }
 
-// Create a storage persister
-const localStoragePersister = createSyncStoragePersister({
-  storage: window.localStorage,
-  key: "auth-cache", // key in localStorage where cache will be stored
-});
+export const authUserQueryKey = ["auth", "user"];
 
 /**
  * AuthProvider component that manages authentication state using TanStack Query.
  */
-export const AuthProvider = ({ children, queryClient }: AuthProviderProps) => {
-  // Local state for error handling
-  const [error, setError] = useState<string | null>(null);
+export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [logoutError, setLogoutError] = useState<string | null>(null);
+  // userFetchError is derived from userQuery.error
+  const [callbackError, setCallbackError] = useState<string | null>(null); // Added for callback errors
+
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  // Clear error helper function
-  const clearError = () => setError(null);
+  const clearLoginError = () => setLoginError(null);
+  const clearLogoutError = () => setLogoutError(null);
+  const clearCallbackError = () => setCallbackError(null); // Added
+  const clearUserFetchError = () =>
+    queryClient.resetQueries({ queryKey: authUserQueryKey });
 
-  /**
-   * Main authentication query - fetches user data if authenticated
-   */
-  const userQuery = useQuery({
-    queryKey: ["auth", "user"],
+  const userQuery = useQuery<AuthUser | null, Error>({
+    queryKey: authUserQueryKey,
     queryFn: async () => {
-      try {
-        // Only attempt refresh if we have cookies
-        if (document.cookie.length === 0) {
-          return null;
-        }
+      const memoryToken = authService.getAuthToken();
+      const cookieExists = document.cookie.includes("jwt"); // Ensure this matches your cookie name
 
-        // Check for existing token first
-        const token = authService.getAuthToken();
-        const refreshNeeded = !token;
-
-        // Only refresh if we don't have a token
-        if (refreshNeeded) {
-          const refreshResult = await authService.refreshAuthToken();
-          if (!refreshResult?.accessToken) return null;
-        }
-
-        // Fetch user data with current token
-        const userResponse = await authService.getCurrentUser("me");
-        if (userResponse?.user) {
-          return {
-            user_id: userResponse.user.user_id,
-            username: userResponse.user.username,
-            email: userResponse.user.email,
-            role: userResponse.user.role,
-          };
-        }
+      if (!memoryToken && !cookieExists) {
         return null;
-      } catch (error) {
-        console.error("Auth query error:", error);
+      }
+
+      try {
+        console.log(
+          "[AuthContext] Attempting to fetch authenticated user profile..."
+        );
+        const { user: sharedUser } =
+          await authService.getAuthenticatedUserProfile();
+        const authUser: AuthUser = {
+          user_id: sharedUser.user_id,
+          username: sharedUser.username,
+          email: sharedUser.email,
+          role: sharedUser.role,
+        };
+        console.log(
+          "[AuthContext] User profile fetched successfully:",
+          authUser
+        );
+        return authUser;
+      } catch (err) {
+        console.error("[AuthContext] Error fetching user profile:", err);
         return null;
       }
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 24 * 60 * 60 * 1000, // 24 hours - important for persistence
-    refetchOnWindowFocus: false,
-    retry: false,
+    gcTime: 15 * 60 * 1000, // 15 minutes (reduced from 24h as staleTime is shorter)
+    refetchOnWindowFocus: true, // Re-check auth status on window focus
+    refetchOnMount: true, // Ensure it refetches when AuthProvider mounts if stale
+    retry: (failureCount, error) => {
+      if (error && typeof error === "object") {
+        const axiosError = error as AxiosError;
+        if (axiosError.isAxiosError && axiosError.response) {
+          if (
+            axiosError.response.status === 401 ||
+            axiosError.response.status === 403
+          ) {
+            console.log(
+              `[AuthContext] User query: Not retrying due to ${axiosError.response.status}`
+            );
+            return false; // Do not retry on 401 (Unauthorized) or 403 (Forbidden)
+          }
+        }
+      }
+      return failureCount < 2; // Retry other errors up to 2 times
+    },
   });
 
-  /**
-   * Login mutation
-   */
   const loginMutation = useMutation({
-    mutationFn: ({ email, password }: { email: string; password: string }) => {
-      return authService.login({ email, password });
-    },
+    mutationFn: authService.login,
     onSuccess: (data) => {
-      if (data.user) {
-        // Update user data directly and invalidate dependent queries
-        queryClient.setQueryData(["auth", "user"], {
+      // data is AuthResponse from authService.login
+      if (data.user && data.accessToken) {
+        // authService.login already sets the token.
+        // Transform SharedUser to AuthUser for the query cache
+        const authUser: AuthUser = {
           user_id: data.user.user_id,
           username: data.user.username,
           email: data.user.email,
           role: data.user.role,
-        });
-        queryClient.invalidateQueries({ queryKey: ["user"] });
+        };
+        queryClient.setQueryData(authUserQueryKey, authUser);
+        setLoginError(null);
+        console.log("[AuthContext] Login successful, navigating to home.");
+        navigate("/");
+      } else {
+        // This case should ideally be caught by authService.login's validation
+        console.error(
+          "[AuthContext] Login successful but user data or token missing in response."
+        );
+        setLoginError("Login failed: Incomplete data from server.");
+        authService.removeAuthToken(); // Ensure token is cleared
+        queryClient.setQueryData(authUserQueryKey, null);
       }
     },
-    onError: (error) => {
-      setError(error instanceof Error ? error.message : "Failed to login");
+    onError: (err: Error) => {
+      console.error("[AuthContext] Login mutation error RAW:", err); // Log the raw error
+      console.error("[AuthContext] Login mutation error NAME:", err.name);
+      console.error("[AuthContext] Login mutation error MESSAGE:", err.message);
+      console.error("[AuthContext] Login mutation error STACK:", err.stack);
+      setLoginError(
+        err.message || "Login failed. Please check your credentials."
+      );
+      // authService.login already calls removeAuthToken on error.
+      queryClient.setQueryData(authUserQueryKey, null);
     },
   });
 
-  /**
-   * Logout mutation
-   */
   const logoutMutation = useMutation({
     mutationFn: authService.logout,
     onSuccess: () => {
-      // Clear auth data
-      authService.removeAuthToken();
-      queryClient.setQueryData(["auth", "user"], null);
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+      // authService.logout handles token removal.
+      queryClient.setQueryData(authUserQueryKey, null);
+      // Optionally, clear other persisted queries or redirect.
+      // queryClient.clear(); // Clears all queries, might be too aggressive.
+      // Consider more targeted invalidations if needed.
+      setLogoutError(null);
+      console.log("[AuthContext] Logout successful, navigating to login.");
       navigate("/login");
     },
-    onError: () => {
-      // Force logout even on error
+    onError: (err: Error) => {
+      console.error("[AuthContext] Logout mutation error:", err);
+      setLogoutError(err.message || "Logout failed. Please try again.");
+      // Even on logout error, ensure client state is cleared as a precaution
       authService.removeAuthToken();
-      queryClient.setQueryData(["auth", "user"], null);
-      navigate("/login");
+      queryClient.setQueryData(authUserQueryKey, null);
+      navigate("/login"); // Still navigate to login
     },
   });
 
-  /**
-   * Token refresh mutation
-   */
-  const refreshTokenMutation = useMutation({
-    mutationFn: authService.refreshAuthToken,
-    onSuccess: (data) => {
-      // Only invalidate queries if we successfully received a token
-      if (data?.accessToken) {
-        queryClient.invalidateQueries({ queryKey: ["auth", "user"] });
-        return true;
+  // Added handleAuthCallback mutation/logic
+  const handleAuthCallbackMutation = useMutation({
+    mutationFn: async (token: string) => {
+      authService.setAuthToken(token);
+      // After setting the token, we need to trigger a user profile fetch.
+      // Invalidating the query will cause useQuery to refetch.
+      await queryClient.invalidateQueries({ queryKey: authUserQueryKey });
+      // Ensure the fetch is complete before navigating or assuming success.
+      const user = await queryClient.getQueryData(authUserQueryKey);
+      if (!user) {
+        // If after refetch, user is still null, it means token was invalid or user fetch failed.
+        throw new Error("Failed to fetch user profile after auth callback.");
       }
-      return false;
+    },
+    onSuccess: () => {
+      setCallbackError(null);
+      console.log(
+        "[AuthContext] Auth callback processed successfully, navigating to home."
+      );
+      navigate("/"); // Or to a stored redirect path
+    },
+    onError: (err: Error) => {
+      console.error("[AuthContext] Auth callback error:", err);
+      setCallbackError(
+        err.message || "Authentication callback failed. Please try again."
+      );
+      authService.removeAuthToken();
+      queryClient.setQueryData(authUserQueryKey, null);
+      navigate("/login"); // Redirect to login on callback failure
     },
   });
 
-  // Derive auth state from query data
-  // Ensure user is AuthUser | null, not undefined
-  const user = userQuery.data ?? null;
-  const isAuthenticated = !!user;
-  const isLoading = userQuery.isLoading;
+  const authContextValue = useMemo(
+    () => {
+      const userFromQuery = userQuery.data || null;
+      const tokenInMemory = authService.getAuthToken();
+      const calculatedIsAuthenticated = !!userFromQuery && !!tokenInMemory;
 
-  // Auth methods
-  const login = async (email: string, password: string) => {
-    await loginMutation.mutateAsync({ email, password });
-  };
-
-  const loginWithGoogle = () => {
-    console.info("Google login flow initiated");
-    // Implementation would go here
-  };
-
-  const logout = async () => {
-    await logoutMutation.mutateAsync();
-  };
-
-  const refreshToken = async () => {
-    const result = await refreshTokenMutation.mutateAsync();
-    return !!result?.accessToken;
-  };
-
-  // Create context value
-  const value: AuthContextType = useMemo(
-    () => ({
-      user,
-      isAuthenticated,
-      isLoading,
-      error,
-      login,
-      loginWithGoogle,
-      logout,
-      refreshToken,
-      clearError,
-    }),
-    [user, isLoading, error, isAuthenticated]
+      return {
+        user: userFromQuery,
+        isAuthenticated: calculatedIsAuthenticated,
+        isLoading:
+          userQuery.isLoading ||
+          loginMutation.isPending ||
+          logoutMutation.isPending ||
+          handleAuthCallbackMutation.isPending, // Added callback pending state
+        loginError,
+        logoutError,
+        userFetchError: userQuery.error?.message || null,
+        callbackError, // Added callback error
+        login: async (credentials: LoginInput) => {
+          clearLoginError();
+          await loginMutation.mutateAsync(credentials);
+        },
+        logout: async () => {
+          clearLogoutError();
+          await logoutMutation.mutateAsync();
+        },
+        handleAuthCallback: async (token: string) => {
+          clearCallbackError();
+          await handleAuthCallbackMutation.mutateAsync(token);
+        },
+        clearLoginError,
+        clearLogoutError,
+        clearUserFetchError,
+        clearCallbackError, // Added
+      };
+    },
+    [
+      userQuery.data,
+      userQuery.isLoading, // Added isLoading to dependencies
+      userQuery.isError, // Added isError to dependencies
+      userQuery.error,
+      loginMutation.isPending,
+      logoutMutation.isPending,
+      handleAuthCallbackMutation.isPending, // Added
+      loginError,
+      logoutError,
+      userQuery.error?.message, // For userFetchError
+      callbackError, // Added
+      queryClient,
+      navigate,
+    ]
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
-/**
- * Wrapper component that combines AuthProvider with PersistQueryClientProvider.
- */
-interface PersistAuthProviderProps {
-  children: ReactNode;
-  queryClient: QueryClient;
-}
-
-export const PersistAuthProvider = ({
-  children,
-  queryClient,
-}: PersistAuthProviderProps) => {
   return (
-    <PersistQueryClientProvider
-      client={queryClient}
-      persistOptions={{
-        persister: localStoragePersister,
-        maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      }}
-      onSuccess={() => {
-        console.info("Successfully restored auth state");
-      }}
-    >
-      <AuthProvider queryClient={queryClient}>{children}</AuthProvider>
-    </PersistQueryClientProvider>
+    <AuthContext.Provider value={authContextValue}>
+      {children}
+    </AuthContext.Provider>
   );
 };
 

@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { LoginForm } from "./LoginForm";
-import { useNavigate, useLocation, Link } from "react-router";
+import { useLocation, Link, Navigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 import styles from "./styles.module.css";
 import { LoginInput } from "../../../../../packages/shared/dist/esm/schemas";
@@ -12,69 +12,49 @@ const ROUTE_STORAGE_KEY = "last-route";
  * appropriately based on authentication status.
  */
 const Login = () => {
-  const {
-    login,
-    loginWithGoogle,
-    error: authError,
-    clearError,
-    isAuthenticated,
-  } = useAuth();
-  const navigate = useNavigate();
+  // Use loginError from useAuth() for login-specific errors
+  const { login, loginError, isAuthenticated } = useAuth();
   const location = useLocation();
 
-  const [loginError, setLoginError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Extract redirect information from location state
   const fromLocation = location.state?.from;
   const redirectPath =
     fromLocation?.pathname || localStorage.getItem(ROUTE_STORAGE_KEY) || "/";
   const redirectMessage = location.state?.message || null;
 
-  // Set the redirect message if it exists
-  useEffect(() => {
-    if (redirectMessage) {
-      setLoginError(redirectMessage);
-    }
-
-    return () => {
-      clearError();
-    };
-  }, [redirectMessage, clearError]);
-
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate(redirectPath, { replace: true });
-    }
-  }, [isAuthenticated, navigate, redirectPath]);
+  // Declarative redirect if already authenticated
+  if (isAuthenticated) {
+    return <Navigate to={redirectPath} replace />;
+  }
 
   const handleLoginSubmit = async (data: LoginInput) => {
+    // AuthContext's login function (loginMutation) already calls clearLoginError.
+    setIsSubmitting(true);
     try {
-      setLoginError(null);
-      setIsSubmitting(true);
-
-      await login(data.email, data.password);
-
-      // The redirect will happen automatically in the effect hook
-      // when isAuthenticated becomes true
+      await login(data);
+      // On successful login, AuthContext's onSuccess navigates.
     } catch (err) {
-      // Set login error from auth context or fallback error
-      setLoginError(authError || "Failed to login. Please try again.");
+      // Errors are set in AuthContext by the loginMutation's onError handler.
+      // This catch block in Login.tsx will also catch the error thrown by await login(data).
+      // We primarily rely on loginError from AuthContext to display the error.
+      console.error("Login attempt failed in Login.tsx catch block:", err);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleGoogleLogin = () => {
-    setLoginError(null);
-    loginWithGoogle();
-  };
-
   return (
     <>
       <h1 className={styles.loginTitle}>Login</h1>
-      {loginError && <div className="error-message">{loginError}</div>}
+      {/* Display redirectMessage if it exists */}
+      {redirectMessage && (
+        <div className="info-message">{redirectMessage}</div>
+      )}
+      {/* Display loginError from context */}
+      {loginError && (
+        <div className="error-message">{loginError}</div>
+      )}
       {isSubmitting ? (
         <div className="spinner">Logging in...</div>
       ) : (
@@ -83,12 +63,6 @@ const Login = () => {
 
           <div className={styles.divider}>
             <span>OR</span>
-          </div>
-
-          <div className={styles.socialLogin}>
-            <button className={styles.googleButton} onClick={handleGoogleLogin}>
-              Sign in with Google (Mocked)
-            </button>
           </div>
         </>
       )}

@@ -1,20 +1,27 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router"; // Updated to use react-router (v7)
+import { BrowserRouter } from "react-router";
 import "./index.css";
 import App from "./App";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query"; // QueryClientProvider removed as PersistQueryClientProvider is used
 import { SnackbarProvider } from "notistack";
-import { PersistAuthProvider } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthContext";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 
-// Enhanced QueryClient configuration with improved garbage collection for persistence
+// Create a persister
+const localStoragePersister = createSyncStoragePersister({
+  storage: window.localStorage,
+  key: "ecommerce-app-query-cache",
+});
+
+// Enhanced QueryClient configuration
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 24 * 60 * 60 * 1000, // 24 hours - important for persistence
+      gcTime: 24 * 60 * 60 * 1000, // 24 hours
       retry: (failureCount, error: any) => {
-        // Don't retry auth errors
         if (
           error?.response?.status === 401 ||
           error?.response?.status === 403
@@ -30,13 +37,16 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
-      <QueryClientProvider client={queryClient}>
+      <PersistQueryClientProvider
+        client={queryClient}
+        persistOptions={{ persister: localStoragePersister }}
+      >
         <SnackbarProvider>
-          <PersistAuthProvider queryClient={queryClient}>
+          <AuthProvider>
             <App />
-          </PersistAuthProvider>
+          </AuthProvider>
         </SnackbarProvider>
-      </QueryClientProvider>
+      </PersistQueryClientProvider>
     </BrowserRouter>
   </StrictMode>
 );

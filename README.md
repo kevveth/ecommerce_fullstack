@@ -33,7 +33,6 @@ This is my first substantial full-stack application, developed to strengthen my 
   - Jose: Modern JavaScript library for JSON Object Signing and Encryption (JOSE) standards for JWT handling.
   - JWT: Secure token-based authentication with short-lived access tokens and HTTP-only refresh tokens.
   - bcrypt: For secure password hashing with configurable salt rounds.
-  - Passport: For handling Google OAuth authentication flow.
   - Role-based access control: Different permissions for regular users and administrators.
 - **Validation & Type Safety:**
   - Zod v4: For schema validation with enhanced error formatting using z.prettifyError.
@@ -59,7 +58,6 @@ ecommerce_fullstack/
 - **Product Browsing:** Browse and search for coffee products with detailed information.
 - **User Authentication:**
   - Secure user registration and login with email/password
-  - Google OAuth integration for social login
   - JWT-based authentication with access and refresh tokens
   - Automatic token refresh using HTTP-only cookies
   - Role-based authorization for protected routes
@@ -106,8 +104,6 @@ ecommerce_fullstack/
      DATABASE_URL=postgresql://username:password@localhost:5432/ecommerce
      JWT_SECRET=your_jwt_secret
      JWT_REFRESH_SECRET=your_jwt_refresh_secret
-     GOOGLE_CLIENT_ID=your_google_client_id
-     GOOGLE_CLIENT_SECRET=your_google_client_secret
      CLIENT_URL=http://localhost:5173
      ```
    - Required variables for client:

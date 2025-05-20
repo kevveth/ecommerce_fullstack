@@ -8,8 +8,7 @@ CREATE TABLE IF NOT EXISTS "users" (
   "state" varchar(255),
   "zip_code" varchar(20),
   "country" varchar(255),
-  "role" varchar(255) NOT NULL DEFAULT 'user',
-  "google_id" varchar(255) UNIQUE
+  "role" varchar(255) NOT NULL DEFAULT 'user'
 );
 
 CREATE TABLE IF NOT EXISTS "products" (

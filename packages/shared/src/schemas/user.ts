@@ -32,14 +32,14 @@ export const userSchema = z.object({
   email: z.email({
     message: "Invalid email format",
   }),
-  password_hash: z.string().nullable(), // Changed to nullable to support OAuth users
+  password_hash: z.string().nullable(), // Ensure password_hash can be null
+  google_id: z.string().nullish(), // Added google_id
   street_address: z.string().nullish(),
   city: z.string().nullish(),
   state: z.string().nullish(),
   zip_code: z.string().nullish(),
   country: z.string().nullish(),
   role: RoleSchema,
-  google_id: z.string().nullish(), // Added google_id for OAuth authentication
 });
 export type User = z.infer<typeof userSchema>;
 

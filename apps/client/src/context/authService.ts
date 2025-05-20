@@ -7,7 +7,8 @@ import createAuthRefreshInterceptor from "axios-auth-refresh";
 import {
   type LoginInput,
   userSchema,
-} from "../../../../packages/shared/dist/esm/schemas";
+  User as SharedUser,
+} from "@ecommerce/shared/schemas"; // Added SharedUser
 import { z } from "zod";
 
 /**
@@ -15,8 +16,8 @@ import { z } from "zod";
  */
 const AuthResponseSchema = z.object({
   accessToken: z.string(),
-  tokenType: z.string().optional(),
-  user: userSchema.optional(),
+  tokenType: z.string().optional().default("Bearer"), // Added default
+  user: userSchema.optional(), // User can be optional if only token is returned (e.g. refresh)
 });
 
 type AuthResponse = z.infer<typeof AuthResponseSchema>;
@@ -33,7 +34,7 @@ const api: AxiosInstance = axios.create({
 /**
  * Stores the authentication token in memory.
  */
-let authToken: string | null = null;
+let authToken: string | null = null; // Initialize authToken as null
 
 /**
  * Sets the authentication token in memory.
@@ -44,10 +45,17 @@ export function setAuthToken(token: string | null): void {
 }
 
 /**
- * Retrieves the authentication token from memory.
+ * Retrieves the authentication token from memory (which is initialized from localStorage).
  * @returns The authentication token or null if not set.
  */
 export function getAuthToken(): string | null {
+  // Re-check localStorage in case it was modified by another tab/window
+  // if (typeof window !== "undefined") { // Removed localStorage interaction
+  //   const storedToken = window.localStorage.getItem(AUTH_TOKEN_KEY);
+  //   if (authToken !== storedToken) {
+  //     authToken = storedToken;
+  //   }
+  // }
   return authToken;
 }
 
@@ -74,81 +82,82 @@ api.interceptors.request.use((config) => {
  */
 const refreshAuthLogic = async (failedRequest: AxiosError) => {
   try {
-    // Use the configured api instance instead of global axios
-    const response = await api.post<{
-      accessToken: string;
-      tokenType?: string;
-    }>(
-      "/auth/refresh-token", // This path is relative to baseURL which is already set to '/api'
-      {},
-      { withCredentials: true }
-    );
-
-    const parsedResult = AuthResponseSchema.safeParse(response.data);
-    if (!parsedResult.success) {
-      console.error(
-        "Invalid refresh token response:",
-        z.prettifyError(parsedResult.error)
-      );
-      throw new Error("Invalid server response format");
-    }
-
-    const { accessToken } = parsedResult.data;
-    setAuthToken(accessToken);
-
-    // Update the Authorization header on the original request's config.
-    // axios-auth-refresh uses failedRequest.config to retry the request.
-    // The 'config' property on AxiosError (failedRequest.config) is of type InternalAxiosRequestConfig | undefined.
-    // The 'headers' property on InternalAxiosRequestConfig is non-optional.
-    if (failedRequest.config) {
-      failedRequest.config.headers["Authorization"] = `Bearer ${accessToken}`;
-    }
-    // If failedRequest.config is undefined, the library might not be able to retry the request.
-    // This scenario is unlikely for a typical API request that would trigger a 401 error.
-
-    return Promise.resolve();
-  } catch (error) {
-    setAuthToken(null);
-    return Promise.reject(error);
-  }
-};
-
-createAuthRefreshInterceptor(api, refreshAuthLogic, {
-  statusCodes: [401],
-  pauseInstanceWhileRefreshing: true,
-});
-
-/**
- * Explicitly refreshes the authentication token.
- * This function can be called directly when needed to refresh the token.
- *
- * @returns A promise resolving to an object containing the new access token, or null if refresh failed
- */
-export const refreshAuthToken = async (): Promise<{
-  accessToken: string;
-} | null> => {
-  try {
+    console.log("[AuthService.refreshAuthLogic] Attempting token refresh...");
     const response = await api.post<{
       accessToken: string;
       tokenType?: string;
     }>("/auth/refresh-token", {}, { withCredentials: true });
 
-    const parsedResult = AuthResponseSchema.safeParse(response.data);
+    // Use a simpler schema for refresh response as user data is not expected
+    const RefreshTokenResponseSchema = z.object({
+      accessToken: z.string(),
+      tokenType: z.string().optional().default("Bearer"),
+    });
+
+    const parsedResult = RefreshTokenResponseSchema.safeParse(response.data);
     if (!parsedResult.success) {
       console.error(
-        "Invalid refresh token response:",
+        "[AuthService.refreshAuthLogic] Invalid refresh token response:",
         z.prettifyError(parsedResult.error)
       );
-      return null;
+      removeAuthToken(); // Ensure token is cleared on failed refresh parse
+      return Promise.reject(
+        new Error("Invalid server response format during token refresh.")
+      );
     }
 
     const { accessToken } = parsedResult.data;
     setAuthToken(accessToken);
-    return { accessToken };
+
+    if (failedRequest.config?.headers) {
+      failedRequest.config.headers["Authorization"] = `Bearer ${accessToken}`;
+    }
+    return Promise.resolve();
   } catch (error) {
-    console.error("Token refresh failed:", error);
-    setAuthToken(null);
-    return null;
+    console.error("[AuthService.refreshAuthLogic] Token refresh failed:", error);
+    removeAuthToken(); // Clear token on any refresh error
+    // IMPORTANT: Navigate to login or notify user
+    // For now, just reject to let the original call fail.
+    // Consider dispatching a global event or using a callback to trigger navigation.
+    return Promise.reject(error);
+  }
+};
+
+createAuthRefreshInterceptor(api, refreshAuthLogic, {
+  statusCodes: [401], // Intercept 401 Unauthorized
+  pauseInstanceWhileRefreshing: true,
+});
+
+/**
+ * Fetches the current authenticated user's profile.
+ * This function is intended to be used by the AuthContext.
+ * @returns A promise that resolves to an object containing the authenticated user data.
+ */
+export const getAuthenticatedUserProfile = async (): Promise<{
+  user: SharedUser;
+}> => {
+  try {
+    // The server route /api/users/me should return { user: UserData }
+    const response = await api.get<{ user: unknown }>("/users/me");
+    const parsedResult = userSchema.safeParse(response.data.user);
+
+    if (!parsedResult.success) {
+      console.error(
+        "[AuthService] Invalid user data from /users/me:",
+        z.prettifyError(parsedResult.error)
+      );
+      throw new Error("Invalid user data received from server.");
+    }
+    return { user: parsedResult.data };
+  } catch (error) {
+    console.error(
+      "[AuthService] Failed to fetch authenticated user profile:",
+      error
+    );
+    // If it's a 401, axios-auth-refresh should handle it.
+    // If refresh fails, it will throw, and TanStack Query will handle the error.
+    // No need to call removeAuthToken() here as refreshAuthLogic or query error handling will manage it.
+    throw error; // Re-throw to be caught by TanStack Query
   }
 };
 
@@ -160,76 +169,40 @@ export const refreshAuthToken = async (): Promise<{
 export const login = async (credentials: LoginInput): Promise<AuthResponse> => {
   try {
     const response = await api.post<unknown>("/auth/login", credentials);
+    // The server /api/auth/login is expected to return { accessToken: string, tokenType: string, user: UserData }
+    const parsedResult = AuthResponseSchema.safeParse(response.data);
 
-    // Create a normalized response that matches our schema
-    interface ServerLoginResponse {
-      accessToken: string;
-      tokenType?: string;
-      user?: {
-        id?: number;
-        user_id?: number;
-        username: string;
-        email: string;
-        role: string;
-        password_hash?: string | null;
-        [key: string]: unknown;
-      };
-    }
-
-    let normalizedData: {
-      accessToken: string;
-      tokenType?: string;
-      user?: {
-        user_id?: number;
-        username?: string;
-        email?: string;
-        role?: string;
-        password_hash: string | null;
-        [key: string]: unknown;
-      };
-    } = {
-      accessToken: "",
-      tokenType: "Bearer",
-    };
-
-    if (response.data && typeof response.data === "object") {
-      // Extract the main fields we expect
-      const responseData = response.data as ServerLoginResponse;
-
-      normalizedData = {
-        accessToken: responseData.accessToken,
-        tokenType: responseData.tokenType || "Bearer",
-      };
-
-      // Handle the user object if it exists
-      if (responseData.user) {
-        normalizedData.user = {
-          ...responseData.user,
-          // Ensure password_hash is null if undefined (to match our schema)
-          password_hash: responseData.user.password_hash || null,
-          // Normalize the id field if necessary
-          user_id: responseData.user.id || responseData.user.user_id,
-        };
-      }
-    }
-
-    // Now validate with our schema
-    const parsedResult = AuthResponseSchema.safeParse(normalizedData);
     if (!parsedResult.success) {
       console.error(
-        "Invalid login response:",
+        "[AuthService] Invalid login response:",
         z.prettifyError(parsedResult.error)
       );
-      throw new Error("Invalid server response format");
+      removeAuthToken();
+      throw new Error("Login failed: Invalid response from server.");
     }
 
-    const { accessToken } = parsedResult.data;
-    setAuthToken(accessToken);
+    const { accessToken, user, tokenType } = parsedResult.data; // Ensure tokenType is destructured
+    if (!accessToken || !user || !tokenType) {
+      // Ensure tokenType is checked
+      console.error(
+        "[AuthService] Login response missing accessToken, user data, or tokenType."
+      );
+      removeAuthToken();
+      throw new Error("Login failed: Incomplete data from server.");
+    }
 
-    return parsedResult.data;
+    setAuthToken(accessToken);
+    return { accessToken, user, tokenType }; // Return the full parsed and validated data
   } catch (error) {
-    console.error("Login error:", error);
-    throw error;
+    console.error("[AuthService] Login request failed:", error);
+    removeAuthToken(); // Ensure token is cleared on login failure
+    if (axios.isAxiosError(error) && error.response) {
+      // Forward server error message if available
+      const serverMessage =
+        error.response.data?.message || "Invalid email or password.";
+      throw new Error(serverMessage);
+    }
+    throw new Error("Login failed. Please try again.");
   }
 };
 
@@ -239,122 +212,21 @@ export const login = async (credentials: LoginInput): Promise<AuthResponse> => {
  */
 export const logout = async (): Promise<void> => {
   try {
+    // Call the server's logout endpoint to invalidate the refresh token server-side
     await api.post("/auth/logout");
-    setAuthToken(null);
+    console.log("[AuthService] Logout successful on server.");
   } catch (error) {
-    console.error("Logout error:", error);
-    setAuthToken(null);
+    // Log the error but proceed with client-side cleanup
+    console.error(
+      "[AuthService] Server logout failed, proceeding with client cleanup:",
+      error
+    );
+  } finally {
+    // Always remove the token and clear client-side state
+    removeAuthToken();
+    // Query invalidation/reset will be handled in AuthContext
   }
 };
 
-/**
- * Fetches the current user's profile data.
- * @param username - The username of the user or "me" for the current user.
- * @returns A promise that resolves to the user's data.
- */
-export const getCurrentUser = async (
-  username: string
-): Promise<AuthResponse> => {
-  try {
-    // If username is "me", use the /users/me endpoint explicitly
-    const endpoint = username === "me" ? "/users/me" : `/users/${username}`;
-
-    // Make the request with the current auth token
-    const response = await api.get<unknown>(endpoint);
-
-    // Define interfaces for the different response formats
-    interface UserData {
-      user_id?: number;
-      id?: number;
-      username?: string;
-      email?: string;
-      role?: string;
-      password_hash?: string | null;
-      [key: string]: unknown;
-    }
-
-    interface UserResponse {
-      user?: UserData;
-      data?: UserData;
-      accessToken?: string;
-    }
-
-    // Create a normalized response that matches our schema
-    let userData: {
-      accessToken: string;
-      user?: {
-        user_id?: number;
-        username?: string;
-        email?: string;
-        role?: string;
-        password_hash: string | null;
-        [key: string]: unknown;
-      };
-    } = {
-      accessToken: getAuthToken() || "",
-    };
-
-    if (response.data && typeof response.data === "object") {
-      const responseData = response.data as UserResponse;
-
-      // Handle the standard user response format
-      if ("user" in responseData && responseData.user) {
-        userData = {
-          accessToken: getAuthToken() || "",
-          user: {
-            ...responseData.user,
-            // Ensure password_hash is null if undefined (to match our schema)
-            password_hash: responseData.user.password_hash || null,
-            // Normalize the id field if necessary
-            user_id: responseData.user.id || responseData.user.user_id,
-          },
-        };
-      }
-      // Handle data format from other endpoints
-      else if ("data" in responseData && responseData.data) {
-        userData = {
-          accessToken: getAuthToken() || "",
-          user: {
-            ...responseData.data,
-            password_hash: responseData.data.password_hash || null,
-            user_id: responseData.data.id || responseData.data.user_id,
-          },
-        };
-      }
-      // If response already has accessToken and user fields
-      else if (
-        "accessToken" in responseData &&
-        "user" in responseData &&
-        responseData.user
-      ) {
-        userData = {
-          accessToken: responseData.accessToken || getAuthToken() || "",
-          user: {
-            ...responseData.user,
-            password_hash: responseData.user.password_hash || null,
-            user_id: responseData.user.id || responseData.user.user_id,
-          },
-        };
-      }
-    }
-
-    // Now validate with our schema
-    const parsedResult = AuthResponseSchema.safeParse(userData);
-    if (!parsedResult.success) {
-      console.error(
-        "Invalid user data format:",
-        z.prettifyError(parsedResult.error)
-      );
-      throw new Error("Invalid server response format");
-    }
-
-    return parsedResult.data;
-  } catch (error) {
-    console.error("Error fetching user data:", error);
-    throw error;
-  }
-};
-
-export { api };
-
+// Default export of the configured axios instance
 export default api;

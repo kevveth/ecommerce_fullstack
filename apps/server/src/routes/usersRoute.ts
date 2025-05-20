@@ -9,8 +9,9 @@ import {
   deleteUser,
   getAllUsers,
   getUser,
-  getUserByUsername,
-  updateUser,
+  getUserByUsername, // Corrected from getUserProfile
+  updateUser, // Corrected from updateUserProfile
+  getCurrentUserProfile,
 } from "../controller/usersController";
 import { validateSchema } from "../validation/user.validation"; // Replaced validateUpdateData with validateSchema
 import { authenticate, isAuthenticated } from "../middleware/verifyJWT";
@@ -77,11 +78,15 @@ router.get(
   }
 );
 
+// Route to get the current authenticated user's profile
+router.get("/me", authenticate, getCurrentUserProfile);
+
 // Explicitly cast the handlers to RequestHandler type to resolve overload issues
 router.get("/", getAllUsers as RequestHandler);
 router.get("/:username", getUserByUsername as RequestHandler);
 router.put(
-  "/:id",
+  "/me", // Changed from "/:id" to "/me"
+  authenticate, // Added authentication
   validateSchema(profileUpdateSchema),
   updateUser as RequestHandler
 );

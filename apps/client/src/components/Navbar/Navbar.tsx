@@ -4,23 +4,21 @@ import styles from "./styles.module.css";
 import { useState } from "react";
 
 /**
- * Navbar component displays navigation links based on authentication state.
- * - Shows Profile and Logout if authenticated.
- * - Shows Login if not authenticated.
- * - Home and public links are always visible.
+ * Renders the navigation bar.
+ * @returns The Navbar component.
  */
-export const Navbar = () => {
-  const { isAuthenticated, logout, user } = useAuth();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+export function Navbar() {
+  const { user, logout } = useAuth();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Toggle mobile menu open/close
   const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
+    setIsDropdownOpen(!isDropdownOpen);
   };
 
   // Close mobile menu (used on link click)
   const closeMobileMenu = () => {
-    setMobileMenuOpen(false);
+    setIsDropdownOpen(false);
   };
 
   // Helper to check if a route is active
@@ -42,11 +40,11 @@ export const Navbar = () => {
           onClick={toggleMobileMenu}
           aria-label="Toggle navigation menu"
         >
-          {mobileMenuOpen ? "✕" : "☰"}
+          {isDropdownOpen ? "✕" : "☰"}
         </button>
 
         <ul
-          className={`${styles.navList} ${mobileMenuOpen ? styles.open : ""}`}
+          className={`${styles.navList} ${isDropdownOpen ? styles.open : ""}`}
         >
           {/* Home is always visible */}
           <li className={styles.navItem}>
@@ -62,7 +60,7 @@ export const Navbar = () => {
           </li>
 
           {/* Profile link: only if authenticated and username exists */}
-          {isAuthenticated && user?.username && (
+          {user?.username && (
             <li className={styles.navItem}>
               <Link
                 to={`/profiles/${user.username}`}
@@ -93,7 +91,7 @@ export const Navbar = () => {
 
           {/* Auth button: Login if not authenticated, Logout if authenticated */}
           <li className={styles.navItem}>
-            {isAuthenticated ? (
+            {user ? (
               <button
                 onClick={() => {
                   logout();
@@ -119,4 +117,4 @@ export const Navbar = () => {
       </div>
     </nav>
   );
-};
+}

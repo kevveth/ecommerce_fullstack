@@ -77,12 +77,13 @@ export async function getAllUsers(req: Request, res: Response) {
     const result = await getAll();
 
     if (!result || result.length === 0) {
-      return res.status(200).json({ data: [], message: "No users found" });
+      // Consider returning a 404 or an empty array based on API design
+      return res.status(404).json({ message: "No users found" });
     }
 
     // Parse all users with better error handling
     const users = result.map((user) => userSchema.parse(user));
-    res.status(200).json({ data: users });
+    res.status(200).json({ users: users }); // Changed data to users
   } catch (error) {
     console.error("Error fetching all users:", error);
     res.status(500).json({ message: "Failed to fetch users" });
@@ -96,21 +97,17 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
     const result = await getWithId(id);
 
     if (!result) {
-      throw new NotFoundError({
-        message: "User not found",
-        logging: true,
-        context: {
-          method: "GET",
-          expected: "user",
-          received: "undefined",
-          path: ["users", "id"],
-          id,
-        },
-      });
+      // Use NotFoundError for consistency
+      return next(
+        new NotFoundError({
+          message: `User with ID ${id} not found`,
+          logging: true,
+        })
+      );
     }
 
     const user = userSchema.parse(result);
-    res.status(200).json({ data: user });
+    res.status(200).json({ user: user }); // Changed data to user
   } catch (error) {
     // Pass errors to next for centralized error handling
     next(error);
@@ -127,39 +124,42 @@ export async function getUserByUsername(
     const usernameResult = usernameParamSchema.safeParse(req.params);
 
     if (!usernameResult.success) {
-      return res.status(400).json({
-        message: "Invalid username",
-        errors: z.prettifyError(usernameResult.error),
-      });
+      // Use BadRequestError for consistency
+      return next(
+        new BadRequestError({
+          message: "Validation failed",
+          context: { errors: z.prettifyError(usernameResult.error) },
+        })
+      );
     }
 
     const { username } = usernameResult.data;
 
     // Handle special cases for 'me' or undefined username
     if (username === "me" || !username) {
-      return res.status(400).json({
-        message: "Invalid username. Please provide a valid username.",
-      });
+      // This case should ideally be handled by a dedicated /me route
+      // or by ensuring req.user is populated by authentication middleware
+      return next(
+        new BadRequestError({
+          message: "Invalid username provided for this endpoint.",
+        })
+      );
     }
 
     const result = await getWithUsername(username);
 
     if (!result) {
-      throw new NotFoundError({
-        message: "User not found",
-        logging: true,
-        context: {
-          method: "GET",
-          expected: "user",
-          received: "undefined",
-          path: ["users", "username"],
-          username,
-        },
-      });
+      // Use NotFoundError for consistency
+      return next(
+        new NotFoundError({
+          message: `User with username ${username} not found`,
+          logging: true,
+        })
+      );
     }
 
     const user = userSchema.parse(result);
-    res.status(200).json({ data: user });
+    res.status(200).json({ user: user }); // Changed data to user
   } catch (error) {
     next(error);
   }
@@ -253,3 +253,48 @@ export async function deleteUser(
     next(error);
   }
 }
+
+/**
+ * Gets the profile of the currently authenticated user.
+ * Relies on req.user being populated by authentication middleware.
+ */
+export const getCurrentUserProfile = async (
+  req: CustomRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.user_id;
+
+    if (!userId) {
+      // This case should ideally be caught by isAuthenticated middleware first,
+      // but as a safeguard:
+      return next(
+        new UnauthorizedError({
+          message: "Authentication required: User ID not found in token",
+          logging: true, // Log this as it indicates a potential middleware issue or bad token
+        })
+      );
+    }
+
+    const user = await getWithId(userId);
+
+    if (!user) {
+      // This might happen if the user was deleted after the token was issued
+      return next(
+        new NotFoundError({
+          message: "Authenticated user not found in database",
+          logging: true, // Log this as it's an unexpected state
+        })
+      );
+    }
+
+    // Exclude sensitive information like password_hash
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password_hash, ...safeUser } = user;
+    // Ensure the response structure matches what the client expects for /users/me
+    res.json({ user: safeUser });
+  } catch (error) {
+    next(error); // Pass errors to the global error handler
+  }
+};

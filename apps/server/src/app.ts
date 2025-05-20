@@ -1,15 +1,9 @@
 import { config } from "dotenv";
 config();
 
-// Validate required environment variables for Google authentication
+// Validate required environment variables
 function validateEnvVars() {
-  const requiredVars = [
-    "JWT_SECRET",
-    "JWT_REFRESH_SECRET",
-    "GOOGLE_CLIENT_ID",
-    "GOOGLE_CLIENT_SECRET",
-    "CLIENT_URL",
-  ];
+  const requiredVars = ["JWT_SECRET", "JWT_REFRESH_SECRET", "CLIENT_URL"];
 
   const missingVars = requiredVars.filter((varName) => !process.env[varName]);
 
@@ -33,7 +27,6 @@ import { errorHandler } from "./middleware/errors";
 import { env } from "./utils/env";
 import cookieParser from "cookie-parser";
 import { isAuthenticated } from "./middleware/verifyJWT";
-import { setupGoogleAuth } from "./services/auth/googleAuth";
 import { connectionManager } from "./database/connectionManager";
 import { shutdown as shutdownDatabase } from "./database/database";
 import { getWithUsername } from "./services/users";
@@ -54,9 +47,8 @@ app.use(cookieParser()); // JWT: For HTTP only cookies
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// Initialize Passport and setup Google OAuth
+// Initialize Passport
 app.use(passport.initialize());
-setupGoogleAuth();
 
 // Routes
 app.get("/", (req, res) => {
@@ -92,7 +84,7 @@ app.get("/api/users/:username", isAuthenticated, async (req, res, next) => {
 
     // Return user data without sensitive information
     const { password_hash, ...safeUser } = user;
-    res.json({ data: safeUser });
+    res.json(safeUser); // Changed from res.json({ data: safeUser })
   } catch (error) {
     next(error);
   }

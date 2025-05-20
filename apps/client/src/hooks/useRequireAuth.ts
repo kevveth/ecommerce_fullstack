@@ -1,31 +1,67 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router";
-import { useAuth } from "../context/AuthContext";
+import { useLocation } from "react-router";
+import { useAuth, AuthUser } from "../context/AuthContext";
+
+interface UseRequireAuthReturn {
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  user: AuthUser | null;
+  shouldRedirect: boolean;
+  redirectPath: string | null;
+}
 
 /**
- * Custom hook to require authentication for protected routes.
- * Redirects to login if the user is not authenticated.
+ * Custom hook to require authentication and optionally a specific role for protected routes.
+ * Returns information about authentication status and whether a redirect is needed.
+ * This version is refactored to be more declarative and avoid useEffect.
  *
- * @returns The authentication context
+ * @param requiredRole Optional role required to access the route.
+ * @returns An object containing authentication status and redirect information.
  */
-export function useRequireAuth() {
-  const auth = useAuth();
-  const navigate = useNavigate();
+export function useRequireAuth(
+  requiredRole?: AuthUser["role"]
+): UseRequireAuthReturn {
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const location = useLocation();
 
-  useEffect(() => {
-    // Wait until loading is complete before checking auth state
-    if (!auth.isLoading && !auth.isAuthenticated) {
-      // Save current path for redirecting back after login
-      const currentPath = window.location.pathname;
+  // If still loading authentication state, don't redirect yet.
+  if (isLoading) {
+    return {
+      user,
+      isAuthenticated,
+      isLoading,
+      shouldRedirect: false,
+      redirectPath: null,
+    };
+  }
 
-      navigate("/login", {
-        state: {
-          redirectPath: currentPath,
-          message: "You must be logged in to access this page.",
-        },
-      });
-    }
-  }, [auth.isLoading, auth.isAuthenticated, navigate]);
+  // If not authenticated, prepare redirect to login.
+  if (!isAuthenticated) {
+    return {
+      user,
+      isAuthenticated,
+      isLoading,
+      shouldRedirect: true,
+      redirectPath: `/login?redirect=${encodeURIComponent(location.pathname + location.search)}`,
+    };
+  }
 
-  return auth;
+  // If authenticated but does not have the required role, prepare redirect to home (or an unauthorized page).
+  if (requiredRole && user?.role !== requiredRole) {
+    return {
+      user,
+      isAuthenticated,
+      isLoading,
+      shouldRedirect: true,
+      redirectPath: "/", // Or a specific unauthorized page e.g., /unauthorized
+    };
+  }
+
+  // If authenticated and (no role required OR has the required role), no redirect is needed.
+  return {
+    user,
+    isAuthenticated,
+    isLoading,
+    shouldRedirect: false,
+    redirectPath: null,
+  };
 }
