@@ -34,6 +34,7 @@ interface AuthContextType {
   user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean; // Combined loading state
+  isLoggingIn: boolean; // Specific loading state for login mutation
   loginError: string | null; // Specific error for login
   logoutError: string | null; // Specific error for logout
   userFetchError: string | null; // Specific error for user fetching
@@ -256,6 +257,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         loginMutation.isPending ||
         logoutMutation.isPending ||
         handleAuthCallbackMutation.isPending, // Added callback pending state
+      isLoggingIn: loginMutation.isPending, // Expose login pending state
       loginError,
       logoutError,
       userFetchError: userQuery.error?.message || null,
