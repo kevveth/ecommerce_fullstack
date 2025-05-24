@@ -1,0 +1,12 @@
+{
+  "servers": {
+    "postgres": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgres://kennethrathbun@localhost/ecommerce"
+      ]
+    }
+  }
+}
