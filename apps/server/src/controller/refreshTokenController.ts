@@ -4,15 +4,15 @@ import {
   generateAccessToken,
   generateRefreshToken,
   safeVerifyToken,
-  TokenType,
 } from "../utils/jwt";
+import { Token } from "@ecommerce/shared/schemas";
 import {
   addRefreshToken,
   findRefreshToken,
   removeRefreshToken,
 } from "../services/auth/refresh";
 import { getWithId } from "../services/users";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 /**
  * Refreshes an access token using a valid refresh token
@@ -47,7 +47,7 @@ export async function refreshToken(
     }
 
     // Verify the token is valid cryptographically
-    const decoded = await safeVerifyToken(refreshToken, TokenType.REFRESH);
+    const decoded = await safeVerifyToken(refreshToken, "REFRESH");
     if (!decoded) {
       await removeRefreshToken(refreshToken); // Remove invalid token from database
       return res
@@ -83,9 +83,9 @@ export async function refreshToken(
       res.cookie("jwt", newRefreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: "lax", // Changed from "strict" to "lax" to allow cookies on page loads
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        path: "/api/auth/refresh-token", // Restrict cookie to refresh token endpoint
+        path: "/", // Use root path to ensure cookie is sent with all requests
       });
 
       // Return the new access token

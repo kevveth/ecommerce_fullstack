@@ -10,16 +10,17 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
-    "dev-server": "tsc-watch --noClear -p ./tsconfig.json --onSuccess \"node ./dist/app.js\""
+    "dev-server": "tsc-watch --noClear -p ./tsconfig.json --onSuccess \"node ./dist/app.js\"",
+    "clean": "rm -rf dist",
+    "clear-refresh-tokens": "psql \"$DB_URL\" -c 'DELETE FROM refresh_tokens;'"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@repo/shared": "workspace:*",
+    "@ecommerce/shared": "workspace:*",
     "@types/passport": "^1.0.17",
-    "@types/passport-google-oauth20": "^2.0.16",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
@@ -27,12 +28,9 @@
     "express-async-errors": "^3.1.1",
     "jose": "^6.0.10",
     "passport": "^0.7.0",
-    "passport-google-oauth20": "^2.0.0",
-    "pg": "^8.13.1",
-    "zod-validation-error": "^3.4.0"
+    "pg": "^8.13.1"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^3.0.0",
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",

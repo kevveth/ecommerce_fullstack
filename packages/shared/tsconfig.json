@@ -1,21 +1,26 @@
 {
   "compilerOptions": {
     "target": "ESNext", // Or "ES2020", "ES2015", etc., depending on your target environment
-    "module": "NodeNext", // Or "CommonJS", "UMD", etc., depending on usage
-    "moduleResolution": "NodeNext", // or "Node", "Node16", "Classic"
+    "module": "ESNext", // Or "CommonJS", "UMD", etc., depending on usage
+    "moduleResolution": "node", // or "Node", "Node16", "Classic"
     "declaration": true, // Generate .d.ts files
     "declarationMap": true,
-    "outDir": "./dist",
+    "sourceMap": true,
+    "outDir": "dist/esm",
     "esModuleInterop": true, // Enables interoperability between CommonJS and ES modules
     "forceConsistentCasingInFileNames": true,
     "strict": true, // Enables strict type checking
     "skipLibCheck": true, // Skip type checking of declaration files
     "jsx": "react-jsx", // if you are using react
     "lib": ["ESNext", "DOM"], // Or other necessary libraries
-    "baseUrl": ".", // allows for non relative imports
+    "composite": true,
+    "baseUrl": "./", // allows for non relative imports
     "paths": {
-      "*": ["./*"] // allows for non relative imports
-    }
+      "*": ["src/*"] // allows for non relative imports
+    },
+    "resolveJsonModule": true,
+    "allowJs": false,
+    "rootDir": "src"
   },
   "include": ["./src/**/*"], // Include all files in the src directory
   "exclude": ["node_modules", "dist"] // exclude node_modules and the dist folder.

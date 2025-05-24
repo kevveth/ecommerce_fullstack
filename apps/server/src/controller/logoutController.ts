@@ -4,8 +4,8 @@ import {
   removeAllRefreshTokensForUser,
   removeRefreshToken,
 } from "../services/auth/refresh";
-import { safeVerifyToken, TokenType } from "../utils/jwt";
-
+import { safeVerifyToken } from "../utils/jwt";
+import { Token } from "@ecommerce/shared/schemas";
 /**
  * Handles user logout by invalidating refresh tokens
  *
@@ -34,13 +34,13 @@ export async function logoutUser(
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
-        path: "/api/auth/refresh-token", // Match the path used when setting the cookie
+        path: "/", // Match the path used when setting the cookie
       });
       return res.status(204).send(); // No content
     }
 
     // Verify token validity
-    const decoded = await safeVerifyToken(refreshToken, TokenType.REFRESH);
+    const decoded = await safeVerifyToken(refreshToken, "REFRESH");
 
     // Delete token from database regardless of validity
     await removeRefreshToken(refreshToken);
@@ -55,7 +55,7 @@ export async function logoutUser(
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      path: "/api/auth/refresh-token", // Match the path used when setting the cookie
+      path: "/", // Match the path used when setting the cookie
     });
 
     res.status(200).json({ message: "Logged out successfully" });

@@ -1,6 +1,26 @@
-import axios, { AxiosError, AxiosInstance } from "axios";
+/**
+ * AuthService provides functions for authentication-related API calls.
+ * It includes login, logout, and fetching the current user's data.
+ */
+import axios, { AxiosInstance, AxiosError } from "axios";
 import createAuthRefreshInterceptor from "axios-auth-refresh";
-import { LoginInput } from "@repo/shared/schemas";
+import {
+  type LoginInput,
+  userSchema,
+  User as SharedUser,
+} from "@ecommerce/shared/schemas"; // Added SharedUser
+import { z } from "zod/v4";
+
+/**
+ * Zod schema for validating authentication responses.
+ */
+const AuthResponseSchema = z.object({
+  accessToken: z.string(),
+  tokenType: z.string().optional().default("Bearer"), // Added default
+  user: userSchema.optional(), // User can be optional if only token is returned (e.g. refresh)
+});
+
+type AuthResponse = z.infer<typeof AuthResponseSchema>;
 
 // Create a base axios instance
 const api: AxiosInstance = axios.create({
@@ -11,151 +31,205 @@ const api: AxiosInstance = axios.create({
   withCredentials: true, // Important for cookies
 });
 
-// Interface for auth responses
-interface AuthResponse {
-  accessToken: string;
-  tokenType?: string;
-  user?: {
-    id: number;
-    username: string;
-    email: string;
-    role: string;
-  };
+/**
+ * Stores the authentication token in memory.
+ */
+let authToken: string | null = null; // Initialize authToken as null
+
+/**
+ * Sets the authentication token in memory.
+ * @param token - The authentication token to store.
+ */
+export function setAuthToken(token: string | null): void {
+  authToken = token;
 }
 
 /**
- * Function to set the auth token on all requests
- *
- * @param token - The access token to set, or null to clear
+ * Retrieves the authentication token from memory (which is initialized from localStorage).
+ * @returns The authentication token or null if not set.
  */
-export const setAuthToken = (token: string | null) => {
-  if (token) {
-    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    localStorage.setItem("accessToken", token);
-  } else {
-    delete api.defaults.headers.common["Authorization"];
-    localStorage.removeItem("accessToken");
-  }
-};
+export function getAuthToken(): string | null {
+  // Re-check localStorage in case it was modified by another tab/window
+  // if (typeof window !== "undefined") { // Removed localStorage interaction
+  //   const storedToken = window.localStorage.getItem(AUTH_TOKEN_KEY);
+  //   if (authToken !== storedToken) {
+  //     authToken = storedToken;
+  //   }
+  // }
+  return authToken;
+}
 
 /**
- * Function to refresh the access token
- * This is called automatically when a 401 response is received
- *
- * @param failedRequest - The failed request that triggered the refresh
- * @returns Promise that resolves when the token has been refreshed
+ * Removes the authentication token from memory.
  */
-const refreshAuthLogic = async (failedRequest: any) => {
+export function removeAuthToken(): void {
+  authToken = null;
+}
+
+// Update axios instance to include Authorization header dynamically
+api.interceptors.request.use((config) => {
+  const token = getAuthToken();
+  if (token) {
+    config.headers["Authorization"] = `Bearer ${token}`;
+  }
+  return config;
+});
+
+/**
+ * Refreshes the access token when a 401 response is received.
+ * @param failedRequest - The failed request that triggered the refresh.
+ * @returns A promise that resolves when the token has been refreshed.
+ */
+const refreshAuthLogic = async (failedRequest: AxiosError) => {
   try {
-    // Call the refresh token endpoint
-    const response = await axios.post<AuthResponse>(
-      "/api/auth/refresh-token",
-      {},
-      { withCredentials: true } // Important to include HttpOnly cookies
-    );
+    console.log("[AuthService.refreshAuthLogic] Attempting token refresh...");
+    const response = await api.post<{
+      accessToken: string;
+      tokenType?: string;
+    }>("/auth/refresh-token", {}, { withCredentials: true });
 
-    const { accessToken } = response.data;
+    // Use a simpler schema for refresh response as user data is not expected
+    const RefreshTokenResponseSchema = z.object({
+      accessToken: z.string(),
+      tokenType: z.string().optional().default("Bearer"),
+    });
 
-    // Update the auth token for future requests
+    const parsedResult = RefreshTokenResponseSchema.safeParse(response.data);
+    if (!parsedResult.success) {
+      console.error(
+        "[AuthService.refreshAuthLogic] Invalid refresh token response:",
+        z.prettifyError(parsedResult.error)
+      );
+      removeAuthToken(); // Ensure token is cleared on failed refresh parse
+      return Promise.reject(
+        new Error("Invalid server response format during token refresh.")
+      );
+    }
+
+    const { accessToken } = parsedResult.data;
     setAuthToken(accessToken);
 
-    // Update the failed request with the new token
-    failedRequest.response.config.headers["Authorization"] =
-      `Bearer ${accessToken}`;
-
+    if (failedRequest.config?.headers) {
+      failedRequest.config.headers["Authorization"] = `Bearer ${accessToken}`;
+    }
     return Promise.resolve();
   } catch (error) {
-    // If refresh fails, clear the token and redirect to login
-    setAuthToken(null);
+    console.error(
+      "[AuthService.refreshAuthLogic] Token refresh failed:",
+      error
+    );
+    removeAuthToken(); // Clear token on any refresh error
+    // IMPORTANT: Navigate to login or notify user
+    // For now, just reject to let the original call fail.
+    // Consider dispatching a global event or using a callback to trigger navigation.
     return Promise.reject(error);
   }
 };
 
-// Setup the refresh interceptor
 createAuthRefreshInterceptor(api, refreshAuthLogic, {
-  statusCodes: [401], // Trigger refresh on 401 Unauthorized
-  pauseInstanceWhileRefreshing: true, // Prevent other requests during refresh
+  statusCodes: [401], // Intercept 401 Unauthorized
+  pauseInstanceWhileRefreshing: true,
 });
 
-// Initialize auth header from storage (if available)
-const token = localStorage.getItem("accessToken");
-if (token) {
-  setAuthToken(token);
-}
+/**
+ * Fetches the current authenticated user's profile.
+ * This function is intended to be used by the AuthContext.
+ * @returns A promise that resolves to an object containing the authenticated user data.
+ */
+export const getAuthenticatedUserProfile = async (): Promise<{
+  user: SharedUser;
+}> => {
+  try {
+    // The server route /api/users/me should return { user: UserData }
+    const response = await api.get<{ user: unknown }>("/users/me");
+    const parsedResult = userSchema.safeParse(response.data.user);
+
+    if (!parsedResult.success) {
+      console.error(
+        "[AuthService] Invalid user data from /users/me:",
+        z.prettifyError(parsedResult.error)
+      );
+      throw new Error("Invalid user data received from server.");
+    }
+    return { user: parsedResult.data };
+  } catch (error) {
+    console.error(
+      "[AuthService] Failed to fetch authenticated user profile:",
+      error
+    );
+    // If it's a 401, axios-auth-refresh should handle it.
+    // If refresh fails, it will throw, and TanStack Query will handle the error.
+    // No need to call removeAuthToken() here as refreshAuthLogic or query error handling will manage it.
+    throw error; // Re-throw to be caught by TanStack Query
+  }
+};
 
 /**
- * Login function using the LoginInput type
- *
- * @param credentials - User login credentials
- * @returns Promise that resolves to the auth response
+ * Logs in a user with the provided credentials.
+ * @param credentials - The user's login credentials.
+ * @returns A promise that resolves to the authentication response.
  */
 export const login = async (credentials: LoginInput): Promise<AuthResponse> => {
   try {
-    const response = await api.post<AuthResponse>("/auth/login", credentials);
-    const { accessToken } = response.data;
+    const response = await api.post<unknown>("/auth/login", credentials);
+    // The server /api/auth/login is expected to return { accessToken: string, tokenType: string, user: UserData }
+    const parsedResult = AuthResponseSchema.safeParse(response.data);
 
-    // Set token for future requests
+    if (!parsedResult.success) {
+      console.error(
+        "[AuthService] Invalid login response:",
+        z.prettifyError(parsedResult.error)
+      );
+      removeAuthToken();
+      throw new Error("Login failed: Invalid response from server.");
+    }
+
+    const { accessToken, user, tokenType } = parsedResult.data; // Ensure tokenType is destructured
+    if (!accessToken || !user || !tokenType) {
+      // Ensure tokenType is checked
+      console.error(
+        "[AuthService] Login response missing accessToken, user data, or tokenType."
+      );
+      removeAuthToken();
+      throw new Error("Login failed: Incomplete data from server.");
+    }
+
     setAuthToken(accessToken);
-
-    return response.data;
+    return { accessToken, user, tokenType }; // Return the full parsed and validated data
   } catch (error) {
-    console.error("Login error:", error);
-    throw error;
+    console.error("[AuthService] Login request failed:", error);
+    removeAuthToken(); // Ensure token is cleared on login failure
+    if (axios.isAxiosError(error) && error.response) {
+      // Forward server error message if available
+      const serverMessage =
+        error.response.data?.message || "Invalid email or password.";
+      throw new Error(serverMessage);
+    }
+    throw new Error("Login failed. Please try again.");
   }
 };
 
 /**
- * Logout function
- *
- * @returns Promise that resolves when logout is complete
+ * Logs out the current user.
+ * @returns A promise that resolves when the logout is complete.
  */
 export const logout = async (): Promise<void> => {
   try {
+    // Call the server's logout endpoint to invalidate the refresh token server-side
     await api.post("/auth/logout");
-    setAuthToken(null);
+    console.log("[AuthService] Logout successful on server.");
   } catch (error) {
-    console.error("Logout error:", error);
-    // Clear token even if the request fails
-    setAuthToken(null);
+    // Log the error but proceed with client-side cleanup
+    console.error(
+      "[AuthService] Server logout failed, proceeding with client cleanup:",
+      error
+    );
+  } finally {
+    // Always remove the token and clear client-side state
+    removeAuthToken();
+    // Query invalidation/reset will be handled in AuthContext
   }
 };
 
-/**
- * Gets the current user profile
- *
- * @returns Promise that resolves to the user data
- */
-export const getCurrentUser = async (): Promise<AuthResponse> => {
-  try {
-    const response = await api.get<AuthResponse>("/users/me");
-    return response.data;
-  } catch (error) {
-    console.error("Get user error:", error);
-    // If the request fails due to authentication issues
-    if ((error as AxiosError).response?.status === 401) {
-      setAuthToken(null);
-    }
-    throw error;
-  }
-};
-
-/**
- * Handle Google authentication callback
- *
- * @param token - The token received from Google
- * @returns Promise that resolves to the auth response
- */
-export const handleGoogleAuthCallback = async (
-  token: string
-): Promise<AuthResponse> => {
-  try {
-    setAuthToken(token);
-    const userData = await getCurrentUser();
-    return userData;
-  } catch (error) {
-    console.error("Google auth callback error:", error);
-    throw error;
-  }
-};
-
+// Default export of the configured axios instance
 export default api;

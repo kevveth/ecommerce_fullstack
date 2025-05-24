@@ -1,15 +1,9 @@
 import { config } from "dotenv";
 config();
 
-// Validate required environment variables for Google authentication
+// Validate required environment variables
 function validateEnvVars() {
-  const requiredVars = [
-    "JWT_SECRET",
-    "JWT_REFRESH_SECRET",
-    "GOOGLE_CLIENT_ID",
-    "GOOGLE_CLIENT_SECRET",
-    "CLIENT_URL",
-  ];
+  const requiredVars = ["JWT_SECRET", "JWT_REFRESH_SECRET", "CLIENT_URL"];
 
   const missingVars = requiredVars.filter((varName) => !process.env[varName]);
 
@@ -33,9 +27,10 @@ import { errorHandler } from "./middleware/errors";
 import { env } from "./utils/env";
 import cookieParser from "cookie-parser";
 import { isAuthenticated } from "./middleware/verifyJWT";
-import { setupGoogleAuth } from "./services/auth/googleAuth";
 import { connectionManager } from "./database/connectionManager";
 import { shutdown as shutdownDatabase } from "./database/database";
+import { getWithUsername } from "./services/users";
+import NotFoundError from "./errors/NotFoundError";
 
 const corsOptions: CorsOptions = {
   origin: `http://localhost:5173`,
@@ -45,16 +40,15 @@ const corsOptions: CorsOptions = {
 const port = env.PORT || 3001;
 
 // Express initialization
-const app = express();
+const app: express.Application = express();
 app.use(cookieParser()); // JWT: For HTTP only cookies
 
 // Middleware
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// Initialize Passport and setup Google OAuth
+// Initialize Passport
 app.use(passport.initialize());
-setupGoogleAuth();
 
 // Routes
 app.get("/", (req, res) => {
@@ -63,8 +57,37 @@ app.get("/", (req, res) => {
 
 app.use("/api", apiRoutes);
 
-app.get("/api/me", isAuthenticated, async (req: Request, res: Response) => {
-  res.send({ user: req.user });
+// Removed the /me route and replaced it with /users/:username
+app.get("/api/users/:username", isAuthenticated, async (req, res, next) => {
+  try {
+    const { username } = req.params;
+
+    if (!username) {
+      return next(
+        new NotFoundError({
+          message: "Username is required",
+          logging: true,
+        })
+      );
+    }
+
+    const user = await getWithUsername(username);
+
+    if (!user) {
+      return next(
+        new NotFoundError({
+          message: "User not found",
+          logging: true,
+        })
+      );
+    }
+
+    // Return user data without sensitive information
+    const { password_hash, ...safeUser } = user;
+    res.json(safeUser); // Changed from res.json({ data: safeUser })
+  } catch (error) {
+    next(error);
+  }
 });
 
 // Error Handling

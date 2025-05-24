@@ -3,18 +3,25 @@ import { useAuth } from "../../context/AuthContext";
 import styles from "./styles.module.css";
 import { useState } from "react";
 
-export const Navbar = () => {
-  const { isAuthenticated, logout, user } = useAuth();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+/**
+ * Renders the navigation bar.
+ * @returns The Navbar component.
+ */
+export function Navbar() {
+  const { user, logout } = useAuth();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+  // Toggle mobile menu open/close
   const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
+    setIsDropdownOpen(!isDropdownOpen);
   };
 
+  // Close mobile menu (used on link click)
   const closeMobileMenu = () => {
-    setMobileMenuOpen(false);
+    setIsDropdownOpen(false);
   };
 
+  // Helper to check if a route is active
   const isActive = (path: string) => {
     return !!useMatch(path);
   };
@@ -33,12 +40,13 @@ export const Navbar = () => {
           onClick={toggleMobileMenu}
           aria-label="Toggle navigation menu"
         >
-          {mobileMenuOpen ? "✕" : "☰"}
+          {isDropdownOpen ? "✕" : "☰"}
         </button>
 
         <ul
-          className={`${styles.navList} ${mobileMenuOpen ? styles.open : ""}`}
+          className={`${styles.navList} ${isDropdownOpen ? styles.open : ""}`}
         >
+          {/* Home is always visible */}
           <li className={styles.navItem}>
             <Link
               to="/"
@@ -51,13 +59,13 @@ export const Navbar = () => {
             </Link>
           </li>
 
-          {/* Only show Profile link if logged in */}
-          {isAuthenticated && (
+          {/* Profile link: only if authenticated and username exists */}
+          {user?.username && (
             <li className={styles.navItem}>
               <Link
-                to={`/profiles/${user?.username}`}
+                to={`/profiles/${user.username}`}
                 className={`${styles.navLink} ${
-                  isActive("/profile") ? styles.active : ""
+                  isActive(`/profiles/${user.username}`) ? styles.active : ""
                 }`}
                 onClick={closeMobileMenu}
               >
@@ -66,7 +74,7 @@ export const Navbar = () => {
             </li>
           )}
 
-          {/* Admin can see all profiles */}
+          {/* Admin-only: All Profiles link */}
           {user?.role === "admin" && (
             <li className={styles.navItem}>
               <Link
@@ -81,9 +89,9 @@ export const Navbar = () => {
             </li>
           )}
 
-          {/* Login/Logout button */}
+          {/* Auth button: Login if not authenticated, Logout if authenticated */}
           <li className={styles.navItem}>
-            {isAuthenticated ? (
+            {user ? (
               <button
                 onClick={() => {
                   logout();
@@ -109,4 +117,4 @@ export const Navbar = () => {
       </div>
     </nav>
   );
-};
+}

@@ -1,15 +1,21 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
+import { z } from "zod/v4";
+import NotFoundError from "../errors/NotFoundError";
+import BadRequestError from "../errors/BadRequestError";
+import UnauthorizedError from "../errors/UnauthorizedError";
+import AsyncErrorHandler from "../utils/AsyncErrorHandler";
 import {
+  getAll,
   getWithId,
+  getWithUsername,
   update,
   remove,
-  getWithUsername,
-  getAll,
 } from "../services/users";
-import { UpdateableUser, updateUserSchema } from "../models/user.model";
-import { userSchema } from "@repo/shared/schemas";
-import NotFoundError from "../errors/NotFoundError";
-import { z } from "zod";
+import type { CustomRequest } from "../middleware/verifyJWT";
+import {
+  userSchema,
+  profileUpdateSchema,
+} from "../../../../packages/shared/dist/cjs/schemas"; // Updated import to use profileUpdateSchema
 
 // Enhanced param schemas with better error messages
 const idParamSchema = z.object({
@@ -54,17 +60,30 @@ function formatIdError(error: z.ZodError): string | Record<string, any> {
   return z.prettifyError(error);
 }
 
+// Update validateSchema to return a strongly typed object
+function validateSchema<T>(schema: z.ZodSchema<T>, data: unknown): T {
+  const result = schema.safeParse(data);
+  if (!result.success) {
+    throw new BadRequestError({
+      message: "Validation failed",
+      context: { errors: z.prettifyError(result.error) },
+    });
+  }
+  return result.data; // Return strongly typed data
+}
+
 export async function getAllUsers(req: Request, res: Response) {
   try {
     const result = await getAll();
 
     if (!result || result.length === 0) {
-      return res.status(200).json({ data: [], message: "No users found" });
+      // Consider returning a 404 or an empty array based on API design
+      return res.status(404).json({ message: "No users found" });
     }
 
     // Parse all users with better error handling
     const users = result.map((user) => userSchema.parse(user));
-    res.status(200).json({ data: users });
+    res.status(200).json({ users: users }); // Changed data to users
   } catch (error) {
     console.error("Error fetching all users:", error);
     res.status(500).json({ message: "Failed to fetch users" });
@@ -74,35 +93,21 @@ export async function getAllUsers(req: Request, res: Response) {
 //Handles getting a user by ID
 export async function getUser(req: Request, res: Response, next: NextFunction) {
   try {
-    // Validate ID param without custom error mapping
-    const idResult = idParamSchema.safeParse(req.params);
-
-    if (!idResult.success) {
-      return res.status(400).json({
-        message: "Invalid user ID",
-        errors: formatIdError(idResult.error),
-      });
-    }
-
-    const { id } = idResult.data;
+    const { id } = validateSchema(idParamSchema, req.params);
     const result = await getWithId(id);
 
     if (!result) {
-      throw new NotFoundError({
-        message: "User not found",
-        logging: true,
-        context: {
-          method: "GET",
-          expected: "user",
-          received: "undefined",
-          path: ["users", "id"],
-          id,
-        },
-      });
+      // Use NotFoundError for consistency
+      return next(
+        new NotFoundError({
+          message: `User with ID ${id} not found`,
+          logging: true,
+        })
+      );
     }
 
     const user = userSchema.parse(result);
-    res.status(200).json({ data: user });
+    res.status(200).json({ user: user }); // Changed data to user
   } catch (error) {
     // Pass errors to next for centralized error handling
     next(error);
@@ -119,31 +124,42 @@ export async function getUserByUsername(
     const usernameResult = usernameParamSchema.safeParse(req.params);
 
     if (!usernameResult.success) {
-      return res.status(400).json({
-        message: "Invalid username",
-        errors: z.prettifyError(usernameResult.error),
-      });
+      // Use BadRequestError for consistency
+      return next(
+        new BadRequestError({
+          message: "Validation failed",
+          context: { errors: z.prettifyError(usernameResult.error) },
+        })
+      );
     }
 
     const { username } = usernameResult.data;
+
+    // Handle special cases for 'me' or undefined username
+    if (username === "me" || !username) {
+      // This case should ideally be handled by a dedicated /me route
+      // or by ensuring req.user is populated by authentication middleware
+      return next(
+        new BadRequestError({
+          message: "Invalid username provided for this endpoint.",
+        })
+      );
+    }
+
     const result = await getWithUsername(username);
 
     if (!result) {
-      throw new NotFoundError({
-        message: "User not found",
-        logging: true,
-        context: {
-          method: "GET",
-          expected: "user",
-          received: "undefined",
-          path: ["users", "username"],
-          username,
-        },
-      });
+      // Use NotFoundError for consistency
+      return next(
+        new NotFoundError({
+          message: `User with username ${username} not found`,
+          logging: true,
+        })
+      );
     }
 
     const user = userSchema.parse(result);
-    res.status(200).json({ data: user });
+    res.status(200).json({ user: user }); // Changed data to user
   } catch (error) {
     next(error);
   }
@@ -156,30 +172,22 @@ export async function updateUser(
   next: NextFunction
 ) {
   try {
-    // Validate ID and update data
-    const idResult = idParamSchema.safeParse(req.params);
+    const { id } = validateSchema(idParamSchema, req.params);
 
-    if (!idResult.success) {
+    // Ensure `updateData` is properly typed
+    const updateData = validateSchema(profileUpdateSchema, req.body) as Record<
+      string,
+      unknown
+    >;
+
+    // Check if `updateData` is empty
+    if (Object.keys(updateData).length === 0) {
       return res.status(400).json({
-        message: "Invalid user ID",
-        errors: z.prettifyError(idResult.error),
+        message: "At least one field must be provided for update.",
       });
     }
 
-    const { id } = idResult.data;
-
-    // Validate update data
-    const updateResult = updateUserSchema.safeParse(req.body);
-
-    if (!updateResult.success) {
-      return res.status(400).json({
-        message: "Invalid update data",
-        errors: z.prettifyError(updateResult.error),
-      });
-    }
-
-    // Update the user with validated data
-    const result = await update(id, updateResult.data);
+    const result = await update(id, updateData);
 
     if (!result) {
       throw new NotFoundError({
@@ -245,3 +253,48 @@ export async function deleteUser(
     next(error);
   }
 }
+
+/**
+ * Gets the profile of the currently authenticated user.
+ * Relies on req.user being populated by authentication middleware.
+ */
+export const getCurrentUserProfile = async (
+  req: CustomRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.user_id;
+
+    if (!userId) {
+      // This case should ideally be caught by isAuthenticated middleware first,
+      // but as a safeguard:
+      return next(
+        new UnauthorizedError({
+          message: "Authentication required: User ID not found in token",
+          logging: true, // Log this as it indicates a potential middleware issue or bad token
+        })
+      );
+    }
+
+    const user = await getWithId(userId);
+
+    if (!user) {
+      // This might happen if the user was deleted after the token was issued
+      return next(
+        new NotFoundError({
+          message: "Authenticated user not found in database",
+          logging: true, // Log this as it's an unexpected state
+        })
+      );
+    }
+
+    // Exclude sensitive information like password_hash
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password_hash, ...safeUser } = user;
+    // Ensure the response structure matches what the client expects for /users/me
+    res.json({ user: safeUser });
+  } catch (error) {
+    next(error); // Pass errors to the global error handler
+  }
+};

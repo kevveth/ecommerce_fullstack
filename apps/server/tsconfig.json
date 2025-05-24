@@ -8,16 +8,27 @@
 
     /* Transpilation */
     "module": "NodeNext",
-    "moduleResolution": "nodenext",
+    "moduleResolution": "node16",
     "rootDir": "./src",
     "outDir": "./dist",
+    "composite": true,
+
+    /* Path mappings for workspace packages */
+    "baseUrl": ".",
+    "paths": {
+      "@ecommerce/shared": ["../../packages/shared/src"],
+      "@ecommerce/shared/*": ["../../packages/shared/src/*"]
+    },
 
     /* Strictness */
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node"]
   },
-  "include": ["src/**/*", "**/*.ts", "src/**/*.sql"],
-  "exclude": ["node_modules", "**/*.spec.ts", "vitest.config.ts"]
+  "include": ["src/**/*", "src/**/*.sql"],
+  "exclude": ["node_modules", "**/*.spec.ts", "vitest.config.ts"],
+  "references": [{ "path": "../../packages/shared" }]
 }

@@ -1,6 +1,6 @@
 import { useParams } from "react-router";
 import { ProfileData } from "../../components/ProfileData";
-import { useFetchUser } from "../../hooks/useFetchUser";
+import { useUserProfile } from "../../hooks/useUserProfile";
 import { useEffect } from "react";
 
 interface ProfileProps extends Record<string, string | undefined> {
@@ -9,7 +9,12 @@ interface ProfileProps extends Record<string, string | undefined> {
 
 export function Profile() {
   const { username } = useParams<ProfileProps>();
-  const { data: user, isPending, isError, error } = useFetchUser(username);
+  const {
+    data: userProfile,
+    isPending,
+    isError,
+    error,
+  } = useUserProfile(username);
 
   // Log on component mount and when username changes
   useEffect(() => {
@@ -35,8 +40,8 @@ export function Profile() {
   return (
     <>
       <h1>Profile</h1>
-      {user && <ProfileData data={user.data} />}
-      {!user && <p>No user data available</p>}
+      {userProfile && <ProfileData data={userProfile} />}
+      {!userProfile && <p>No user data available</p>}
     </>
   );
 }

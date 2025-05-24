@@ -1,60 +1,25 @@
+import { z } from "zod/v4";
 import { Request, Response, NextFunction } from "express";
-import { newUserSchema, updateUserSchema } from "../models/user.model";
-import { z } from "zod";
 import BadRequestError from "../errors/BadRequestError";
 
 /**
- * Middleware to validate registration data using Zod schemas
+ * Middleware to validate data using a Zod schema
+ * @param schema - The Zod schema to validate against
  */
-export const validateRegistrationData = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const result = newUserSchema.safeParse(req.body);
-
-    if (result.success) {
-      req.body = result.data;
-      return next();
-    } else {
-      const formattedErrors = z.prettifyError(result.error);
-      return next(
-        new BadRequestError({
+export const validateSchema = (schema: z.ZodSchema) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = schema.safeParse(req.body);
+      if (!result.success) {
+        throw new BadRequestError({
           message: "Validation failed",
-          context: { errors: formattedErrors },
-        })
-      );
-    }
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * Middleware to validate user update data using Zod schemas
- */
-export const validateUpdateData = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const result = updateUserSchema.safeParse(req.body);
-
-    if (result.success) {
+          context: { errors: z.prettifyError(result.error) },
+        });
+      }
       req.body = result.data;
-      return next();
-    } else {
-      const formattedErrors = z.prettifyError(result.error);
-      return next(
-        new BadRequestError({
-          message: "Validation failed",
-          context: { errors: formattedErrors },
-        })
-      );
+      next();
+    } catch (error) {
+      next(error);
     }
-  } catch (error) {
-    next(error);
-  }
+  };
 };

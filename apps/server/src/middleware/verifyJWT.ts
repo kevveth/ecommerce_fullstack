@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { safeVerifyToken, type UserPayload, TokenType } from "../utils/jwt";
+import { safeVerifyToken } from "../utils/jwt";
+import { UserPayload, Token } from "@ecommerce/shared/schemas";
 import UnauthorizedError from "../errors/UnauthorizedError";
 
 // Use module augmentation to add user property to Express Request interface
@@ -8,6 +9,11 @@ declare global {
     // Extend the User interface to include our properties
     interface User extends UserPayload {}
   }
+}
+
+// Define CustomRequest type to extend Express Request with user property
+export interface CustomRequest extends Request {
+  user?: UserPayload;
 }
 
 /**
@@ -47,7 +53,7 @@ export const authenticate = async (
 
   try {
     // Use safeVerifyToken which returns null on failure rather than throwing
-    const decoded = await safeVerifyToken(token, TokenType.ACCESS);
+    const decoded = await safeVerifyToken(token, "ACCESS");
 
     if (!decoded) {
       return next(
