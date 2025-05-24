@@ -5,20 +5,15 @@ import "./index.css";
 import App from "./App";
 import { QueryClient } from "@tanstack/react-query";
 import { SnackbarProvider } from "notistack";
-import { AuthProvider } from "./context/AuthContext";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 
 // Import page and layout components
 import { Home } from "./pages/Home/Home";
-import Register from "./pages/Register/Register";
-import Login from "./pages/Login/Login";
 import { NotFound } from "./errors/NotFound";
 import { Profile } from "./pages/Profile/Profile";
 import { Profiles } from "./pages/Profiles/Profiles";
 import PageLayout from "./components/PageLayout/PageLayout";
-import { ProtectedRoute } from "./components/ProtectedRoute";
-import AuthCallback from "./components/AuthCallback/AuthCallback";
 import { MyProfile } from "./pages/MyProfile/MyProfile"; // Corrected import: Use named import
 
 // Create a persister
@@ -54,33 +49,21 @@ createRoot(document.getElementById("root")!).render(
         persistOptions={{ persister: localStoragePersister }}
       >
         <SnackbarProvider>
-          <AuthProvider>
-            {/* Routes are now defined here, wrapping App */}
-            <Routes>
-              <Route element={<App />}>
-                {" "}
-                {/* App now acts as a root layout/context provider */}
-                <Route element={<PageLayout />}>
-                  {/* Public routes */}
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route path="/" element={<Home />} />
-                  <Route path="/auth/success" element={<AuthCallback />} />
-
-                  {/* Protected routes - wrapped with ProtectedRoute */}
-                  <Route element={<ProtectedRoute />}>
-                    <Route path="/profiles" element={<Profiles />} />
-                    <Route path="/profiles/:username" element={<Profile />} />
-                    <Route path="/my-profile" element={<MyProfile />} />{" "}
-                    {/* Add MyProfile route */}
-                  </Route>
-
-                  {/* Catch all */}
-                  <Route path="*" element={<NotFound />} />
-                </Route>
+          <Routes>
+            <Route element={<App />}>
+              {/* App now acts as a root layout/context provider */}
+              <Route element={<PageLayout />}>
+                {/* Public routes */}
+                <Route path="/" element={<Home />} />
+                {/* Profile routes now public */}
+                <Route path="/profiles" element={<Profiles />} />
+                <Route path="/profiles/:username" element={<Profile />} />
+                <Route path="/my-profile" element={<MyProfile />} />
+                {/* Catch all */}
+                <Route path="*" element={<NotFound />} />
               </Route>
-            </Routes>
-          </AuthProvider>
+            </Route>
+          </Routes>
         </SnackbarProvider>
       </PersistQueryClientProvider>
     </BrowserRouter>

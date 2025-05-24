@@ -67,43 +67,6 @@ Any additional context, concerns, or considerations for reviewers.
 
 ## Examples
 
-### Feature PR
-
-```
-feat(auth): Implement JWT refresh token mechanism
-
-## Summary
-Adds automatic token refresh functionality to maintain user sessions without requiring manual login.
-
-## Changes Made
-- Added refresh token endpoint in auth controller
-- Implemented token rotation strategy
-- Updated client-side auth context to handle token refresh
-- Added middleware for automatic token validation
-- Updated user model to include refresh token storage
-
-## Type of Change
-- [x] New feature (non-breaking change which adds functionality)
-
-## Testing
-- Added unit tests for refresh token controller
-- Added integration tests for token rotation
-- Manually tested token expiry scenarios
-- Verified cross-browser compatibility
-
-## Related Issues
-Fixes #45
-Related to #23
-
-## Checklist
-- [x] Code follows the project's coding standards
-- [x] Self-review of code completed
-- [x] Tests added/updated and passing
-- [x] Documentation updated
-- [x] No breaking changes
-- [x] Lint and type checks pass
-```
-
 ### Bug Fix PR
 
 ```

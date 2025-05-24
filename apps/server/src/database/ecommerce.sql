@@ -59,25 +59,8 @@ CREATE TABLE IF NOT EXISTS "checkouts" (
   "total_amount" decimal NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS refresh_tokens (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
-    token TEXT NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
 DO $$ 
 BEGIN 
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_indexes 
-    WHERE indexname = 'idx_refresh_tokens_token'
-  ) THEN
-    CREATE INDEX idx_refresh_tokens_token ON refresh_tokens (token);
-  END IF;
-END $$;
-
-DO $$ 
-BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_constraint WHERE conname = 'checkouts_user_id_fkey'
   ) THEN

@@ -1,6 +1,9 @@
 /**
- * Environment variable schemas and types shared between client and server
+ * Environment variable schemas and types shared between client and server.
+ * Uses z.looseObject for server to allow extra OS/shell variables.
+ * Follows Zod v4 conventions and project standards.
  */
+
 import { z } from "zod/v4";
 
 /**
@@ -30,14 +33,16 @@ export function logMissingOptionalEnvVars(
 }
 
 /**
- * Server environment variable schema
+ * Server environment variable schema (Zod v4)
+ * - Uses z.looseObject to allow extra OS/shell variables.
+ * - Only validates the keys you care about.
  */
-export const serverEnvSchema = z.object({
+export const serverEnvSchema = z.looseObject({
   // Server Configuration
   PORT: z.coerce
     .number()
     .positive()
-    .default(3001)
+    .default(3000)
     .describe("Port for the server to listen on"),
   NODE_ENV: z
     .enum(["development", "production", "test"])
@@ -47,26 +52,6 @@ export const serverEnvSchema = z.object({
   // Database Configuration
   DB_URL: z
     .string()
-    .refine(
-      (url) => {
-        // Handle both URL format and connection string format for PostgreSQL
-        try {
-          // Try to parse as standard URL first
-          new URL(url);
-          return true;
-        } catch {
-          // If not a standard URL, check if it's a PostgreSQL connection string
-          // Format: postgresql://username:password@hostname:port/database
-          // Or: postgres://username:password@hostname:port/database
-          return /^postgres(?:ql)?:\/\/(?:[^:@\/]+(?::[^@\/]+)?@)?[^:@\/]+(?::\d+)?(?:\/[^?]*)?(?:\?.*)?$/.test(
-            url
-          );
-        }
-      },
-      {
-        message: "Invalid PostgreSQL connection string format",
-      }
-    )
     .default("postgres://kennethrathbun:@localhost:5432/ecommerce")
     .describe("Database connection URL"),
   DB_HOST: z.string().default("localhost"),
@@ -75,36 +60,22 @@ export const serverEnvSchema = z.object({
   DB_PASSWORD: z.string().optional(),
   DB_DATABASE: z.string().default("ecommerce"),
 
-  // JWT Configuration
-  JWT_SECRET: z.string().min(8),
-  JWT_REFRESH_SECRET: z.string().min(8),
-  JWT_ACCESS_TOKEN_EXPIRY: z.string().default("15m"),
-  JWT_REFRESH_TOKEN_EXPIRY: z.string().default("7d"),
-
   // Client URL (for CORS and redirects)
-  CLIENT_URL: z.string().optional().default("http://localhost:5173"),
+  CLIENT_URL: z.string().default("http://localhost:5173"),
 
   // Salt rounds for password hashing
   SALT_ROUNDS: z.coerce.number().int().positive().default(12),
 });
 
 /**
- * Client environment variable schema
+ * Client environment variable schema (Zod v4)
  */
 export const clientEnvSchema = z.object({
-  // API URL
+  // Use .string().refine(...) for URL validation, as .string().url() is deprecated in Zod v4
   VITE_API_URL: z
-    .string()
     .url()
-    .default("http://localhost:3001/api")
+    .default("http://localhost:3000/api")
     .describe("Base URL for API requests"),
-
-  // Authentication redirect URL (optional)
-  VITE_AUTH_REDIRECT_URL: z
-    .string()
-    .url()
-    .optional()
-    .describe("URL to redirect after authentication"),
 });
 
 // Type exports for type safety

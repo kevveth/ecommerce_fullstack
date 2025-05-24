@@ -4,7 +4,6 @@ This repository contains a full-stack e-commerce application built as a learning
 
 The application is structured as a monorepo using Turbo and pnpm, with a React/TypeScript frontend, Node.js/Express backend, and PostgreSQL database. Through building this project, I've implemented and gained experience with:
 
-- JWT authentication with access and refresh token handling
 - Type safety across frontend and backend using TypeScript and Zod
 - RESTful API design with structured error handling
 - State management with React Context and React Query
@@ -29,11 +28,6 @@ This is my first substantial full-stack application, developed to strengthen my 
   - Turbo: For monorepo management.
   - pnpm: As the package manager.
   - Vitest: For testing.
-- **Authentication & Security:**
-  - Jose: Modern JavaScript library for JSON Object Signing and Encryption (JOSE) standards for JWT handling.
-  - JWT: Secure token-based authentication with short-lived access tokens and HTTP-only refresh tokens.
-  - bcrypt: For secure password hashing with configurable salt rounds.
-  - Role-based access control: Different permissions for regular users and administrators.
 - **Validation & Type Safety:**
   - Zod v4: For schema validation with enhanced error formatting using z.prettifyError.
   - Shared schemas: Common validation schemas used across frontend and backend.
@@ -56,21 +50,10 @@ ecommerce_fullstack/
 ## Features
 
 - **Product Browsing:** Browse and search for coffee products with detailed information.
-- **User Authentication:**
-  - Secure user registration and login with email/password
-  - JWT-based authentication with access and refresh tokens
-  - Automatic token refresh using HTTP-only cookies
-  - Role-based authorization for protected routes
 - **User Profile Management:**
   - View and edit user information
   - Save multiple shipping addresses
   - Username-based profile viewing
-- **Security Features:**
-  - Protected routes for authenticated users
-  - Secure password hashing with bcrypt
-  - Input validation using Zod v4 with enhanced error formatting
-  - CSRF protection with SameSite cookies
-  - HTTP-only cookies for sensitive tokens
 
 ## Installation & Setup
 
@@ -102,8 +85,6 @@ ecommerce_fullstack/
      ```
      PORT=3001
      DATABASE_URL=postgresql://username:password@localhost:5432/ecommerce
-     JWT_SECRET=your_jwt_secret
-     JWT_REFRESH_SECRET=your_jwt_refresh_secret
      CLIENT_URL=http://localhost:5173
      ```
    - Required variables for client:
@@ -164,8 +145,7 @@ pnpm --filter server test:ui
 
 The application uses PostgreSQL with the following key tables:
 
-- **Users**: Stores user credentials, profile information, and supports both local and Google authentication
-- **RefreshTokens**: Manages JWT refresh tokens for secure authentication
+- **Users**: Stores user credentials and profile information
 - **Products & Categories**: Organizes the coffee product catalog with relationships
 - **Carts & CartItems**: Tracks user shopping carts with product quantities and pricing
 - **Orders & OrderItems**: Records completed purchases with customer information

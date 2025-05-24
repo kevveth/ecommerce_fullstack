@@ -1,18 +1,15 @@
 // routes/admin.ts
 import express, { Router, Request, Response } from "express";
-import { authenticate, authorize } from "../middleware/verifyJWT";
 
 const router: Router = express.Router();
 
-// Example: GET /api/admin/dashboard - Requires authentication and 'admin' role
-router.get(
-  "/dashboard",
-  authenticate,
-  authorize("admin"),
-  (req: Request, res: Response) => {
-    // Only admins can reach this point. req.user will be available.
-    res.json({ message: "Admin dashboard data", user: req.user });
-  }
-);
+// Example: GET /api/admin/dashboard - Currently public (will be protected with new auth strategy)
+router.get("/dashboard", (req: Request, res: Response) => {
+  // TODO: Add authentication and authorization with new auth strategy
+  res.json({
+    message: "Admin dashboard data",
+    note: "This endpoint is temporarily public - auth to be implemented",
+  });
+});
 
 export default router;

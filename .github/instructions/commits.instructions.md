@@ -41,7 +41,7 @@ Use conventional commit format: `type(scope): description`
 ## Examples
 
 ```
-feat(auth): Add JWT refresh token mechanism
+feat(auth): Add user registration endpoint
 fix(client): Resolve navigation state persistence issue
 docs(api): Update authentication endpoint documentation
 refactor(server): Extract user validation to shared schema

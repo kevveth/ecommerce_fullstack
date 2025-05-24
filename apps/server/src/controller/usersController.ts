@@ -2,8 +2,6 @@ import { Request, Response, NextFunction } from "express";
 import { z } from "zod/v4";
 import NotFoundError from "../errors/NotFoundError";
 import BadRequestError from "../errors/BadRequestError";
-import UnauthorizedError from "../errors/UnauthorizedError";
-import AsyncErrorHandler from "../utils/AsyncErrorHandler";
 import {
   getAll,
   getWithId,
@@ -11,11 +9,7 @@ import {
   update,
   remove,
 } from "../services/users";
-import type { CustomRequest } from "../middleware/verifyJWT";
-import {
-  userSchema,
-  profileUpdateSchema,
-} from "../../../../packages/shared/dist/cjs/schemas"; // Updated import to use profileUpdateSchema
+import { userSchema, profileUpdateSchema } from "@ecommerce/shared/schemas"; // Updated import to use profileUpdateSchema
 
 // Enhanced param schemas with better error messages
 const idParamSchema = z.object({
@@ -231,70 +225,10 @@ export async function deleteUser(
     }
 
     const { id } = idResult.data;
-    const result = await remove(id);
-
-    if (!result) {
-      throw new NotFoundError({
-        message: "User not found",
-        logging: true,
-        context: {
-          method: "DELETE",
-          expected: "user",
-          received: "undefined",
-          path: ["users", "id"],
-          id,
-        },
-      });
-    }
-
+    await remove(id);
     // 204 No Content is more appropriate for successful DELETE
     res.status(204).end();
   } catch (error) {
     next(error);
   }
 }
-
-/**
- * Gets the profile of the currently authenticated user.
- * Relies on req.user being populated by authentication middleware.
- */
-export const getCurrentUserProfile = async (
-  req: CustomRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const userId = req.user?.user_id;
-
-    if (!userId) {
-      // This case should ideally be caught by isAuthenticated middleware first,
-      // but as a safeguard:
-      return next(
-        new UnauthorizedError({
-          message: "Authentication required: User ID not found in token",
-          logging: true, // Log this as it indicates a potential middleware issue or bad token
-        })
-      );
-    }
-
-    const user = await getWithId(userId);
-
-    if (!user) {
-      // This might happen if the user was deleted after the token was issued
-      return next(
-        new NotFoundError({
-          message: "Authenticated user not found in database",
-          logging: true, // Log this as it's an unexpected state
-        })
-      );
-    }
-
-    // Exclude sensitive information like password_hash
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password_hash, ...safeUser } = user;
-    // Ensure the response structure matches what the client expects for /users/me
-    res.json({ user: safeUser });
-  } catch (error) {
-    next(error); // Pass errors to the global error handler
-  }
-};
