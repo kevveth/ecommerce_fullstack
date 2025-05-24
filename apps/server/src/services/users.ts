@@ -74,7 +74,7 @@ export async function update(
     // Build the SET clause dynamically using Object.entries for conciseness
     setClauses.push(`${key} = $${index}`);
     // Ensure a valid string is passed to `updateValues`
-    updateValues.push(value ? String(value) : "");
+    updateValues.push(value ?? "");
 
     index++; // Increment the index for the next placeholder
   });
