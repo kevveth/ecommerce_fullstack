@@ -1,0 +1,49 @@
+{
+  "name": "@ecommerce_fullstack/server",
+  "version": "1.0.0",
+  "main": "dist/app.js",
+  "scripts": {
+    "start": "node dist/app.js",
+    "dev": "tsc-watch",
+    "build": "tsc --build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui",
+    "dev-server": "tsc-watch --noClear -p ./tsconfig.json --onSuccess \"node ./dist/app.js\"",
+    "clean": "rm -rf dist",
+    "clear-refresh-tokens": "psql \"$DB_URL\" -c 'DELETE FROM refresh_tokens;'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@ecommerce/shared": "workspace:*",
+    "@types/passport": "^1.0.17",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-async-errors": "^3.1.1",
+    "jose": "^6.0.10",
+    "passport": "^0.7.0",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.8",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.10",
+    "@types/pg": "^8.11.10",
+    "@types/supertest": "^6.0.3",
+    "@vitest/coverage-v8": "^3.1.1",
+    "@vitest/ui": "^3.1.1",
+    "bcryptjs": "^3.0.2",
+    "supertest": "^7.1.0",
+    "ts-node": "^10.9.2",
+    "tsc-watch": "^6.2.1",
+    "tsx": "^4.19.2",
+    "vitest": "^3.1.1"
+  }
+}

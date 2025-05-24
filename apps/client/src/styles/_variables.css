@@ -1,0 +1,46 @@
+:root {
+  /* New Color Palette */
+  --cream: #f8f4e1; /* Light cream background */
+  --gold: #feba17; /* Golden yellow accent */
+  --brown: #74512d; /* Medium brown */
+  --dark-brown: #4e1f00; /* Deep dark brown */
+
+  /* Primary Colors */
+  --primary: var(--dark-brown);
+  --primary-accent: var(--brown);
+
+  /* Secondary Colors */
+  --secondary: var(--gold);
+  --secondary-accent: var(--gold);
+
+  /* Neutral Colors */
+  --background-light: var(--cream);
+  --background-dark: var(--dark-brown);
+  --text-dark: var(--dark-brown);
+  --text-light: var(--cream);
+  --text: var(--cream);
+
+  /* Border Colors */
+  --border-color: var(--brown);
+
+  /* Status Colors */
+  --error: #c62828; /* Keeping original error color */
+  --success: #2e7d32; /* Keeping original success color */
+  --warning: var(--gold);
+  --highlight: var(--gold);
+
+  /* Other UI Colors */
+  --shadow: rgba(78, 31, 0, 0.15);
+  --overlay: rgba(78, 31, 0, 0.7);
+
+  /* Additional Colors */
+  --neutral-100: var(--cream);
+  --neutral-200: #f3efd5;
+  --neutral-300: #e6dfc0;
+  --neutral-400: #d8ceab;
+  --neutral-500: #b2a98f;
+  --neutral-600: #8c8573;
+  --neutral-700: var(--brown);
+  --neutral-800: #5c4124;
+  --neutral-900: var(--dark-brown);
+}
