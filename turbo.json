@@ -1,27 +1,23 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": [".env"],
+  "globalDependencies": [".env", "pnpm-lock.yaml", "package.json"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**", "build/**", ".next/**"]
     },
     "dev": {
-      "dependsOn": ["^build"],
       "cache": false,
       "persistent": true
     },
     "check-types": {
       "dependsOn": ["^build"]
     },
-    "lint": {
-      "outputs": []
-    },
+    "lint": {},
     "test": {
-      "outputs": [],
       "cache": true,
       "dependsOn": ["^test"],
-      "env": ["NODE_ENV"]
+      "env": ["NODE_ENV", "VITE_API_URL", "DATABASE_URL"]
     },
     "clean": {
       "cache": false
