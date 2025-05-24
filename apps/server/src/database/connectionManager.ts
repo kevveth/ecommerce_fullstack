@@ -1,7 +1,6 @@
 import { Pool, PoolClient } from "pg";
 import { config } from "dotenv";
 import { env } from "../utils/env";
-import { initializeDatabase } from "./initializeDatabase";
 
 config();
 
@@ -9,7 +8,6 @@ config();
 class ConnectionManager {
   private static instance: ConnectionManager;
   private pool: Pool;
-  private initialized = false;
 
   private constructor() {
     this.pool = new Pool({
@@ -50,19 +48,11 @@ class ConnectionManager {
   }
 
   /**
-   * Initialize the database schema
-   * This ensures all required tables exist before the application starts using the database
+   * Get connection status - database is assumed to be ready
+   * Note: Database schema management is now handled by better-auth
    */
-  public async initialize(): Promise<void> {
-    if (this.initialized) return;
-
-    try {
-      await initializeDatabase(this.pool);
-      this.initialized = true;
-    } catch (error) {
-      console.error("Failed to initialize database:", error);
-      throw error;
-    }
+  public isInitialized(): boolean {
+    return true; // Always ready since we're not managing schema initialization
   }
 
   // Execute a query using the pool
