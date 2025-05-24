@@ -1,7 +1,7 @@
 /**
  * JWT Token utilities and schemas
  */
-import { z } from "zod";
+import { z } from "zod/v4";
 import { RoleSchema } from "./user";
 
 /**

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { CustomError } from "../errors/CustomError";
-import { ZodError, z } from "zod";
+import { ZodError, z } from "zod/v4";
 
 /**
  * Global error handling middleware

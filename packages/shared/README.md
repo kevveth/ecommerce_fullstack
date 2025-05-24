@@ -43,7 +43,7 @@ import {
 Zod v4 provides improved error handling through the `z.prettifyError()` function:
 
 ```ts
-import { z } from "zod";
+import { z } from "zod/v4";
 import { registrationSchema } from "@ecommerce/shared";
 
 try {

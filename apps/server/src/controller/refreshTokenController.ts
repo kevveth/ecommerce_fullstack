@@ -12,7 +12,7 @@ import {
   removeRefreshToken,
 } from "../services/auth/refresh";
 import { getWithId } from "../services/users";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 /**
  * Refreshes an access token using a valid refresh token

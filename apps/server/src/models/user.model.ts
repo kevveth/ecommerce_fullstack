@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v4";
 import { getWithEmail } from "../services/users";
 import {
   type User,

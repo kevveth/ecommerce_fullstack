@@ -4,7 +4,7 @@ import { addRefreshToken } from "../services/auth/refresh";
 import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
 import { loginSchema } from "../../../../packages/shared/dist/cjs/schemas";
 import { getWithEmail } from "../services/users";
-import { z } from "zod";
+import { z } from "zod/v4";
 import UnauthorizedError from "../errors/UnauthorizedError";
 
 /**

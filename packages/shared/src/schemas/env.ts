@@ -1,7 +1,7 @@
 /**
  * Environment variable schemas and types shared between client and server
  */
-import { z } from "zod";
+import { z } from "zod/v4";
 
 /**
  * Log missing optional environment variables for better debugging

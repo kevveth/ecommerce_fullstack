@@ -4,7 +4,7 @@
 import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "../context/authService"; // Changed from @/context/authService
 import { type User, userSchema } from "@ecommerce/shared"; // Using the shared User type
-import { z } from "zod";
+import { z } from "zod/v4";
 
 // Zod schema for the expected API response structure
 const UserProfileApiResponseSchema = z.object({

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v4";
 
 // Define base schemas with more specific error messages using Zod v4 syntax
 const IDSchema = z

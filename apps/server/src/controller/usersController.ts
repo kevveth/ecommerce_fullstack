@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { z } from "zod";
+import { z } from "zod/v4";
 import NotFoundError from "../errors/NotFoundError";
 import BadRequestError from "../errors/BadRequestError";
 import UnauthorizedError from "../errors/UnauthorizedError";

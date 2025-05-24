@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { createUser } from "../services/users";
 import { generateTokens } from "../utils/jwt";
 import { env } from "../utils/env";
-import { z } from "zod";
+import { z } from "zod/v4";
 import { registrationSchema } from "../../../../packages/shared/dist/cjs/schemas";
 
 /**
