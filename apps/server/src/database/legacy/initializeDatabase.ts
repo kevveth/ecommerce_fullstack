@@ -5,8 +5,7 @@
 import fs from "fs";
 import path from "path";
 import { Pool } from "pg";
-import { env } from "../utils/env";
-
+import { env } from "../../utils/env";
 /**
  * Split SQL into separate statements for better error handling.
  */
