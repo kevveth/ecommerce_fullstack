@@ -1,22 +1,22 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    /* Frontend specific */
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "skipLibCheck": true,
-    "isolatedModules": true,
-    "noEmit": true,
     "jsx": "react-jsx",
-    "strict": true,
+
+    /* Bundler specific */
+    "noEmit": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+
+    /* Development */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "moduleDetection": "force",
-    "resolveJsonModule": true,
-    "forceConsistentCasingInFileNames": true,
 
     /* Path mappings for workspace packages */
     "baseUrl": ".",

@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    /* Base Configuration for ESM Monorepo */
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleDetection": "force",
+
+    /* Strict Type Checking */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+
+    /* Module Resolution */
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "verbatimModuleSyntax": false,
+    "allowImportingTsExtensions": false,
+
+    /* Emit */
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "removeComments": false,
+    "importHelpers": true,
+
+    /* Advanced Options */
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "allowJs": false,
+    "checkJs": false,
+
+    /* Composite Projects */
+    "composite": true,
+    "incremental": true
+  },
+  "exclude": ["node_modules", "dist", "build", ".turbo"]
+}

@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext" // ESM-only: do not build for CommonJS
+  },
+  "files": [],
+  "references": [
+    { "path": "./packages/shared" },
+    { "path": "./apps/server" },
+    { "path": "./apps/client" }
+  ]
+}

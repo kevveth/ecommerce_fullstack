@@ -1,23 +1,33 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": [".env", "pnpm-lock.yaml", "package.json"],
+  "globalDependencies": [
+    ".env",
+    "pnpm-lock.yaml",
+    "package.json",
+    "tsconfig.base.json"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", "build/**", ".next/**"]
+      "outputs": ["dist/**", "build/**", ".next/**"],
+      "inputs": ["$TURBO_DEFAULT$", "tsconfig.json", "tsconfig.*.json"]
     },
     "dev": {
       "cache": false,
       "persistent": true
     },
     "check-types": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", "tsconfig.json", "tsconfig.*.json"]
     },
-    "lint": {},
+    "lint": {
+      "inputs": ["$TURBO_DEFAULT$", ".eslintrc.*", "eslint.config.*"]
+    },
     "test": {
       "cache": true,
       "dependsOn": ["^test"],
-      "env": ["NODE_ENV", "VITE_API_URL", "DATABASE_URL"]
+      "env": ["NODE_ENV", "VITE_API_URL", "DATABASE_URL"],
+      "inputs": ["$TURBO_DEFAULT$", "vitest.config.*", "tsconfig.json"]
     },
     "clean": {
       "cache": false
