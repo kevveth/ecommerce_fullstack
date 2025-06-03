@@ -4,6 +4,6 @@ import {
   getUserByUsername,
   updateUser,
   deleteUser,
-} from "./usersController";
+} from "./usersController.js";
 
 export { getAllUsers, getUser, getUserByUsername, updateUser, deleteUser };

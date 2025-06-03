@@ -1,15 +1,15 @@
 import { Request, Response, NextFunction } from "express";
 import { z } from "zod/v4";
-import NotFoundError from "../errors/NotFoundError";
-import BadRequestError from "../errors/BadRequestError";
+import NotFoundError from "../errors/NotFoundError.js";
+import BadRequestError from "../errors/BadRequestError.js";
 import {
   getAll,
   getWithId,
   getWithUsername,
   update,
   remove,
-} from "../services/users";
-import { userSchema, profileUpdateSchema } from "@ecommerce/shared/schemas"; // Updated import to use profileUpdateSchema
+} from "../services/users.js";
+import { userSchema, profileUpdateSchema } from "@ecommerce/schemas/user"; // Updated import to use profileUpdateSchema
 
 // Enhanced param schemas with better error messages
 const idParamSchema = z.object({

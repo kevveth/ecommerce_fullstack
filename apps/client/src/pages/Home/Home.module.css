@@ -45,9 +45,6 @@
 /* Hero Section */
 .heroSection {
   min-height: 600px;
-  background-image:
-    linear-gradient(rgba(78, 31, 0, 0.7), rgba(78, 31, 0, 0.4)),
-    url("/coffee-beans-bg.png");
   background-size: cover;
   background-position: center;
   display: flex;

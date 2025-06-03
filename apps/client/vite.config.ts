@@ -10,17 +10,11 @@ export default defineConfig({
     proxy: {
       // All API requests are proxied to the backend server
       "/api": {
-        target: "http://localhost:3001", // Updated to match your server port
+        target: "http://localhost:3000",
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path, // Keep the path as is
       },
-    },
-  },
-  resolve: {
-    alias: {
-      // Add path alias for the shared package
-      "@ecommerce/shared": resolve(__dirname, "../../packages/shared/src"),
     },
   },
   build: {

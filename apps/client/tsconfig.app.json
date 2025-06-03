@@ -21,12 +21,9 @@
     /* Path mappings for workspace packages */
     "baseUrl": ".",
     "paths": {
-      "@ecommerce/shared": ["../../packages/shared/src"],
-      "@ecommerce/shared/*": ["../../packages/shared/src/*"],
       "@/*": ["./src/*"]
     }
   },
   "include": ["src/**/*", "src/**/*.tsx", "src/**/*.ts"],
-  "exclude": ["node_modules"],
-  "references": [{ "path": "../../packages/shared" }]
+  "exclude": ["node_modules"]
 }

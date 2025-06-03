@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { z } from "zod/v4";
-import BadRequestError from "../errors/BadRequestError";
+import BadRequestError from "../errors/BadRequestError.js";
 
 /**
  * Centralized validation middleware factory

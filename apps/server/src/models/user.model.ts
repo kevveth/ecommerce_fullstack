@@ -1,5 +1,5 @@
-import { getWithEmail } from "../services/users";
-import { User as SharedUser, Role } from "@ecommerce/shared/schemas";
+import { getWithEmail } from "../services/users.js";
+import { User as SharedUser, Role } from "@ecommerce/schemas/user";
 
 /**
  * Server-side User type extends shared User with password_hash
