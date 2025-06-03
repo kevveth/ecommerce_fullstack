@@ -15,7 +15,7 @@ import { validateSchema } from "../validation/user.validation";
 import { getWithId } from "../services/users";
 import NotFoundError from "../errors/NotFoundError";
 import { User } from "../models/user.model";
-import { profileUpdateSchema } from "@ecommerce/shared/schemas";
+import { profileUpdateSchema } from "@ecommerce/schemas";
 
 const router: Router = express.Router();
 

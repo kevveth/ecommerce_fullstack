@@ -1,7 +1,7 @@
 /**
  * Enhanced environment validation with better error handling and logging.
  */
-import { serverEnvSchema, type ServerEnv } from "@ecommerce/shared/schemas/env";
+import { serverEnvSchema, type ServerEnv } from "@ecommerce/schemas/env";
 import { z } from "zod/v4";
 import "dotenv/config"; // Load environment variables from .env file
 

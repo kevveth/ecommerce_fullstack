@@ -1,0 +1,32 @@
+{
+  "name": "@ecommerce/schemas",
+  "type": "module",
+  "version": "1.0.0",
+  "imports": {
+    "#*": "./dist/*"
+  },
+  "exports": {
+    "./user": {
+      "types": "./dist/user.dt.ts",
+      "default": "./dist/user.js"
+    },
+    "./env": {
+      "types": "./dist/env.dt.ts",
+      "default": "./dist/env.js"
+    }
+  },
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 0"
+  },
+  "dependencies": {
+    "zod": "3.25.36"
+  },
+  "devDependencies": {
+    "@ecommerce/typescript-config": "workspace:*",
+    "@types/node": "^20.17.57",
+    "typescript": "latest"
+  }
+}
