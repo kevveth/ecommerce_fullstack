@@ -1,6 +1,6 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { registrationSchema } from "@ecommerce/shared/schemas"; // Correctly import registrationSchema
+import { registrationSchema } from "@ecommerce/schemas"; // Correctly import registrationSchema
 import styles from "./styles.module.css";
 import { z } from "zod/v4"; // Import z
 

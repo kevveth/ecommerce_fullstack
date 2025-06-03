@@ -1,0 +1,17 @@
+{
+  "name": "@ecommerce/typescript-config",
+  "version": "1.0.0",
+  "description": "Shared Typescript configurations for @ecommerce",
+  "author": "Kenneth Rathbun",
+  "license": "ISC",
+  "exports": {
+    "./base": "./base.json",
+    "./backend": "./backend.json",
+    "./react": "./react.json",
+    "./vite-node": "./vite-node.json"
+  },
+  "files": [
+    "*.json"
+  ],
+  "packageManager": "pnpm@10.10.0"
+}

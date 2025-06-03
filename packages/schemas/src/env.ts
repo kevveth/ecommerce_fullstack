@@ -8,6 +8,7 @@ import { z } from "zod/v4";
 
 /**
  * Log missing optional environment variables for better debugging
+ * Uses Zod v4's prettifyError for clean, human-readable error messages
  */
 export function logMissingOptionalEnvVars(
   envVars: Record<string, unknown>,
@@ -16,26 +17,37 @@ export function logMissingOptionalEnvVars(
   const result = schema.safeParse(envVars);
 
   if (!result.success) {
-    // Use Zod v4's prettifyError to get nicer error messages
     const prettyError = z.prettifyError(result.error);
 
-    const issues = result.error.issues.filter(
-      (issue) => issue.code === "invalid_type" && issue.path.length > 0
-    );
-
-    if (issues.length > 0) {
-      console.warn("⚠️ Missing optional environment variables:");
-      issues.forEach((issue) => {
-        console.warn(`  - ${issue.path.join(".")}: ${issue.message}`);
-      });
-    }
+    console.warn("⚠️ Environment variable validation errors:");
+    console.warn(prettyError);
   }
 }
 
 /**
+ * Parse and validate environment variables with helpful error logging
+ */
+export function parseEnvVars<T>(
+  envVars: Record<string, unknown>,
+  schema: z.ZodSchema<T>
+): T {
+  const result = schema.safeParse(envVars);
+
+  if (!result.success) {
+    const prettyError = z.prettifyError(result.error);
+
+    console.error("❌ Environment variable validation failed:");
+    console.error(prettyError);
+
+    throw new Error("Invalid environment variables");
+  }
+
+  return result.data;
+}
+
+/**
  * Server environment variable schema (Zod v4)
- * - Uses z.looseObject to allow extra OS/shell variables.
- * - Only validates the keys you care about.
+ * Uses z.looseObject to allow extra OS/shell variables
  */
 export const serverEnvSchema = z.looseObject({
   // Server Configuration
@@ -81,3 +93,12 @@ export const clientEnvSchema = z.object({
 // Type exports for type safety
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
 export type ClientEnv = z.infer<typeof clientEnvSchema>;
+
+// Utility functions for common use cases
+export const validateServerEnv = (
+  envVars: Record<string, unknown>
+): ServerEnv => parseEnvVars(envVars, serverEnvSchema);
+
+export const validateClientEnv = (
+  envVars: Record<string, unknown>
+): ClientEnv => parseEnvVars(envVars, clientEnvSchema);

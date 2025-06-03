@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { CustomError } from "../errors/CustomError";
+import { CustomError } from "../errors/CustomError.js";
 import { ZodError, z } from "zod/v4";
 
 /**

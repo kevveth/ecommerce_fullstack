@@ -1,4 +1,4 @@
-import { connectionManager, pool, query } from "./connectionManager";
+import { connectionManager, pool, query } from "./connectionManager.js";
 
 // Re-export the pool and query function for backward compatibility
 export { pool, query };

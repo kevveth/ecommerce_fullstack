@@ -10,12 +10,12 @@ import {
   getUser,
   getUserByUsername,
   updateUser,
-} from "../controller/usersController";
-import { validateSchema } from "../validation/user.validation";
-import { getWithId } from "../services/users";
-import NotFoundError from "../errors/NotFoundError";
-import { User } from "../models/user.model";
-import { profileUpdateSchema } from "@ecommerce/shared/schemas";
+} from "../controller/usersController.js";
+import { validateSchema } from "../validation/user.validation.js";
+import { getWithId } from "../services/users.js";
+import NotFoundError from "../errors/NotFoundError.js";
+import { User } from "../models/user.model.js";
+import { profileUpdateSchema } from "@ecommerce/schemas/user";
 
 const router: Router = express.Router();
 

@@ -1,6 +1,6 @@
 import { Pool, PoolClient } from "pg";
 import { config } from "dotenv";
-import { env } from "../utils/env";
+import { env } from "../utils/env.js";
 
 config();
 

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Vite Node/Build Tools",
+  "extends": "./base.jsonc",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "incremental": false,
+    "composite": false,
+
+    "types": ["node", "vite/client"],
+
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+
+    "isolatedModules": true,
+    "moduleDetection": "force"
+  }
+}

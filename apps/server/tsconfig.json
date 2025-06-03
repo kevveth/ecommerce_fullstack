@@ -1,34 +1,9 @@
 {
+  "extends": "@ecommerce/typescript-config/backend",
   "compilerOptions": {
-    "skipLibCheck": true,
-    "target": "ESNext",
-    "isolatedModules": true,
-    "lib": ["ESNext"],
-    "sourceMap": true,
-
-    /* Transpilation */
-    "module": "NodeNext",
-    "moduleResolution": "node16",
-    "rootDir": "./src",
-    "outDir": "./dist",
-    "composite": true,
-
-    /* Path mappings for workspace packages */
-    "baseUrl": ".",
-    "paths": {
-      "@ecommerce/shared": ["../../packages/shared/src"],
-      "@ecommerce/shared/*": ["../../packages/shared/src/*"]
-    },
-
-    /* Strictness */
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "noImplicitOverride": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "types": ["node"]
+    "rootDir": "src",
+    "outDir": "dist"
   },
-  "include": ["src/**/*", "src/**/*.sql"],
-  "exclude": ["node_modules", "**/*.spec.ts", "vitest.config.ts"],
-  "references": [{ "path": "../../packages/shared" }]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "**/*.spec.ts", "vitest.config.ts"]
 }

@@ -1,6 +1,6 @@
 import { z } from "zod/v4";
 import { Request, Response, NextFunction } from "express";
-import BadRequestError from "../errors/BadRequestError";
+import BadRequestError from "../errors/BadRequestError.js";
 
 /**
  * Middleware to validate data using a Zod schema

@@ -1,5 +1,5 @@
-import { User } from "../models/user.model";
-import * as db from "../database/database";
+import { User } from "../models/user.model.js";
+import * as db from "../database/database.js";
 
 /**
  * Creates a new user in the database
