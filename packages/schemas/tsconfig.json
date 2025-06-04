@@ -1,9 +1,6 @@
 {
-  "extends": "@ecommerce/typescript-config/base",
+  "extends": "@ecommerce/typescript-config/shared",
   "compilerOptions": {
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
     "outDir": "dist",
     "rootDir": "src"
   },

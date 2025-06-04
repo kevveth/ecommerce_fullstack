@@ -1,18 +1,6 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "@ecommerce/typescript-config/vite",
   "compilerOptions": {
-    /* Frontend specific */
-    "target": "ES2022",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "jsx": "react-jsx",
-
-    /* Bundler specific */
-    "noEmit": true,
-    "isolatedModules": true,
-    "moduleDetection": "force",
-
     /* Development */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -24,6 +12,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*", "src/**/*.tsx", "src/**/*.ts"],
+  "include": ["src"],
   "exclude": ["node_modules"]
 }

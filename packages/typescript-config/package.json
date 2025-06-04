@@ -8,7 +8,8 @@
     "./base": "./base.json",
     "./backend": "./backend.json",
     "./react": "./react.json",
-    "./vite-node": "./vite-node.json"
+    "./shared": "./shared.json",
+    "./vite": "./vite.json"
   },
   "files": [
     "*.json"

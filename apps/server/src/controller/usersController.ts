@@ -160,52 +160,52 @@ export async function getUserByUsername(
 }
 
 //Handles updating an existing user
-export async function updateUser(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  try {
-    const { id } = validateSchema(idParamSchema, req.params);
+// export async function updateUser(
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) {
+//   try {
+//     const { id } = validateSchema(idParamSchema, req.params);
 
-    // Ensure `updateData` is properly typed
-    const updateData = validateSchema(profileUpdateSchema, req.body) as Record<
-      string,
-      unknown
-    >;
+//     // Ensure `updateData` is properly typed
+//     const updateData = validateSchema(profileUpdateSchema, req.body) as Record<
+//       string,
+//       unknown
+//     >;
 
-    // Check if `updateData` is empty
-    if (Object.keys(updateData).length === 0) {
-      return res.status(400).json({
-        message: "At least one field must be provided for update.",
-      });
-    }
+//     // Check if `updateData` is empty
+//     if (Object.keys(updateData).length === 0) {
+//       return res.status(400).json({
+//         message: "At least one field must be provided for update.",
+//       });
+//     }
 
-    const result = await update(id, updateData);
+//     const result = await update(id, updateData);
 
-    if (!result) {
-      throw new NotFoundError({
-        message: "User not found",
-        logging: true,
-        context: {
-          method: "PUT",
-          expected: "user",
-          received: "undefined",
-          path: ["users", "id"],
-          id,
-        },
-      });
-    }
+//     if (!result) {
+//       throw new NotFoundError({
+//         message: "User not found",
+//         logging: true,
+//         context: {
+//           method: "PUT",
+//           expected: "user",
+//           received: "undefined",
+//           path: ["users", "id"],
+//           id,
+//         },
+//       });
+//     }
 
-    const user = userSchema.parse(result);
-    res.status(200).json({
-      message: "User updated successfully",
-      data: user,
-    });
-  } catch (error) {
-    next(error);
-  }
-}
+//     const user = userSchema.parse(result);
+//     res.status(200).json({
+//       message: "User updated successfully",
+//       data: user,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// }
 
 //Handles deleting a user
 export async function deleteUser(

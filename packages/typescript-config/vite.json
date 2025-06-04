@@ -1,12 +1,13 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "display": "Vite Node/Build Tools",
-  "extends": "./base.jsonc",
+  "extends": "./base.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "lib": ["ES2022"],
-    "module": "ESNext",
+    "target": "esnext",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "module": "esnext",
     "moduleResolution": "bundler",
+    "jsx": "react-jsx",
 
     "allowImportingTsExtensions": true,
     "noEmit": true,
