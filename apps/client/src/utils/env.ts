@@ -1,31 +1,33 @@
-/**
- * Client environment configuration using shared schema
- */
-import { clientEnvSchema, type ClientEnv } from "@ecommerce/schemas/env";
-import { z } from "zod/v4";
+import { minLength, z } from "zod/v4";
 
-/**
- * Parse and validate client environment variables
- * Provides sensible defaults where appropriate
- */
-function loadEnv(): ClientEnv {
-  try {
-    // In Vite, environment variables are exposed on import.meta.env
-    // Parse env with our schema, allowing defaults to be applied
-    return clientEnvSchema.parse(import.meta.env);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      console.error("❌ Client environment validation failed:");
-      console.error(z.prettifyError(error));
-      console.warn(
-        "⚠️ Using default values where possible. This may cause issues."
-      );
-    }
-    // In client code, we'll continue with defaults rather than crash the application
-    // For missing required values, TypeScript will handle this at compile time
-    throw error;
+const envSchema = z.object({
+  VITE_CLIENT_URL: z.url({ error: "Invalid Client URL" }),
+  VITE_API_URL: z.url({ error: "Invalid API URL" }),
+  VITE_DATABASE_URL: z.string().optional(),
+  VITE_BETTER_AUTH_SECRET: z.string().optional(),
+  VITE_BETTER_AUTH_TRUSTED_ORIGINS: z
+    .string()
+    .min(1, { error: "Trusted origins cannot be empty if provided" })
+    .transform((list) => list.split(",").map((url) => url.trim()))
+    .pipe(
+      z.array(
+        z
+          .url({ error: "Invalid URL in trusted origins list" })
+          .min(1, "Trusted origins list cannot be empty")
+      )
+    )
+    .optional(),
+});
+
+function parseClientEnv() {
+  const { data, success, error } = envSchema.safeParse(import.meta.env);
+
+  if (!success) {
+    console.error("❌ Invalid environment variables:", z.prettifyError(error));
+    throw new Error("Invalid client environment configuration.");
   }
+
+  return data;
 }
 
-// Export validated and typed environment variables
-export const env = loadEnv();
+export const env = parseClientEnv();
