@@ -1,11 +1,23 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { registrationSchema } from "@ecommerce/schemas"; // Correctly import registrationSchema
 import styles from "./styles.module.css";
-import { z } from "zod/v4"; // Import z
+import { z } from "zod/v4";
 
-// Define RegistrationInput type from the schema
-export type RegistrationInput = z.infer<typeof registrationSchema>;
+// ✅ Temporary registration schema - replace when you create the real one
+const tempRegistrationSchema = z.object({
+  username: z.string().min(3, {
+    error: "Username must be at least 3 characters",
+  }),
+  email: z.email({
+    error: "Please enter a valid email address",
+  }),
+  password: z.string().min(8, {
+    error: "Password must be at least 8 characters",
+  }),
+});
+
+// Define RegistrationInput type from the temporary schema
+export type RegistrationInput = z.infer<typeof tempRegistrationSchema>;
 
 // Define props expected from the parent
 interface RegistrationFormProps {
@@ -24,7 +36,7 @@ export function RegistrationForm({
     formState: { errors, isSubmitting: isFormSubmitting }, // RHF's state
     // reset, // Get reset if you want to clear form on success (triggered from parent maybe?)
   } = useForm<RegistrationInput>({
-    resolver: zodResolver(registrationSchema),
+    resolver: zodResolver(tempRegistrationSchema as any), // ✅ Using temporary schema
     mode: "onChange", // Keep client-side validation on change
   });
 
@@ -38,7 +50,7 @@ export function RegistrationForm({
 
   return (
     <form
-      className={styles.regFormContainer}
+      className={styles["regFormContainer"]}
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       onSubmit={handleSubmit(onSubmit)}
       noValidate
@@ -52,9 +64,16 @@ export function RegistrationForm({
           type="text"
           // placeholder="Username"
           className={styles.input}
+          aria-describedby={errors.username ? "username-error" : undefined}
         />
         {errors.username && (
-          <div className={styles.errorField}>{errors.username.message}</div>
+          <div
+            id="username-error"
+            className={styles.errorField}
+            aria-live="polite"
+          >
+            {errors.username.message}
+          </div>
         )}
       </div>
 
@@ -67,10 +86,17 @@ export function RegistrationForm({
           type="email"
           // placeholder="Email"
           className={styles.input}
+          aria-describedby={errors.email ? "email-error" : undefined}
         />
         {/* errors.email now ONLY shows client-side format errors */}
         {errors.email && (
-          <div className={styles.errorField}>{errors.email.message}</div>
+          <div
+            id="email-error"
+            className={styles.errorField}
+            aria-live="polite"
+          >
+            {errors.email.message}
+          </div>
         )}
       </div>
 
@@ -83,9 +109,16 @@ export function RegistrationForm({
           type="password"
           // placeholder="Password"
           className={styles.input}
+          aria-describedby={errors.password ? "password-error" : undefined}
         />
         {errors.password && (
-          <div className={styles.errorField}>{errors.password.message}</div>
+          <div
+            id="password-error"
+            className={styles.errorField}
+            aria-live="polite"
+          >
+            {errors.password.message}
+          </div>
         )}
       </div>
 
