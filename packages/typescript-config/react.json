@@ -10,12 +10,10 @@
 
     "jsx": "react-jsx",
     "allowImportingTsExtensions": true,
-
+    "verbatimModuleSyntax": true,
     "noEmit": true,
-    "declaration": false,
-    "declarationMap": false,
 
-    "useDefineForClassFields": true,
-    "allowJs": true
+    "declaration": false,
+    "declarationMap": false
   }
 }

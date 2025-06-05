@@ -1,6 +1,5 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-
   "compilerOptions": {
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -9,9 +8,9 @@
     "resolveJsonModule": true,
     "moduleDetection": "force",
     "isolatedModules": true,
+
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "noUncheckedIndexedAccess": true,
-    "module": "NodeNext"
+    "noUncheckedIndexedAccess": true
   }
 }

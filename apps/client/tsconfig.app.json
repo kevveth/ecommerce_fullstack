@@ -1,16 +1,11 @@
 {
   "extends": "@ecommerce/typescript-config/vite",
   "compilerOptions": {
-    /* Development */
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-
     /* Path mappings for workspace packages */
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    // "baseUrl": ".",
+    // "paths": {
+    //   "@/*": ["./src/*"]
+    // }
   },
   "include": ["src"],
   "exclude": ["node_modules"]

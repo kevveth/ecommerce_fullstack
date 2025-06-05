@@ -5,21 +5,19 @@
   "compilerOptions": {
     "target": "esnext",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "module": "esnext",
-    "moduleResolution": "bundler",
     "jsx": "react-jsx",
 
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "noEmit": true,
-    "incremental": false,
-    "composite": false,
 
-    "types": ["node", "vite/client"],
+    "types": ["vite/client"],
 
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-
-    "isolatedModules": true,
-    "moduleDetection": "force"
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "useUnknownInCatchVariables": true,
+    "noUncheckedSideEffectImports": true
   }
 }

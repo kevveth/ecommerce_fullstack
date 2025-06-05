@@ -7,11 +7,10 @@ settings:
 importers:
 
   .:
-    dependencies:
-      better-auth:
-        specifier: ^1.2.8
-        version: 1.2.8
     devDependencies:
+      eslint-config-turbo:
+        specifier: 2.5.4
+        version: 2.5.4(eslint@9.27.0)(turbo@2.5.4)
       prettier:
         specifier: 3.5.1
         version: 3.5.1
@@ -39,6 +38,9 @@ importers:
       axios:
         specifier: ^1.9.0
         version: 1.9.0
+      better-auth:
+        specifier: ^1.2.8
+        version: 1.2.8
       eslint-plugin-react:
         specifier: ^7.37.5
         version: 7.37.5(eslint@9.27.0)
@@ -57,6 +59,9 @@ importers:
       react-router:
         specifier: ^7.5.2
         version: 7.6.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      zod:
+        specifier: ^3.25.51
+        version: 3.25.51
     devDependencies:
       '@ecommerce/typescript-config':
         specifier: workspace:*
@@ -91,6 +96,9 @@ importers:
       tsx:
         specifier: ^4.19.2
         version: 4.19.4
+      typescript:
+        specifier: ^5.8.3
+        version: 5.8.3
       vite:
         specifier: ^6.3.3
         version: 6.3.5(@types/node@22.15.24)(tsx@4.19.4)
@@ -100,6 +108,9 @@ importers:
       '@ecommerce/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas
+      better-auth:
+        specifier: ^1.2.8
+        version: 1.2.8
       cookie-parser:
         specifier: ^1.4.7
         version: 1.4.7
@@ -119,8 +130,8 @@ importers:
         specifier: ^8.16.0
         version: 8.16.0
       zod:
-        specifier: ^3.25.49
-        version: 3.25.49
+        specifier: ^3.25.51
+        version: 3.25.51
     devDependencies:
       '@ecommerce/typescript-config':
         specifier: workspace:*
@@ -1286,6 +1297,10 @@ packages:
   dom-accessibility-api@0.5.16:
     resolution: {integrity: sha512-X7BJ2yElsnOJ30pZF4uIIDfBEVgF4XEBxL9Bxhy6dnrm5hkzqmsWHGTiHqRiITNhMyFLyAiWndIJP7Z1NTteDg==}
 
+  dotenv@16.0.3:
+    resolution: {integrity: sha512-7GO6HghkA5fYG9TYnNxi14/7K9f5occMlp3zXAuSxn7CKCxt9xbNWG7yF8hTCSUchlfWSe3uLmlPfigevRItzQ==}
+    engines: {node: '>=12'}
+
   dotenv@16.5.0:
     resolution: {integrity: sha512-m/C+AwOAr9/W1UOIZUo232ejMNnJAJtYQjUbHoNTBNTJSvqzzDh7vnrei3o3r3m9blf6ZoDkvcw0VmozNRFJxg==}
     engines: {node: '>=12'}
@@ -1365,6 +1380,12 @@ packages:
     resolution: {integrity: sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==}
     engines: {node: '>=10'}
 
+  eslint-config-turbo@2.5.4:
+    resolution: {integrity: sha512-OpjpDLXIaus0N/Y+pMj17K430xjpd6WTo0xPUESqYZ9BkMngv2n0ZdjktgJTbJVnDmK7gHrXgJAljtdIMcYBIg==}
+    peerDependencies:
+      eslint: '>6.6.0'
+      turbo: '>2.0.0'
+
   eslint-plugin-react-hooks@5.2.0:
     resolution: {integrity: sha512-+f15FfK64YQwZdJNELETdn5ibXEUQmW1DZL6KXhNnc2heoy/sg9VJJeT7n8TlMWouzWqSWavFkIhHyIbIAEapg==}
     engines: {node: '>=10'}
@@ -1376,6 +1397,12 @@ packages:
     engines: {node: '>=4'}
     peerDependencies:
       eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9.7
+
+  eslint-plugin-turbo@2.5.4:
+    resolution: {integrity: sha512-IZsW61DFj5mLMMaCJxhh1VE4HvNhfdnHnAaXajgne+LUzdyHk2NvYT0ECSa/1SssArcqgTvV74MrLL68hWLLFw==}
+    peerDependencies:
+      eslint: '>6.6.0'
+      turbo: '>2.0.0'
 
   eslint-scope@8.3.0:
     resolution: {integrity: sha512-pUNxi75F8MJ/GdeKtVLSbYg4ZI34J6C0C7sbL4YOp2exGwen7ZsuBqKzUhXd0qMQ362yET3z+uPwKeg/0C2XCQ==}
@@ -2781,8 +2808,8 @@ packages:
   zod@3.25.36:
     resolution: {integrity: sha512-eRFS3i8T0IrpGdL8HQyqFAugGOn7jOjyGgGdtv5NY4Wkhi7lJDk732bNZ609YMIGFbLoaj6J69O1Mura23gfIw==}
 
-  zod@3.25.49:
-    resolution: {integrity: sha512-JMMPMy9ZBk3XFEdbM3iL1brx4NUSejd6xr3ELrrGEfGb355gjhiAWtG3K5o+AViV/3ZfkIrCzXsZn6SbLwTR8Q==}
+  zod@3.25.51:
+    resolution: {integrity: sha512-TQSnBldh+XSGL+opiSIq0575wvDPqu09AqWe1F7JhUMKY+M91/aGlK4MhpVNO7MgYfHcVCB1ffwAUTJzllKJqg==}
 
 snapshots:
 
@@ -3694,7 +3721,7 @@ snapshots:
       jose: 5.10.0
       kysely: 0.28.2
       nanostores: 0.11.4
-      zod: 3.25.36
+      zod: 3.25.51
 
   better-call@1.0.9:
     dependencies:
@@ -3897,6 +3924,8 @@ snapshots:
 
   dom-accessibility-api@0.5.16: {}
 
+  dotenv@16.0.3: {}
+
   dotenv@16.5.0: {}
 
   dunder-proto@1.0.1:
@@ -4052,6 +4081,12 @@ snapshots:
 
   escape-string-regexp@4.0.0: {}
 
+  eslint-config-turbo@2.5.4(eslint@9.27.0)(turbo@2.5.4):
+    dependencies:
+      eslint: 9.27.0
+      eslint-plugin-turbo: 2.5.4(eslint@9.27.0)(turbo@2.5.4)
+      turbo: 2.5.4
+
   eslint-plugin-react-hooks@5.2.0(eslint@9.27.0):
     dependencies:
       eslint: 9.27.0
@@ -4077,6 +4112,12 @@ snapshots:
       semver: 6.3.1
       string.prototype.matchall: 4.0.12
       string.prototype.repeat: 1.0.0
+
+  eslint-plugin-turbo@2.5.4(eslint@9.27.0)(turbo@2.5.4):
+    dependencies:
+      dotenv: 16.0.3
+      eslint: 9.27.0
+      turbo: 2.5.4
 
   eslint-scope@8.3.0:
     dependencies:
@@ -5648,4 +5689,4 @@ snapshots:
 
   zod@3.25.36: {}
 
-  zod@3.25.49: {}
+  zod@3.25.51: {}
