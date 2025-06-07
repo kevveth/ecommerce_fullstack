@@ -3,9 +3,12 @@
   "private": true,
   "scripts": {
     "dev": "turbo run dev",
+    "dev:client": "turbo run dev --filter=@ecommerce/client",
+    "dev:server": "turbo run dev --filter=@ecommerce/server",
     "build": "turbo run build",
+    "build:client": "turbo run build --filter=@ecommerce/client",
+    "build:server": "turbo run dev --filter=@ecommerce/server",
     "lint": "turbo run lint",
-    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
     "check-types": "turbo run check-types",
     "test": "turbo run test",
     "clean": "turbo run clean && rm -rf node_modules/.cache"
