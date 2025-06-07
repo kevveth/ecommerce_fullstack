@@ -1,6 +1,6 @@
 import { minLength, z } from "zod/v4";
 
-const envSchema = z.object({
+const clientEnv = z.object({
   VITE_CLIENT_URL: z.url({ error: "Invalid Client URL" }),
   VITE_API_URL: z.url({ error: "Invalid API URL" }),
   VITE_DATABASE_URL: z.string().optional(),
@@ -20,10 +20,13 @@ const envSchema = z.object({
 });
 
 function parseClientEnv() {
-  const { data, success, error } = envSchema.safeParse(import.meta.env);
+  const { data, success, error } = clientEnv.safeParse(import.meta.env);
 
   if (!success) {
-    console.error("❌ Invalid environment variables:", z.prettifyError(error));
+    console.error(
+      "❌ (client) Invalid environment variables:",
+      z.prettifyError(error)
+    );
     throw new Error("Invalid client environment configuration.");
   }
 

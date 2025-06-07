@@ -37,7 +37,7 @@ app.use(errorHandler);
 
 // Start server (skip in tests)
 if (process.env.NODE_ENV !== "test") {
-  const port = env.PORT || 3000;
+  const port = env.DB_PORT || 3000;
   app.listen(port, () => {
     console.log(`Server running on port ${port}`);
   });
