@@ -2,12 +2,9 @@
   "name": "@ecommerce/schemas",
   "type": "module",
   "version": "1.0.0",
-  "imports": {
-    "#*": "./dist/*"
-  },
   "exports": {
     "./user": {
-      "types": "./dist/user.dt.ts",
+      "types": "./dist/user.d.ts",
       "default": "./dist/user.js"
     }
   },

@@ -2,10 +2,10 @@
   "extends": "@ecommerce/typescript-config/vite",
   "compilerOptions": {
     /* Path mappings for workspace packages */
-    // "baseUrl": ".",
-    // "paths": {
-    //   "@/*": ["./src/*"]
-    // }
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["src"],
   "exclude": ["node_modules"]
