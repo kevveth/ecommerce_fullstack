@@ -1,8 +1,8 @@
-import { minLength, z } from "zod/v4";
+import { z } from "zod/v4";
 
 const clientEnv = z.object({
   VITE_CLIENT_URL: z.url({ error: "Invalid Client URL" }),
-  VITE_API_URL: z.url({ error: "Invalid API URL" }),
+  VITE_SERVER_URL: z.url({ error: "Invalid Server URL" }),
   VITE_DATABASE_URL: z.string().optional(),
   VITE_BETTER_AUTH_SECRET: z.string().optional(),
   VITE_BETTER_AUTH_TRUSTED_ORIGINS: z
