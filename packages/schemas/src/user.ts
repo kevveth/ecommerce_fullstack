@@ -7,7 +7,7 @@ export type Role = z.infer<typeof RoleSchema>;
 
 // --- User Schema ---
 export const userSchema = z
-  .strictObject({
+  .object({
     user_id: z
       .number()
       .positive({ error: "ID must be a positive number" })
