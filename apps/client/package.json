@@ -3,9 +3,6 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "imports": {
-    "#env": "./src/utils/env.ts"
-  },
   "scripts": {
     "dev": "vite --configLoader runner",
     "build": "vite build --configLoader runner",

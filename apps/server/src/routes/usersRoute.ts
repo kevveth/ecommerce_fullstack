@@ -10,8 +10,7 @@ import {
   getUser,
   getUserByUsername,
   // updateUser,
-} from "../controller/usersController.js";
-import { validateSchema } from "../validation/user.validation.js";
+} from "../controllers/usersController.ts";
 import { getWithId } from "../services/users.js";
 import NotFoundError from "../errors/NotFoundError.js";
 import { User } from "../models/user.model.js";

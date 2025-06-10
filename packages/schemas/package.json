@@ -3,9 +3,9 @@
   "type": "module",
   "version": "1.0.0",
   "exports": {
-    "./user": {
-      "types": "./dist/user.d.ts",
-      "default": "./dist/user.js"
+    "./*": {
+      "types": "./dist/*.ts",
+      "default": "./dist/*.js"
     }
   },
   "scripts": {
