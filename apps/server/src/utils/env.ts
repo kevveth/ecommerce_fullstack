@@ -1,7 +1,7 @@
 /**
  * Enhanced environment validation with better error handling and logging.
  */
-import { z } from "zod/v4";
+import { minLength, z } from "zod/v4";
 import "dotenv/config"; // Load environment variables from .env file
 import { error } from "console";
 
@@ -14,11 +14,20 @@ import { error } from "console";
 const modes = ["development", "production", "test"] as const;
 
 const serverEnv = z.object({
-  PORT: z.coerce.number(),
-  NODE_ENV: z
-    // .literal(["development", "production", "string"])
-    .enum(modes)
-    .default("development"),
+  PORT: z
+    .string()
+    .transform((str) => {
+      let port = str;
+      if (!port) {
+        console.log(
+          "🔧 PORT not specified, defaulting to 3000. Set PORT environment variable to change."
+        );
+        port = "3000";
+      }
+      return Number.parseInt(port);
+    })
+    .pipe(z.number().gte(0).lte(65535)),
+  NODE_ENV: z.enum(modes).default("development"),
   DB_URL: z.url().optional(),
   DB_HOST: z.string().default("localhost"),
   DB_PORT: z.coerce.number().max(65535).default(5432),
@@ -46,11 +55,13 @@ function parseServerEnv() {
   const { data, success, error } = serverEnv.safeParse(process.env);
 
   if (!success) {
-    console.error(z.prettifyError(error));
-    throw new Error("Invalid server environment configuration.");
+    const prettyError = z.prettifyError(error);
+    throw new Error(
+      `❤️‍🩹  Invalid server environment configuration\n${prettyError}`
+    );
   }
 
-  console.log("🤑 Server environment variables validated successfully.");
+  console.log("🐝 Server environment variables validated successfully.");
   return data;
 }
 
