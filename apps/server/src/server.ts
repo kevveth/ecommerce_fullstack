@@ -1,5 +1,4 @@
 import express, { type Express } from "express";
-import "express-async-errors";
 
 import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
 import { auth } from "./utils/auth.ts";
@@ -20,14 +19,14 @@ const corsOptions: CorsOptions = {
 };
 
 // Auth routes
-app.all("/api/auth/*", toNodeHandler(auth));
+app.all("/api/auth/{*any}", toNodeHandler(auth));
 
 // Middleware
 app.use(cors(corsOptions));
 app.use(express.json());
 
 // Routes
-app.get("/", (_req, res) => {
+app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
