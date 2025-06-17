@@ -392,6 +392,10 @@ navigate('/products');
 - Use `<Link>`/`<NavLink>` for navigation, never `<a href>` for internal links
 - Use loaders for data fetching, actions for mutations
 - Use `errorElement` for route-level error boundaries
+- For information about react router v7, reference the documentation at:
+  https://reactrouter.com/start/declarative/routing,
+  https://reactrouter.com/start/declarative/navigating,
+  https://reactrouter.com/start/declarative/url-values
 
 ## Monorepo Build (Turborepo)
 
