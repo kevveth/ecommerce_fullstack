@@ -8,7 +8,7 @@ interface PageLayoutProps {
   pageTitle?: string;
 }
 
-export default function PageLayout({ children, pageTitle }: PageLayoutProps) {
+export function PageLayout({ children, pageTitle }: PageLayoutProps) {
   return (
     <div className={styles.pageContainer}>
       {/* <Navbar /> */}
