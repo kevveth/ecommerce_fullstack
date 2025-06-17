@@ -64,31 +64,18 @@ type PartialUser = Partial<User>;
 type UserEmail = Pick<User, "email">;
 ```
 
+## BETTER-AUTH
+
+- For information about better-auth, reference the documentation at: https://www.better-auth.com/llms.txt
+
 ## Backend & API
 
 **Express.js Patterns:**
 
-- Use async/await for all async operations
-- Use middleware for cross-cutting concerns (auth, validation, error handling)
-- Use parameterized queries for database access
-- Use transactions for multi-step operations
+- For information about Express v5, reference the documentation at: https://expressjs.com/en/guide/migrating-5.html
 - Always validate request data with Zod schemas
 
-**Standard API Route:**
-
-```typescript
-app.post("/api/users", async (req, res, next) => {
-  try {
-    const userData = CreateUserSchema.parse(req.body);
-    const user = await createUser(userData);
-    res.json(user);
-  } catch (error) {
-    next(error);
-  }
-});
-```
-
-## React Development
+## React
 
 **Component Structure:**
 
@@ -106,12 +93,12 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
 **Core Principles:**
 
 - Use function components and hooks exclusively
+- Write simple handlers inline
 - Follow the Rules of Hooks: only call at top level, only from React functions
 - Keep components pure and idempotent - same inputs = same outputs
 - Break UI into small, focused components (single responsibility)
 - Use explicit, well-typed props interfaces
 - Co-locate state where used; lift up only when needed
-- Use `useState` for local state, `useReducer` for complex state logic
 
 ### Effects and State Management
 
