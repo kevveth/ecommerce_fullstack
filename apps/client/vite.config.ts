@@ -1,9 +1,12 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
+import path from "path";
+import { fileURLToPath } from "url";
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  clearScreen: false,
   server: {
     port: 5173, // Explicitly set the client port
     proxy: {
@@ -16,10 +19,9 @@ export default defineConfig({
       },
     },
   },
-  build: {
-    commonjsOptions: {
-      // This helps with handling CommonJS dependencies
-      transformMixedEsModules: true,
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
 });

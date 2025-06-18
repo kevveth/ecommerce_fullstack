@@ -6,7 +6,7 @@
   },
   "files": [],
   "references": [
-    { "path": "./packages/shared" },
+    { "path": "./packages/schemas" },
     { "path": "./apps/server" },
     { "path": "./apps/client" }
   ]
