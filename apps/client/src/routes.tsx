@@ -3,7 +3,7 @@ import App from "./App";
 import { PageLayout } from "./components/PageLayout/PageLayout";
 import { Home } from "./pages/Home/Home";
 import { NotFound } from "./errors/NotFound";
-import { SignUpRoute } from "./features/auth/SignUp/SignUp";
+import { SignUp } from "./features/auth/SignUp/SignUp";
 export function AppRoutes() {
   return (
     <Routes>
@@ -14,7 +14,7 @@ export function AppRoutes() {
         </Route>
 
         {/* Auth */}
-        {SignUpRoute}
+        <Route path="sign-up" element={<SignUp />} />
         {/* Protected */}
         <Route path="profile" element={<></>} />
 

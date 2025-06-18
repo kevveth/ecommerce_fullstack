@@ -34,7 +34,7 @@ const serverEnv = z.object({
   DB_USER: z.string().optional(),
   DB_PASSWORD: z.string().optional(),
   DB_DATABASE: z.string(),
-  CLIENT_URL: z.url().default("http://localhost:5173/"),
+  CLIENT_URL: z.url(),
   BETTER_AUTH_SECRET: z.string().optional(),
   BETTER_AUTH_URL: z.url({ error: "Invalid URL for BetterAuth" }),
   BETTER_AUTH_TRUSTED_ORIGINS: z

@@ -18,11 +18,12 @@ const corsOptions: CorsOptions = {
   credentials: true,
 };
 
+app.use(cors(corsOptions));
+
 // Auth routes
 app.all("/api/auth/{*any}", toNodeHandler(auth));
 
 // Middleware
-app.use(cors(corsOptions));
 app.use(express.json());
 
 // Routes

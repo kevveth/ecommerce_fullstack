@@ -11,5 +11,10 @@ export const auth = betterAuth({
     autoSignIn: false,
   },
   trustedOrigins: [env.CLIENT_URL],
-  // socialProviders: {}
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60,
+    },
+  },
 });

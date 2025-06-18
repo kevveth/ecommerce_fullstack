@@ -4,6 +4,8 @@ export const signUpSchema = z.object({
   name: z.string(),
   email: z.email(),
   password: z.string(),
+  image: z.string().optional(),
+  callbackURL: z.string().optional(),
 });
 
-export type SignUpWithEmail = z.infer<typeof signUpSchema>;
+export type SignUpInput = z.infer<typeof signUpSchema>;
