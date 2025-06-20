@@ -1,56 +1,83 @@
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod/v4";
 import { zodResolver } from "@hookform/resolvers/zod";
-// import { signUpSchema, type SignUpInput } from "@ecommerce/schemas/better-auth";
 
 const signUpSchema = z.object({
-  name: z.string().min(2),
-  email: z.email(),
-  password: z.string().min(6),
+  name: z.string().min(2, {
+    error: "Name must be at least 2 characters long",
+  }),
+  email: z.email({
+    error: "Please enter a valid email address",
+  }),
+  password: z.string().min(6, {
+    error: "Password must be at least 6 characters long",
+  }),
   image: z.string().optional(),
   callbackURL: z.string().optional(),
 });
 
 export type SignUpInput = z.infer<typeof signUpSchema>;
 
-type SignUpFormProps = {
+interface SignUpFormProps {
   onSubmit: SubmitHandler<SignUpInput>;
-};
+}
 
-export function SignUpForm({
-  onSubmit = (data) => console.log(data),
-}: SignUpFormProps) {
+export function SignUpForm({ onSubmit }: SignUpFormProps) {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<SignUpInput>({
     resolver: zodResolver(signUpSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
   });
 
   return (
-    <div>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div>
-          <label htmlFor="name">Name: </label>
-          <input {...register("name")} />
-          <p>{errors.name && <span>{errors.name.message}</span>}</p>
-        </div>
+    <form onSubmit={handleSubmit(onSubmit)} className="signup-form">
+      <div className="form-group">
+        <label htmlFor="name">Name</label>
+        <input
+          id="name"
+          type="text"
+          {...register("name")}
+          disabled={isSubmitting}
+        />
+        {errors.name && <p className="error-message">{errors.name.message}</p>}
+      </div>
 
-        <div>
-          <label htmlFor="email">Email: </label>
-          <input type="email" {...register("email")} />
-          <p>{errors.email?.message}</p>
-        </div>
+      <div className="form-group">
+        <label htmlFor="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          {...register("email")}
+          disabled={isSubmitting}
+        />
+        {errors.email && (
+          <p className="error-message">{errors.email.message}</p>
+        )}
+      </div>
 
-        <div>
-          <label htmlFor="password">Password: </label>
-          <input type="password" {...register("password")} />
-          <p>{errors.password?.message}</p>
-        </div>
+      <div className="form-group">
+        <label htmlFor="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          {...register("password")}
+          disabled={isSubmitting}
+        />
+        {errors.password && (
+          <p className="error-message">{errors.password.message}</p>
+        )}
+      </div>
 
-        <input type="submit" />
-      </form>
-    </div>
+      <button type="submit" disabled={isSubmitting} className="submit-button">
+        {isSubmitting ? "Signing up..." : "Sign Up"}
+      </button>
+    </form>
   );
 }
