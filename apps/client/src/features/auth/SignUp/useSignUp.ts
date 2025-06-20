@@ -1,7 +1,6 @@
 import { authClient, type User } from "@/utils/auth-client";
 import { useMutation } from "@tanstack/react-query";
 import type { SignUpInput } from "./SignUpForm";
-import { useErrorBoundary } from "react-error-boundary";
 
 interface SignUpResponse {
   token: string | null;
@@ -9,8 +8,6 @@ interface SignUpResponse {
 }
 
 export function useSignUp() {
-  const { showBoundary } = useErrorBoundary();
-
   const {
     mutate: signUpWithEmail,
     data,
