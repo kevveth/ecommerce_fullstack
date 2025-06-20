@@ -1,8 +1,7 @@
-import { useState } from "react";
 import { authClient, type User } from "@/utils/auth-client";
-import { useErrorBoundary } from "react-error-boundary";
+import { useMutation } from "@tanstack/react-query";
 import type { SignUpInput } from "./SignUpForm";
-import { BetterAuthError } from "better-auth";
+import { useErrorBoundary } from "react-error-boundary";
 
 interface SignUpResponse {
   token: string | null;
@@ -10,12 +9,17 @@ interface SignUpResponse {
 }
 
 export function useSignUp() {
-  const [data, setData] = useState<SignUpResponse | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
   const { showBoundary } = useErrorBoundary();
 
-  async function signUpWithEmail({ email, password, name }: SignUpInput) {
-    try {
+  const {
+    mutate: signUpWithEmail,
+    data,
+    error,
+    isError,
+    isPending,
+  } = useMutation({
+    mutationKey: ["sign-up"],
+    mutationFn: async ({ email, password, name }: SignUpInput) => {
       const { data: response, error } = await authClient.signUp.email({
         email,
         password,
@@ -23,27 +27,18 @@ export function useSignUp() {
       });
 
       if (error) {
-        if (error.code === "USER_ALREADY_EXISTS") {
-          setFormError(
-            "An account with this email already exists. Please sign in instead."
-          );
-          return null;
-        }
-
         throw error;
       }
 
-      setData(response);
-      return response;
-    } catch (err) {
-      showBoundary(err);
-      return null;
-    }
-  }
+      return response as SignUpResponse;
+    },
+  });
 
   return {
     data,
-    formError,
+    error,
+    isError,
+    isPending,
     signUpWithEmail,
   };
 }
