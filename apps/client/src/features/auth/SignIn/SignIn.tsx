@@ -1,7 +1,7 @@
 import { useSignIn } from "./useSignIn";
 import { SignInForm } from "./SignInForm";
 import { SignInInput } from "./SignInForm";
-import styles from "./styles.module.css";
+import styles from "./signin.module.css";
 
 export function SignIn() {
   const { error, signIn } = useSignIn();

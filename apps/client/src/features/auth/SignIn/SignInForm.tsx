@@ -1,7 +1,7 @@
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod/v4";
 import { zodResolver } from "@hookform/resolvers/zod";
-import styles from "./styles.module.css";
+import styles from "./signin.module.css";
 
 const signInSchema = z.object({
   email: z.email({

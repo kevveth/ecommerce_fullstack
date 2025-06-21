@@ -1,6 +1,6 @@
 import { SignUpForm, type SignUpInput } from "./SignUpForm";
 import { useSignUp } from "./useSignUp";
-import styles from "./styles.module.css";
+import styles from "./signup.module.css";
 
 export function SignUp() {
   const { data, error, signUpWithEmail } = useSignUp();

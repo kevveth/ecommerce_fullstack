@@ -1,7 +1,7 @@
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod/v4";
 import { zodResolver } from "@hookform/resolvers/zod";
-import styles from "./styles.module.css";
+import styles from "./signup.module.css";
 
 const signUpSchema = z.object({
   name: z.string().min(2, {
