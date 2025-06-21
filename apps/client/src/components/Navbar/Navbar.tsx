@@ -1,120 +1,64 @@
-// import { Link, useMatch } from "react-router";
-// import { useAuth } from "../../context/AuthContext";
-// import styles from "./styles.module.css";
-// import { useState } from "react";
+import { SignOut } from "@/features/auth/SignOut/SignOut";
+import { authClient } from "@/utils/auth-client";
+import { Link, Route } from "react-router";
 
-// /**
-//  * Renders the navigation bar.
-//  * @returns The Navbar component.
-//  */
-// export function Navbar() {
-//   const { user, logout } = useAuth();
-//   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+const routes = {
+  home: "/",
+  signIn: "/sign-in",
+  signUp: "/sign-up",
+  signOut: "/sign-out",
+  profile: "/profile",
+  products: "/products",
+} as const;
 
-//   // Toggle mobile menu open/close
-//   const toggleMobileMenu = () => {
-//     setIsDropdownOpen(!isDropdownOpen);
-//   };
+type TypeOfRoutes = typeof routes;
+type RouteKeys = keyof TypeOfRoutes;
+type Route = (typeof routes)[RouteKeys];
 
-//   // Close mobile menu (used on link click)
-//   const closeMobileMenu = () => {
-//     setIsDropdownOpen(false);
-//   };
+type NavItem = {
+  to: Route;
+  label: string;
+};
 
-//   // Helper to check if a route is active
-//   const isActive = (path: string) => {
-//     return !!useMatch(path);
-//   };
+export function NavBar() {
+  //   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { data: session } = authClient.useSession();
 
-//   return (
-//     <nav className={styles.navbar}>
-//       <div className={styles.navContent}>
-//         <div className={styles.logoSection}>
-//           <Link to="/" className={styles.logo} onClick={closeMobileMenu}>
-//             Ken's Coffee Company
-//           </Link>
-//         </div>
+  const publicItems: NavItem[] = [
+    { to: "/", label: "Home" },
+    { to: "/products", label: "Products" },
+  ];
 
-//         <button
-//           className={styles.mobileMenuButton}
-//           onClick={toggleMobileMenu}
-//           aria-label="Toggle navigation menu"
-//         >
-//           {isDropdownOpen ? "✕" : "☰"}
-//         </button>
+  const unAuthItems: NavItem[] = [
+    { to: "/sign-in", label: "Sign In" },
+    { to: "/sign-up", label: "Sign Up" },
+  ];
 
-//         <ul
-//           className={`${styles.navList} ${isDropdownOpen ? styles.open : ""}`}
-//         >
-//           {/* Home is always visible */}
-//           <li className={styles.navItem}>
-//             <Link
-//               to="/"
-//               className={`${styles.navLink} ${
-//                 isActive("/") ? styles.active : ""
-//               }`}
-//               onClick={closeMobileMenu}
-//             >
-//               Home
-//             </Link>
-//           </li>
+  const authItems: NavItem[] = [{ to: "/profile", label: "My Profile" }];
 
-//           {/* Profile link: only if authenticated and username exists */}
-//           {user?.username && (
-//             <li className={styles.navItem}>
-//               <Link
-//                 to={`/profiles/${user.username}`}
-//                 className={`${styles.navLink} ${
-//                   isActive(`/profiles/${user.username}`) ? styles.active : ""
-//                 }`}
-//                 onClick={closeMobileMenu}
-//               >
-//                 Profile
-//               </Link>
-//             </li>
-//           )}
+  return (
+    <nav>
+      <ul>
+        {listItems(publicItems)}
+        {!session ? (
+          listItems(unAuthItems)
+        ) : (
+          <>
+            {listItems(authItems)}
+            <li key={"sign-out"}>
+              <SignOut />
+            </li>
+          </>
+        )}
+      </ul>
+    </nav>
+  );
+}
 
-//           {/* Admin-only: All Profiles link */}
-//           {user?.role === "admin" && (
-//             <li className={styles.navItem}>
-//               <Link
-//                 to="/profiles"
-//                 className={`${styles.navLink} ${
-//                   isActive("/profiles") ? styles.active : ""
-//                 }`}
-//                 onClick={closeMobileMenu}
-//               >
-//                 All Profiles
-//               </Link>
-//             </li>
-//           )}
-
-//           {/* Auth button: Login if not authenticated, Logout if authenticated */}
-//           <li className={styles.navItem}>
-//             {user ? (
-//               <button
-//                 onClick={() => {
-//                   logout();
-//                   closeMobileMenu();
-//                 }}
-//                 className={styles.navLink}
-//               >
-//                 Logout
-//               </button>
-//             ) : (
-//               <Link
-//                 to="/login"
-//                 className={`${styles.navLink} ${
-//                   isActive("/login") ? styles.active : ""
-//                 }`}
-//                 onClick={closeMobileMenu}
-//               >
-//                 Login
-//               </Link>
-//             )}
-//           </li>
-//         </ul>
-//       </div>
-//     </nav>
-//   );
-// }
+const listItems = (items: NavItem[]) => {
+  return items.map((item) => (
+    <li key={item.to}>
+      <Link to={item.to}>{item.label}</Link>
+    </li>
+  ));
+};

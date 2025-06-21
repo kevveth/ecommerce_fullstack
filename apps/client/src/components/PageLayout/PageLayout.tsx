@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Outlet } from "react-router";
-// import { Navbar } from "../Navbar/Navbar";
 import styles from "./PageLayout.module.css";
+import { NavBar } from "../Navbar/Navbar";
 
 interface PageLayoutProps {
   children?: ReactNode;
@@ -11,7 +11,7 @@ interface PageLayoutProps {
 export function PageLayout({ children, pageTitle }: PageLayoutProps) {
   return (
     <div className={styles.pageContainer}>
-      {/* <Navbar /> */}
+      <NavBar />
 
       <main className={styles.mainContent}>
         {pageTitle && <h1 className={styles.pageTitle}>{pageTitle}</h1>}
