@@ -1,6 +1,11 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": [".env", "pnpm-lock.yaml", "package.json"],
+  "globalDependencies": [
+    ".env",
+    "pnpm-lock.yaml",
+    "package.json",
+    "tsconfig.base.json"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -9,11 +14,10 @@
     },
     "dev": {
       "cache": false,
-      "persistent": true,
-      "inputs": ["$TURBO_DEFAULT$", ".env"]
+      "persistent": true
     },
     "check-types": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["build"]
     },
     "lint": {
       "dependsOn": ["^lint"]
