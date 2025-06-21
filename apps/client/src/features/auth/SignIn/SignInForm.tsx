@@ -1,6 +1,7 @@
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod/v4";
 import { zodResolver } from "@hookform/resolvers/zod";
+import styles from "./styles.module.css";
 
 const signInSchema = z.object({
   email: z.email({
@@ -28,44 +29,57 @@ export function SignInForm({ onSubmit }: SignInFormProps) {
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="signin-form">
-      <div className="form-group">
-        <label htmlFor="email">Email</label>
+    <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+      <div className={styles.formGroup}>
+        <label htmlFor="email" className={styles.label}>
+          Email
+        </label>
         <input
           id="email"
           type="email"
+          className={styles.input}
           {...register("email")}
           disabled={isSubmitting}
         />
         {errors.email && (
-          <p className="error-message">{errors.email.message}</p>
+          <p className={styles.errorMessage}>{errors.email.message}</p>
         )}
       </div>
 
-      <div className="form-group">
-        <label htmlFor="password">Password</label>
+      <div className={styles.formGroup}>
+        <label htmlFor="password" className={styles.label}>
+          Password
+        </label>
         <input
           id="password"
           type="password"
+          className={styles.input}
           {...register("password")}
           disabled={isSubmitting}
         />
         {errors.password && (
-          <p className="error-message">{errors.password.message}</p>
+          <p className={styles.errorMessage}>{errors.password.message}</p>
         )}
       </div>
 
-      <div className="form-group checkbox">
+      <div className={styles.checkboxGroup}>
         <input
           id="rememberMe"
           type="checkbox"
+          className={styles.checkbox}
           {...register("rememberMe")}
           disabled={isSubmitting}
         />
-        <label htmlFor="rememberMe">Remember me</label>
+        <label htmlFor="rememberMe" className={styles.checkboxLabel}>
+          Remember me
+        </label>
       </div>
 
-      <button type="submit" disabled={isSubmitting} className="submit-button">
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className={styles.submitButton}
+      >
         {isSubmitting ? "Signing In..." : "Sign In"}
       </button>
     </form>

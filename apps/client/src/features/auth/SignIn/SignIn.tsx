@@ -1,6 +1,7 @@
 import { useSignIn } from "./useSignIn";
 import { SignInForm } from "./SignInForm";
 import { SignInInput } from "./SignInForm";
+import styles from "./styles.module.css";
 
 export function SignIn() {
   const { error, signIn } = useSignIn();
@@ -8,11 +9,11 @@ export function SignIn() {
   const handleSubmit = (formData: SignInInput) => signIn(formData);
 
   return (
-    <>
-      <p>Sign In</p>
+    <div className={styles.container}>
+      <p className={styles.title}>Sign In</p>
       {/* Sign in form  */}
       <SignInForm onSubmit={handleSubmit} />
-      {error && <p>Error: {error.message}</p>}
-    </>
+      {error && <p className={styles.errorMessage}>Error: {error.message}</p>}
+    </div>
   );
 }

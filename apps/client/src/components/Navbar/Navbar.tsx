@@ -1,6 +1,7 @@
 import { SignOut } from "@/features/auth/SignOut/SignOut";
 import { authClient } from "@/utils/auth-client";
 import { Link, Route } from "react-router";
+import styles from "./styles.module.css";
 
 const routes = {
   home: "/",
@@ -37,28 +38,38 @@ export function NavBar() {
   const authItems: NavItem[] = [{ to: "/profile", label: "My Profile" }];
 
   return (
-    <nav>
-      <ul>
-        {listItems(publicItems)}
-        {!session ? (
-          listItems(unAuthItems)
-        ) : (
-          <>
-            {listItems(authItems)}
-            <li key={"sign-out"}>
-              <SignOut />
-            </li>
-          </>
-        )}
-      </ul>
+    <nav className={styles.navbar}>
+      <div className={styles.navContent}>
+        <div className={styles.logoSection}>
+          <Link to="/" className={styles.logo}>
+            MyShop
+          </Link>
+        </div>
+
+        <ul className={styles.navList}>
+          {listItems(publicItems)}
+          {!session ? (
+            listItems(unAuthItems)
+          ) : (
+            <>
+              {listItems(authItems)}
+              <li key={"sign-out"} className={styles.navItem}>
+                <SignOut />
+              </li>
+            </>
+          )}
+        </ul>
+      </div>
     </nav>
   );
 }
 
 const listItems = (items: NavItem[]) => {
   return items.map((item) => (
-    <li key={item.to}>
-      <Link to={item.to}>{item.label}</Link>
+    <li key={item.to} className={styles.navItem}>
+      <Link to={item.to} className={styles.navLink}>
+        {item.label}
+      </Link>
     </li>
   ));
 };

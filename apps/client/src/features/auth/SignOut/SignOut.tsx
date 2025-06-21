@@ -2,6 +2,7 @@ import { authClient } from "@/utils/auth-client";
 import { useMutation } from "@tanstack/react-query";
 import { ReactEventHandler } from "react";
 import { useNavigate } from "react-router";
+import styles from "./styles.module.css";
 
 export function SignOut() {
   const navigate = useNavigate();
@@ -27,10 +28,15 @@ export function SignOut() {
 
   return (
     <>
-      <button title="sign-out" onClick={handleClick} disabled={isPending}>
+      <button
+        title="sign-out"
+        onClick={handleClick}
+        disabled={isPending}
+        className={styles.button}
+      >
         Sign Out
       </button>
-      {error && <p>{error.message}</p>}
+      {error && <p className={styles.errorMessage}>{error.message}</p>}
     </>
   );
 }
