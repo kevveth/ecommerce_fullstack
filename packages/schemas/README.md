@@ -35,7 +35,7 @@ import {
   type User,
   type RegistrationInput,
   type LoginInput,
-} from "@ecommerce/schemas";
+} from "@workspace/schemas";
 ```
 
 ## Error Handling
@@ -44,7 +44,7 @@ Zod v4 provides improved error handling through the `z.prettifyError()` function
 
 ```ts
 import { z } from "zod/v4";
-import { registrationSchema } from "@ecommerce/schemas";
+import { registrationSchema } from "@workspace/schemas";
 
 try {
   const result = registrationSchema.parse(formData);

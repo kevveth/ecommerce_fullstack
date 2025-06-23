@@ -1,5 +1,5 @@
 {
-  "name": "@ecommerce/schemas",
+  "name": "@workspace/schemas",
   "type": "module",
   "version": "1.0.0",
   "exports": {

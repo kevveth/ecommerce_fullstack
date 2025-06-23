@@ -9,7 +9,7 @@ import {
   update,
   remove,
 } from "../services/users.ts";
-import { userSchema, profileUpdateSchema } from "@ecommerce/schemas/user"; // Updated import to use profileUpdateSchema
+import { userSchema, profileUpdateSchema } from "@workspace/schemas/user"; // Updated import to use profileUpdateSchema
 
 // Enhanced param schemas with better error messages
 const idParamSchema = z.object({

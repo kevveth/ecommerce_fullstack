@@ -18,7 +18,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@ecommerce/schemas": "workspace:*",
+    "@workspace/schemas": "workspace:*",
     "better-auth": "^1.2.8",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",

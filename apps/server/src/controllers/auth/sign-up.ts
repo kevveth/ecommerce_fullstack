@@ -1,5 +1,5 @@
 import { auth } from "@/utils/auth.ts";
-import { signUpSchema, type SignUpInput } from "@ecommerce/schemas/better-auth";
+import { signUpSchema, type SignUpInput } from "@workspace/schemas/better-auth";
 import { Request, Response, NextFunction } from "express";
 
 /**
