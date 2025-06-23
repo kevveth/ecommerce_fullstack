@@ -11,7 +11,8 @@
     "dev:client": "turbo run dev --filter=@ecommerce/client",
     "dev:server": "turbo run dev --filter=@ecommerce/server",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "lint": "turbo run lint"
+    "lint": "turbo run lint",
+    "rate-limit": "curl -H \"Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN\" https://api.github.com/rate_limit"
   },
   "devDependencies": {
     "@workspace/eslint-config": "workspace:*",
