@@ -1,18 +1,11 @@
 {
-  "name": "@ecommerce/typescript-config",
+  "name": "@workspace/typescript-config",
   "version": "1.0.0",
-  "description": "Shared Typescript configurations for @ecommerce",
+  "private": true,
+  "description": "Shared Typescript configurations for @workspace",
   "author": "Kenneth Rathbun",
   "license": "ISC",
-  "exports": {
-    "./base": "./base.json",
-    "./backend": "./backend.json",
-    "./react": "./react.json",
-    "./shared": "./shared.json",
-    "./vite": "./vite.json"
-  },
-  "files": [
-    "*.json"
-  ],
-  "packageManager": "pnpm@10.10.0"
+  "publishConfig": {
+    "access": "public"
+  }
 }

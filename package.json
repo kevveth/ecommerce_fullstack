@@ -2,26 +2,26 @@
   "name": "ecommerce_fullstack",
   "private": true,
   "scripts": {
-    "dev": "turbo run dev",
-    "dev:client": "turbo run dev --filter=@ecommerce/client",
-    "dev:server": "turbo run dev --filter=@ecommerce/server",
     "build": "turbo run build",
     "build:client": "turbo run build --filter=@ecommerce/client",
     "build:server": "turbo run dev --filter=@ecommerce/server",
-    "lint": "turbo run lint",
     "check-types": "turbo run check-types",
-    "test": "turbo run test",
-    "clean": "turbo run clean && rm -rf node_modules/.cache"
+    "clean": "turbo run clean && rm -rf node_modules/.cache",
+    "dev": "turbo run dev",
+    "dev:client": "turbo run dev --filter=@ecommerce/client",
+    "dev:server": "turbo run dev --filter=@ecommerce/server",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "lint": "turbo run lint"
   },
   "devDependencies": {
-    "eslint-config-turbo": "2.5.4",
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
     "prettier": "3.5.1",
     "turbo": "^2.5.4",
-    "typescript": "^5.8.3",
-    "typescript-eslint": "^8.33.1"
+    "typescript": "^5.8.3"
   },
   "packageManager": "pnpm@10.12.1",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "extends": "@ecommerce/typescript-config/backend",
+  "extends": "@workspace/typescript-config/backend",
   "compilerOptions": {
     "allowImportingTsExtensions": true,
     "emitDeclarationOnly": true,

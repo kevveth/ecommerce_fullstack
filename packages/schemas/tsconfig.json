@@ -1,5 +1,5 @@
 {
-  "extends": "@ecommerce/typescript-config/shared",
+  "extends": "@workspace/typescript-config/shared",
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src"

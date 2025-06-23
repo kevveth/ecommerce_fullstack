@@ -28,7 +28,7 @@
     "zod": "^3.25.51"
   },
   "devDependencies": {
-    "@ecommerce/typescript-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.18",
     "@types/express": "^5.0.2",

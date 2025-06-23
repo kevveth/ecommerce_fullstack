@@ -1,11 +1,20 @@
 import { defineConfig } from "vite";
+import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react-swc";
-import path from "path";
 import { fileURLToPath } from "url";
+import path, { dirname } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
   clearScreen: false,
   server: {
     port: 5173, // Explicitly set the client port
@@ -17,11 +26,6 @@ export default defineConfig({
         secure: false,
         rewrite: (path) => path, // Keep the path as is
       },
-    },
-  },
-  resolve: {
-    alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
 });

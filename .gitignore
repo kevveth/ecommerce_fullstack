@@ -27,12 +27,10 @@ pnpm-debug.log*
 *.tsbuildinfo
 
 # Turbo
-.turbo/
+.turbo
 
 # Testing
-coverage/
-*.lcov
-.nyc_output
+coverage
 
 # IDEs and editors
 .vscode/
@@ -40,15 +38,6 @@ coverage/
 *.swp
 *.swo
 *~
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
 
 # Cache directories
 .npm/
@@ -60,9 +49,16 @@ Thumbs.db
 tmp/
 temp/
 
+#Vercel
+.vercel
+
 # Vite
 .vite/
 
 # Auth/secret files (from dependencies)
 auth-secret
 .auth/
+
+# OS generated files
+.DS_Store
+*.pem

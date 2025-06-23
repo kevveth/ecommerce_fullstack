@@ -1,13 +1,3 @@
 {
-  "compilerOptions": {
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "module": "ESNext" // ESM-only: do not build for CommonJS
-  },
-  "files": [],
-  "references": [
-    { "path": "./packages/schemas" },
-    { "path": "./apps/server" },
-    { "path": "./apps/client" }
-  ]
+  "extends": "@workspace/typescript-config/base.json"
 }

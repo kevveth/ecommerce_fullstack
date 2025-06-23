@@ -17,7 +17,7 @@
     "zod": "3.25.36"
   },
   "devDependencies": {
-    "@ecommerce/typescript-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
     "@types/node": "^20.17.57",
     "typescript": "latest"
   }

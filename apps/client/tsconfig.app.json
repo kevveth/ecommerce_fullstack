@@ -1,10 +1,11 @@
 {
-  "extends": "@ecommerce/typescript-config/vite",
+  "extends": "@workspace/typescript-config/vite",
   "compilerOptions": {
     /* Path mappings for workspace packages */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@workspace/ui/*": ["../../packages/ui/src/*"]
     }
   },
   "include": ["src"],
