@@ -4,7 +4,7 @@
   "scripts": {
     "build": "turbo run build",
     "build:client": "turbo run build --filter=@ecommerce/client",
-    "build:server": "turbo run dev --filter=@ecommerce/server",
+    "build:server": "turbo run build --filter=@ecommerce/server",
     "check-types": "turbo run check-types",
     "clean": "turbo run clean && rm -rf node_modules/.cache",
     "dev": "turbo run dev",
