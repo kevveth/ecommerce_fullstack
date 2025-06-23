@@ -33,7 +33,7 @@ pnpm-debug.log*
 coverage
 
 # IDEs and editors
-.vscode/
+.vscode/*
 .idea/
 *.swp
 *.swo
