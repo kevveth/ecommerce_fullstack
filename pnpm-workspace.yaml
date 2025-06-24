@@ -2,8 +2,21 @@ packages:
   - apps/*
   - packages/*
 
+catalog:
+  typescript: ^5.8.3
+  tsx: ^4.20.3
+  vite: ^6.3.5
+  react: ^19.1.0
+  react-dom: ^19.1.0
+  '@types/react': ^19.1.8
+  '@types/react-dom': ^19.1.6
+  better-auth: ^1.2.10
+  zod: ^3.25.67
+  eslint: ^9.29.0
+  '@types/node': ^24.0.3
+
 onlyBuiltDependencies:
-  - "@swc/core"
-  - "@tailwindcss/oxide"
+  - '@swc/core'
+  - '@tailwindcss/oxide'
   - core-js-pure
   - esbuild

@@ -19,27 +19,23 @@
   "description": "",
   "dependencies": {
     "@workspace/schemas": "workspace:*",
-    "better-auth": "^1.2.8",
+    "better-auth": "catalog:",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "5.1.0",
-    "pg": "^8.16.0",
-    "zod": "^3.25.51"
+    "pg": "^8.16.2",
+    "zod": "catalog:"
   },
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.9",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "catalog:",
+    "@types/pg": "^8.15.4",
     "@workspace/typescript-config": "workspace:*",
-    "@types/cookie-parser": "^1.4.8",
-    "@types/cors": "^2.8.18",
-    "@types/express": "^5.0.2",
-    "@types/node": "^22.15.21",
-    "@types/pg": "^8.15.2",
-    "@types/supertest": "^6.0.3",
-    "@vitest/coverage-v8": "^3.1.4",
-    "@vitest/ui": "^3.1.4",
     "supertest": "^7.1.1",
-    "tsx": "4.19.4",
-    "typescript": "^5.8.3",
-    "vitest": "^3.1.4"
+    "tsx": "catalog:",
+    "typescript": "catalog:"
   }
 }
