@@ -6,18 +6,20 @@ This monorepo is a full-stack e-commerce app using TypeScript, React, Express.js
 
 **Tech Stack:**
 
-- **Client:** React 18+, Vite, CSS Modules, React Hook Form, TanStack Query
+- **Client:** React 19+, Vite, Tailwind CSS v4, shadcn/ui, React Hook Form, TanStack Query
 - **Server:** Express.js, PostgreSQL, Zod validation
 - **Shared:** TypeScript interfaces, Zod schemas
-- **Tools:** Vitest (testing), Turborepo (build), pnpm (package manager)
+- **Tools:** Turborepo (build), pnpm (package manager)
 
 **File Organization:**
 
 - Group files by feature, not type
 - Use index files for clean imports: `export { Component } from './Component';`
 - Use path aliases for internal modules
-- Place shared types in `packages/shared/src/types/`
-- Place Zod schemas in `packages/shared/src/schemas/`
+- Place shared types in `packages/schemas/src/`
+- Place Zod schemas in `packages/schemas/src/`
+- UI components are located in `packages/ui/src/components/`
+- Always use workspace packages: `@workspace/ui`, `@workspace/schemas`
 
 ## General Coding Standards
 
@@ -148,215 +150,43 @@ const mutation = useMutation({
 });
 ```
 
-## Forms (React Hook Form + Zod)
+## shadcn/ui Components
 
-**Standard Form Pattern:**
+This project uses shadcn/ui as the primary component system. Components are located in `packages/ui/src/components/` and imported using `@workspace/ui/components/`.
 
-```typescript
-const schema = z.object({
-  email: z.email(),
-  password: z.string().min(8),
-});
+**Key Principles:**
 
-type FormData = z.infer<typeof schema>;
+- Use existing shadcn/ui components from the workspace package
+- Follow the component composition patterns with proper props and variants
+- Maintain TypeScript interfaces and accessibility features
+- Use the `cn()` utility for conditional styling
 
-function LoginForm() {
-  const form = useForm<FormData>({
-    resolver: zodResolver(schema),
-    defaultValues: { email: '', password: '' },
-  });
+## Forms (React Hook Form + Zod + shadcn/ui)
 
-  const onSubmit = (data: FormData) => {
-    // Handle form submission
-  };
-
-  return (
-    <form onSubmit={form.handleSubmit(onSubmit)}>
-      <input {...form.register('email')} />
-      {form.formState.errors.email && (
-        <span aria-live="polite">{form.formState.errors.email.message}</span>
-      )}
-    </form>
-  );
-}
-```
+Use React Hook Form with Zod validation and shadcn/ui form components for all forms in the application.
 
 **Key Practices:**
 
 - Use `useForm` with Zod resolver for validation
-- Prefer uncontrolled components for better performance
-- Use `Controller` for third-party UI components
-- Handle errors with proper accessibility attributes
-- Use `useFieldArray` for dynamic form sections
+- Use shadcn/ui Form components for consistent styling and accessibility
+- Handle form submission with proper error states
+- Use TypeScript interfaces for form data types
 
 ## Schema Validation (Zod)
 
-**Import:** `import { z } from "zod/v4"` (stable v4 API from Zod ^3.25)
+Use Zod for all data validation. Import from `zod` and use modern patterns.
 
-**Modern Zod v4 Patterns:**
-
-```typescript
-// ✅ Use top-level format validators
-const UserSchema = z.object({
-  id: z.string(),
-  email: z.email(), // Not z.string().email()
-  url: z.url().optional(), // Not z.string().url()
-  uuid: z.uuid(), // Not z.string().uuid()
-});
-
-// ✅ Error customization with unified 'error' parameter
-const PasswordSchema = z.string().min(8, {
-  error: "Password must be at least 8 characters",
-});
-
-// ✅ Use z.strictObject() and z.looseObject()
-const StrictUser = z.strictObject({
-  name: z.string(),
-  email: z.email(),
-});
-
-// ✅ Record with proper key/value specification
-const StringRecord = z.record(z.string(), z.number());
-```
-
-**Error Handling & Formatting:**
-
-```typescript
-// ✅ Basic error handling with safeParse
-const result = UserSchema.safeParse(data);
-if (!result.success) {
-  // Access raw error issues
-  console.log(result.error.issues);
-}
-
-// ✅ Nested error structure with z.treeifyError (most useful)
-const result = UserSchema.safeParse(data);
-if (!result.success) {
-  const errorTree = z.treeifyError(result.error);
-
-  // Access specific field errors with optional chaining
-  const usernameErrors = errorTree.properties?.username?.errors;
-  const favoriteNumbersErrors =
-    errorTree.properties?.favoriteNumbers?.items?.[1]?.errors;
-
-  // Use in UI components
-  if (errorTree.properties?.email?.errors) {
-    displayEmailError(errorTree.properties.email.errors[0]);
-  }
-}
-
-// ✅ Flat error structure with z.flattenError (for simple forms)
-const result = UserSchema.safeParse(data);
-if (!result.success) {
-  const flattened = z.flattenError(result.error);
-
-  // { formErrors: string[], fieldErrors: { [key: string]: string[] } }
-  const emailErrors = flattened.fieldErrors.email; // string[]
-  const topLevelErrors = flattened.formErrors; // string[]
-}
-
-// ✅ Human-readable string with z.prettifyError
-const result = UserSchema.safeParse(data);
-if (!result.success) {
-  const prettyError = z.prettifyError(result.error);
-  console.log(prettyError); // "✖ Invalid input: expected string, received number → at username"
-}
-```
-
-**Form Integration Patterns:**
-
-```typescript
-// ✅ React Hook Form integration with proper error handling
-function UserForm() {
-  const form = useForm<FormData>({
-    resolver: zodResolver(schema),
-  });
-
-  // Manual validation with detailed error handling
-  const handleManualValidation = (data: unknown) => {
-    const result = schema.safeParse(data);
-    if (!result.success) {
-      const errorTree = z.treeifyError(result.error);
-
-      // Set form errors for specific fields
-      Object.entries(errorTree.properties || {}).forEach(
-        ([field, fieldError]) => {
-          if (fieldError?.errors?.[0]) {
-            form.setError(field as keyof FormData, {
-              message: fieldError.errors[0],
-            });
-          }
-        }
-      );
-    }
-  };
-}
-
-// ✅ API error handling
-app.post("/api/users", async (req, res, next) => {
-  try {
-    const userData = CreateUserSchema.parse(req.body);
-    const user = await createUser(userData);
-    res.json(user);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      const errorTree = z.treeifyError(error);
-      return res.status(400).json({
-        message: "Validation failed",
-        errors: errorTree,
-      });
-    }
-    next(error);
-  }
-});
-```
-
-**Key Practices:**
+**Key Principles:**
 
 - Use `.safeParse()` for untrusted input, `.parse()` for trusted data
-- Use `z.treeifyError()` for complex nested error handling
-- Use `z.flattenError()` for simple flat forms (single level deep)
-- Use `z.prettifyError()` for console logging and debugging
-- Always use optional chaining (`?.`) when accessing nested error properties
-- Use `.refine()` for custom validation logic
-- Compose schemas with `.extend()`, `.merge()`, `.pick()`, `.omit()`
 - Use top-level format validators: `z.email()`, `z.url()`, `z.uuid()`
-- Use `error` parameter instead of deprecated message parameters
+- Handle errors with proper error formatting utilities
+- Integrate with React Hook Form using `zodResolver`
+- Use TypeScript inference with `z.infer<typeof schema>`
 
 ## Data Fetching (TanStack React Query)
 
-**Setup:**
-
-```typescript
-// App root
-<QueryClientProvider client={queryClient}>
-  <App />
-</QueryClientProvider>
-```
-
-**Query Patterns:**
-
-```typescript
-// Basic query
-const { data, isLoading, isError } = useQuery({
-  queryKey: ["products"],
-  queryFn: fetchProducts,
-});
-
-// Dependent query
-const { data: product } = useQuery({
-  queryKey: ["product", productId],
-  queryFn: () => fetchProduct(productId),
-  enabled: !!productId,
-});
-
-// Transform data
-const { data: productNames } = useQuery({
-  queryKey: ["products"],
-  queryFn: fetchProducts,
-  select: (data) => data.map((p) => p.name),
-});
-```
+Use TanStack Query for all server state management. Avoid useEffect for data fetching.
 
 **Key Practices:**
 
@@ -367,23 +197,6 @@ const { data: productNames } = useQuery({
 - Handle loading and error states in UI
 
 ## Routing (React Router v7)
-
-**Basic Setup:**
-
-```typescript
-import { BrowserRouter, Routes, Route, Link } from 'react-router';
-
-// Navigation
-<Link to="/products">Products</Link>
-
-// Route params
-const { productId } = useParams();
-const [searchParams] = useSearchParams();
-
-// Programmatic navigation
-const navigate = useNavigate();
-navigate('/products');
-```
 
 **Key Practices:**
 
@@ -436,21 +249,20 @@ When generating code, always:
 8. **Implement cleanup** in useEffect hooks when needed
 9. **Add JSDoc comments** for complex logic and public APIs
 10. **Use modern Zod v4 patterns** with top-level validators
+11. **Use shadcn/ui components** from `@workspace/ui/components/` for UI elements
+12. **Follow shadcn/ui patterns** with proper form integration and composition
 
 ## Common Anti-Patterns to Avoid
 
-- ❌ Using `any` type
-- ❌ Type assertions instead of type guards
-- ❌ useEffect for data fetching (use TanStack Query)
-- ❌ useEffect for data transformation
-- ❌ Premature memoization with useMemo/useCallback
-- ❌ Mutating props or state directly
-- ❌ Default exports
-- ❌ forEach for array iteration
-- ❌ Missing error boundaries
-- ❌ Unhandled promise rejections
-- ❌ Missing loading states
-- ❌ Deprecated Zod v3 patterns (z.string().email(), .format(), etc.)
+- ❌ Using `any` type - use `unknown` or proper types
+- ❌ Type assertions (`as Type`) - use type guards instead
+- ❌ useEffect for data fetching - use TanStack Query
+- ❌ useEffect for data transformation - calculate during render
+- ❌ Premature memoization - React 19 compiler handles optimization
+- ❌ Default exports - use named exports for consistency
+- ❌ Missing error boundaries and loading states
+- ❌ Creating custom UI components when shadcn/ui equivalents exist
+- ❌ Using raw HTML form elements instead of shadcn/ui Form components
 
 ## Git Workflow
 
