@@ -9,11 +9,9 @@ export function SignIn() {
   const handleSubmit = (formData: SignInInput) => signIn(formData);
 
   return (
-    <div className={styles.container}>
-      <p className={styles.title}>Sign In</p>
+    <div>
       {/* Sign in form  */}
       <SignInForm onSubmit={handleSubmit} />
-      {error && <p className={styles.errorMessage}>Error: {error.message}</p>}
     </div>
   );
 }
