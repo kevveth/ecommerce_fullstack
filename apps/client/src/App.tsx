@@ -1,4 +1,4 @@
-import "./App.css";
+// import "./App.css";
 // Router import removed
 import { Outlet } from "react-router"; // Import Outlet
 import { ErrorBoundary } from "react-error-boundary";

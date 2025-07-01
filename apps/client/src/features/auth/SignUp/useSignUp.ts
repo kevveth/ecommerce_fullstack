@@ -16,11 +16,11 @@ export function useSignUp() {
     isPending,
   } = useMutation({
     mutationKey: ["sign-up"],
-    mutationFn: async ({ email, password, name }: SignUpInput) => {
+    mutationFn: async (data: SignUpInput) => {
+      const { firstName, lastName, ...rest } = data;
       const { data: response, error } = await authClient.signUp.email({
-        email,
-        password,
-        name,
+        ...rest,
+        name: `${firstName} ${lastName}`.trim(),
       });
 
       if (error) {
@@ -29,6 +29,8 @@ export function useSignUp() {
 
       return response as SignUpResponse;
     },
+    onError: (error) => console.error("Sign up error:", error),
+    onSuccess: (data) => console.log("Sign up successful:", data),
   });
 
   return {

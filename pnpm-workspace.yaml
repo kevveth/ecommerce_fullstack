@@ -11,7 +11,7 @@ catalog:
   '@types/react': ^19.1.8
   '@types/react-dom': ^19.1.6
   better-auth: ^1.2.10
-  zod: ^3.25.67
+  zod: 3.25.67
   eslint: ^9.29.0
   '@types/node': ^24.0.3
 

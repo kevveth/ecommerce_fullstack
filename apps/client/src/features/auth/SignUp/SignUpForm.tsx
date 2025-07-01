@@ -41,17 +41,16 @@ const signUpSchema = z
   })
   .refine((data) => data.password === data.confirmPassword, {
     error: "Passwords do not match",
-    path: ["confirmPassword"], // Fixed: should be confirmPassword, not password
+    path: ["confirmPassword"],
   });
 
 export type SignUpInput = z.infer<typeof signUpSchema>;
 
 interface SignUpFormProps {
   onSubmit: SubmitHandler<SignUpInput>;
-  isLoading?: boolean;
 }
 
-export function SignUpForm({ onSubmit, isLoading = false }: SignUpFormProps) {
+export function SignUpForm({ onSubmit }: SignUpFormProps) {
   const form = useForm<SignUpInput>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -59,61 +58,50 @@ export function SignUpForm({ onSubmit, isLoading = false }: SignUpFormProps) {
       lastName: "",
       email: "",
       password: "",
-      confirmPassword: "", // Added missing default value
+      confirmPassword: "",
     },
   });
 
   return (
-    <Card className="z-50 rounded-md rounded-t-none max-w-md">
-      <CardHeader>
-        <CardTitle className="text-lg md:text-xl">Create Account</CardTitle>
-        <CardDescription className="text-xs md:text-sm">
+    <Card className="w-full max-w-md mx-auto">
+      <CardHeader className="text-center space-y-2">
+        <CardTitle className="text-2xl">Create Account</CardTitle>
+        <CardDescription>
           Enter your information to create a new account
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col space-y-8"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {/* Name fields */}
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-6">
-                <FormField
-                  control={form.control}
-                  name="firstName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">
-                        First Name
-                      </FormLabel>
-                      <FormControl>
-                        <Input type="text" placeholder="John" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+            <div className="grid grid-cols-2 gap-3">
+              <FormField
+                control={form.control}
+                name="firstName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>First Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="John" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              <div className="col-span-6">
-                <FormField
-                  control={form.control}
-                  name="lastName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">
-                        Last Name
-                      </FormLabel>
-                      <FormControl>
-                        <Input type="text" placeholder="Doe" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Last Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Doe" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             {/* Email field */}
@@ -122,7 +110,7 @@ export function SignUpForm({ onSubmit, isLoading = false }: SignUpFormProps) {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium">Email</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
                       type="email"
@@ -141,9 +129,7 @@ export function SignUpForm({ onSubmit, isLoading = false }: SignUpFormProps) {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium">
-                    Password
-                  </FormLabel>
+                  <FormLabel>Password</FormLabel>
                   <FormControl>
                     <Input
                       type="password"
@@ -156,15 +142,13 @@ export function SignUpForm({ onSubmit, isLoading = false }: SignUpFormProps) {
               )}
             />
 
-            {/* Confirm password - Fixed the field name */}
+            {/* Confirm password */}
             <FormField
               control={form.control}
               name="confirmPassword"
               render={({ field }) => (
-                <FormItem className="grid gap-2">
-                  <FormLabel className="text-sm font-medium">
-                    Confirm Password
-                  </FormLabel>
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
                   <FormControl>
                     <Input
                       type="password"
@@ -180,11 +164,14 @@ export function SignUpForm({ onSubmit, isLoading = false }: SignUpFormProps) {
             {/* Submit Button */}
             <Button
               type="submit"
-              // className="w-full"
-              disabled={form.formState.isLoading}
+              className="w-full"
+              disabled={form.formState.isSubmitting}
             >
-              {form.formState.isLoading ? (
-                <Loader2 size={16} className="animate-spin" />
+              {form.formState.isSubmitting ? (
+                <>
+                  <Loader2 className="animate-spin" />
+                  Creating account...
+                </>
               ) : (
                 "Create Account"
               )}
@@ -192,12 +179,11 @@ export function SignUpForm({ onSubmit, isLoading = false }: SignUpFormProps) {
           </form>
         </Form>
       </CardContent>
-      <CardFooter>
-        <div className="flex justify-center w-full border-t py-4">
-          <p className="text-center text-xs text-neutral-500">
-            Secured by <span className="text-orange-400">better-auth.</span>
-          </p>
-        </div>
+      <CardFooter className="justify-center">
+        <p className="text-xs text-muted-foreground">
+          Secured by{" "}
+          <span className="text-orange-400 font-medium">better-auth</span>
+        </p>
       </CardFooter>
     </Card>
   );
