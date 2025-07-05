@@ -44,7 +44,6 @@
 
 /* --- Navigation List --- */
 .navList {
-  list-@workspace/schemas: none;
   margin: 0;
   padding: 0;
   display: flex;
