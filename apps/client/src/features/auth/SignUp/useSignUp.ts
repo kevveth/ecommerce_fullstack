@@ -1,6 +1,7 @@
 import { authClient, type User } from "@/utils/auth-client";
 import { useMutation } from "@tanstack/react-query";
 import type { SignUpInput } from "./SignUpForm";
+import { useNavigate } from "react-router";
 
 interface SignUpResponse {
   token: string | null;
@@ -8,6 +9,8 @@ interface SignUpResponse {
 }
 
 export function useSignUp() {
+  const navigate = useNavigate();
+
   const {
     mutate: signUpWithEmail,
     data,
@@ -30,7 +33,7 @@ export function useSignUp() {
       return response as SignUpResponse;
     },
     onError: (error) => console.error("Sign up error:", error),
-    onSuccess: (data) => console.log("Sign up successful:", data),
+    onSuccess: () => navigate("/"),
   });
 
   return {

@@ -8,7 +8,6 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    autoSignIn: false,
   },
   trustedOrigins: [env.CLIENT_URL],
   session: {
