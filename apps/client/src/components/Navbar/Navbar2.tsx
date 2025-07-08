@@ -48,6 +48,11 @@ interface ProductCategory {
 
 const productCategories: ProductCategory[] = [
   {
+    title: "All Products",
+    href: "/products",
+    description: "Browse our complete collection of premium coffee products",
+  },
+  {
     title: "Coffee Beans",
     href: "/products/beans",
     description: "Premium coffee beans from around the world",

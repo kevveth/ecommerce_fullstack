@@ -6,6 +6,7 @@ import { NotFound } from "./errors/NotFound";
 import { SignUp } from "./features/auth/SignUp/SignUp";
 import { SignIn } from "./features/auth/SignIn/SignIn";
 import { SignOut } from "./features/auth/SignOut/SignOut";
+import { Products } from "./features/products/Products/Products";
 
 export function AppRoutes() {
   return (
@@ -14,6 +15,7 @@ export function AppRoutes() {
       <Route element={<App />}>
         <Route path="/" element={<PageLayout />}>
           <Route index element={<Home />} />
+          <Route path="products" element={<Products />} />
 
           {/* Auth */}
           <Route path="sign-up" element={<SignUp />} />

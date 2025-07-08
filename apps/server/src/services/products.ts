@@ -78,7 +78,10 @@ export async function getProducts(
     });
   } catch (error) {
     console.error("Error fetching products:", error);
-    next(error);
+    next({
+      success: false,
+      error: "Failed to fetch products",
+    });
   }
 }
 
@@ -98,6 +101,9 @@ export async function getCategories(
     });
   } catch (error) {
     console.error("Error fetching categories:", error);
-    next(error);
+    next({
+      success: false,
+      error: "Failed to fetch categories",
+    });
   }
 }
